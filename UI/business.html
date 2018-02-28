@@ -26,45 +26,46 @@
             </div>
 <div id="loginmodal" class="modal">
 
-  <form class="modal-content animate"  action="">
+        <form class="modal-content animate" action="account.html">
  
-    <div class="container">
-
-        <button type="button" id="close" onclick="document.getElementById('loginmodal').style.display='none'" >
-            <span class="glyphicon glyphicon-remove"></span>
-        </button><br /><br />
-
-      <label for="username"><b>Username: </b></label><input type="text" name="uname" required><br /><br />
-      <label for="password"><b>Password: </b></label><input type="password"  name="psw" required><br /><br />
-      <label><input type="checkbox" checked="checked" name="remember"> Remember me</label><button type="submit">Login</button><br /><br />
-      <div class="psw" style="padding-bottom:20px"><a href="#">Forgot password?</a></div>
-
-    </div>
-
-
-  </form>
-</div>
-
-<div id="signupmodal" class="modal" >
-
-        <form class="modal-content animate" action="">
-       
-          <div class="container">
-      
-              <button type="button" id="close" onclick="document.getElementById('signupmodal').style.display='none'" >
-                  <span class="glyphicon glyphicon-remove"></span>
-              </button><br /><br />
-      
-            <label for="username"><b>Full Name: </b></label><input type="text" name="uname" required><br /><br />
-            <label for="username"><b>Username: </b></label><input type="text" name="uname" required><br /><br />
-            <label for="password"><b>Password: </b></label><input type="password"  name="psw" required><br /><br />
-            <label for="username"><b>Confirm Pwd: </b></label><input type="text" name="uname" required><br /><br />
-            </label><button type="submit">Register</button><br /><br />
+                <div class="container">
             
-          </div>
-      
-      
-        </form>
+                    <button type="button" id="close" onclick="document.getElementById('loginmodal').style.display='none'" >
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button><br /><br />
+            
+                  <label for="username"><b>Username: </b></label><input type="text" name="uname"><br /><br />
+                  <label for="password"><b>Password: </b></label><input type="password"  name="psw"><br /><br />
+                  <label><input type="checkbox" checked="checked" name="remember"> Remember me</label>
+                  <button type="submit"><a href="account.html">Login</a></button><br /><br />
+                  <div class="psw" style="padding-bottom:20px"><a href="#">Forgot password?</a></div>
+            
+                </div>
+            
+            
+              </form>
+            </div>
+            
+            <div id="signupmodal" class="modal" >
+            
+                    <form class="modal-content animate" action="">
+                   
+                      <div class="container">
+                  
+                          <button type="button" id="close" onclick="document.getElementById('signupmodal').style.display='none'" >
+                              <span class="glyphicon glyphicon-remove"></span>
+                          </button><br /><br />
+                  
+                        <label for="username"><b>Full Name: </b></label><input type="text" name="uname"><br /><br />
+                        <label for="username"><b>Username: </b></label><input type="text" name="uname"><br /><br />
+                        <label for="password"><b>Password: </b></label><input type="password"  name="psw" ><br /><br />
+                        <label for="username"><b>Confirm Pwd: </b></label><input type="text" name="uname" ><br /><br />
+                        </label><button type="submit"><a href="index.html">Register</a></button><br /><br />
+                        
+                      </div>
+                  
+                  
+                    </form>
       </div>
 
       <div class="col-md-12">
