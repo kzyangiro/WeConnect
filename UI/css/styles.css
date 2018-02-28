@@ -1,0 +1,43 @@
+ .jumbotron{
+      padding: 20px;
+ }
+ .main-nav{
+    float:right;
+ }
+ #signin,#signup{margin-left:20px;}
+ .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1;
+    left: 0;
+    top: 0;
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5px auto; 
+    border: 1px solid grey;
+    width: 300px;
+}
+#close{margin-left:230px}
+
+#close:hover{
+    color: blue;
+}
+
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+    from {-webkit-transform: scale(0)} 
+    to {-webkit-transform: scale(1)}
+}
+
+@keyframes animatezoom {
+    from {transform: scale(0)} 
+    to {transform: scale(1)}
+}
