@@ -5,6 +5,7 @@
     float:right;
  }
  #signin,#signup{margin-left:20px;}
+ #signup{margin-right:20px}
  .modal {
     display: none; 
     position: fixed; 
