@@ -69,14 +69,42 @@
       </div>
 
       <div class="col-md-12">
-<h3>Businesses Profile</h3>
+            <span style="font-size:25px; margin-right:10%"><a href="#" style="text-decoration:none">Business profile</a></span>
         </div>
 
         <div class="col-md-12"> <br />
 
 <b>Business:</b> Andela <span style="margin-left:20%"><b>Business Location:</b> TRM</span<br />
-<br /><br /><br />
-<h4>Reviews</h4>
+<br /><br /><br /><br />
+
+
+                    <div><span style="font-size:18px;">Reviews</a></span><span>
+                            
+                        <button class="btn btn-primary" id="review" onclick="document.getElementById('reviewmodal').style.display='block'">Add Review</button>
+        
+                            
+                    </span></div>
+
+
+<div id="reviewmodal" class="modal" >
+
+<form class="modal-content animate" action="account.html">
+
+<div class="container">
+
+<button type="button" id="close" onclick="document.getElementById('reviewmodal').style.display='none'" >
+    <span class="glyphicon glyphicon-remove"></span>
+</button><br /><br />
+
+<label for="username"><b>My Review:<br /><br />
+<textarea cols="30"></textarea><br /><br />
+<button type="submit"><a href="account.html">Submit Review</a></button><br /><br />
+
+</div>
+
+
+</form>
+</div>
 <div>
     <ol>
         <li>Review</li>
