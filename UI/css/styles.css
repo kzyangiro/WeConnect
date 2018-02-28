@@ -13,7 +13,13 @@
     top: 0;
     padding-top: 60px;
 }
-
+#th1{
+    width:60%
+}
+#th2{
+    width:40%
+}
+th{background-color: #eee;}
 .modal-content {
     background-color: #fefefe;
     margin: 5px auto; 
