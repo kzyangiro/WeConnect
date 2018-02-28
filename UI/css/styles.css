@@ -41,6 +41,13 @@ th{background-color: #eee;}
     width: 350px;
     border-radius:5px;
 }
+#review{
+    margin-left: 5%;
+    background-color: #eee;
+    border:1px solid #ddd;
+    color:black;
+}
+li{font-weight: normal}
 
 .editprofile{
     background-color: #fefefe;
