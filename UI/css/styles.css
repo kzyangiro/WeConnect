@@ -41,6 +41,14 @@ th{background-color: #eee;}
     width: 350px;
     border-radius:5px;
 }
+
+.editprofile{
+    background-color: #fefefe;
+    margin: 5px auto; 
+    border: 1px solid grey;
+    width: 350px;
+    border-radius:5px;
+}
 #close{margin-left:230px}
 #close:hover{
     color: blue;
