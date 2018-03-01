@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>WeConnect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+
+<body>
+        <div class="jumbotron">
+                <a href="index.html" style="text-decoration:none">
+                <font style="font-size:40px; color:maroon;">We</font>
+                <font style="font-size:30px; color:black;padding-left:0">Connect*</font></a>
+        </div>
+
+    <div class="container">
+        <div class="row">
+               <div class="main-nav">
+                <ul>
+                    <a href="login.html"><button class="btn btn-primary" id="signin">Login</button></a>
+                    <a href="register.html"><button class="btn btn-primary" id="signin">Register</button></a>
+                </ul>
+                </div>  
+                <div class="search" style="float:right">
+                    <form action="/action_page.php" style="margin-left:20px ">
+                        <input type="text" placeholder="Search.." name="search" style="height:30px; border-radius:3px; border:1px solid #ddd;">
+                        <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </form><br />
+                </div><br /><br />
+
+                <div class="col-md-12">
+            
+                    <div class="col-md-12">
+                        <span style="font-size:25px; margin-right:10%"><a href="#" style="text-decoration:none">Available Businesses</a></span>
+                        <span style="font-size:15px;">Filter By: <select style="border-radius:3px; height:30px">
+                            <option>Default</option>
+                            <option>Name</option>
+                            <option>Location</option>
+                        </select></span>
+                    </div>     <br />
+
+                </div>
+
+        <div class="col-md-12"> <br />
+
+            <table border="1"class="table table-condensed"style="width:50% !important; margin:auto;font-size:14px">
+                <thead>
+                    <tr>
+                    <th id="th1">Name</th>
+                    <th id="th2">Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>             
+                        <td><a href="business.html">Andela</a></td>
+                        <td>TRM</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</body>
+</html>
