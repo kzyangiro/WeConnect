@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>WeConnect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+
+<body>
+    <div class="jumbotron">
+        <h2><a href="index.html">WeConnect</a></h2>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="main-nav"><a href="editaccount.html" style="color:blue">
+                <span style="margin-right:20px; ">User:</span></a>
+                <a href="index.html"><span class="glyphicon glyphicon-log-out" style="margin:3px"></span>Logout</a>
+            </div>
+
+
+
+
+      <div class="col-md-12"><br />
+<div><span style="font-size:25px; margin-right:10%"><a href="#" style="text-decoration:none">My businesses</a></span><span>
+        <button class="btn btn-primary" id="add business"><a href="addbusiness.html" style="color:white">Register Business</a></button>
+    </span></div>
+        </div>
+
+        <div class="col-md-12"> <br />
+
+            <table border="1"class="table table-condensed" style="width:70% !important;
+            margin:auto;">
+              <thead>
+                <tr>
+                  <th id="t1">Name</th>
+                  <th id="t2">Location</th>
+                  <th id="t3">Update</th>
+                  <th id="t3">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>             
+                    <td><a href="business.html">Andela</a></td>
+                    <td>TRM</td>
+                    <td id="td3"><a href="editbusiness.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                    <td id="td3"><button onclick="if(!confirm('Delete Business?')){return false;}" style="border:1px solid #ddd; background-color:white"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+    
+                </tbody>
+            </table>
+        </div>
+
+        </div>
+
+        
+    </div>
+    
+</body>
+</html>
