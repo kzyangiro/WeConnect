@@ -15,11 +15,12 @@ body{font-size:14px}
     top: 0;
     padding-top: 60px;
 }
+h3{text-align: center}
 #th1{
-    width:60%;
+    width:40%;
 }
 #th2{
-    width:40%;
+    width:30%;
 }
 .signinDiv1{
     background-color: #eee;
@@ -34,7 +35,7 @@ body{font-size:14px}
 #td3{margin-left:10%}
 
 h2:hover{text-decoration: none;}
-th{background-color: #eee;}
+th{background-color: #eee; color:maroon}
 .modal-content {
     background-color: #fefefe;
     margin: 5px auto; 
@@ -81,4 +82,9 @@ li{font-weight: normal}
 @keyframes animatezoom {
     from {transform: scale(0)} 
     to {transform: scale(1)}
+}
+@media screen and (max-width: 680px) {
+    h3, #bus {
+        font-size:18px; 
+    }
 }
