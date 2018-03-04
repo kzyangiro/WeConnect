@@ -6,9 +6,4 @@ This is a project that links people to businesses. A viewer is able to see a lis
   <li>HTML</li>
   <li>CSS</li>
   <li>Bootstrap</li>
-  <li>Flask</li>
  </ul><br />
-
-<b>Validation:</b> JSON <br />
-
-<b>Additional Resources: </b>UML Diagram: Class Diagram
