@@ -1,68 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>WeConnect</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <title>Weconnect</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
 </head>
-
-
 <body>
-    <div class="jumbotron">
-        <a href="index.html" style="text-decoration:none">
-        <font style="font-size:40px; color:maroon;">We</font>
-        <font style="font-size:30px; color:black;padding-left:0">Connect*</font></a>
+
+  <nav class="navbar navbar-inverse" style="position:relative;z-index:50;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>                        
+        </button>
+        <a class="navbar-brand" href="index.html"  style="font-size:24px; color:white;">WeConnect *</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar" style="background-color:rgb(54, 54, 129);">
+
+        <ul class="nav navbar-nav navbar-right" >
+            <li><a href="index.html" style="color:white"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="account.html" style="color:white"><span class="glyphicon glyphicon-user"></span> My Businesses</a></li>
+            <li><a href="editaccount.html" style="color:white"><span class="glyphicon glyphicon-user"></span> My Profile</a></li>
+            <li><a href="index.html" style="color:white"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
+  <div class="container" style="position:relative;z-index:10;">
 
-    <div class="container">
-        <div class="row">
-            <div class="main-nav"><a href="editaccount.html" style="color:blue">
-                    <span style="margin-right:20px; ">User:</span></a>
-                    <a href="index.html"><span class="glyphicon glyphicon-log-out" style="margin:3px"></span>Logout</a>
-            </div><br />
+      <div style="text-align:left; padding:20px">
 
-
-
-
-            <div class="col-md-12"><br />
-                <div><a href="account.html" style="color:white"><button class="btn btn-primary" id="add business">
-                            Back</a></button>
-                            <span style="font-size:25px; margin-left:10%"><a href="#" style="text-decoration:none">Update My Business</a></span><span>
-                            </span>
-                </div>
-            </div>
-
-            <div class="col-md-12"> <br />
-
-                <form class="addbus" action="account.html">
-    
-                        <div class="container">
-                    <br /><br />
-                    
-                        <label for="name"><b>Business Name: </b></label><input type="text" style="margin-left:30px" name="uname" id="text" value="Andela"><br /><br />
-                        <label for="location"><b>Business Location: </b></label><input type="text" style="margin-left:10px" name="psw" id="text" value="TRM"><br /><br />
-                        <label for="location"><b>Business Category: </b></label><input type="text" style="margin-left:10px" name="psw" id="text" value="Technology" ><br /><br />
-                        <label for="location"><b>Contacts: </b></label><input type="text" style="margin-left:78px" name="psw" id="text"  value="0877737373, 0787878787"><br /><br />
-                        <button type="submit">Add</button><br /><br />
-                    
-                        </div>
-                    
-                    
+      <div class = "row">
+            <h3 style="color:brown">Edit My Business</h3><br />
+        <div class = "col-md-4" style="text-align:left" ><br />
+          
+            
+  
+            <form action="account.html">
+              <div class="form-group">
+                <label for="email">Name:</label><input type="text" class="field" value="capstone Kenya">
+                
+              </div><br>
+              <div class="form-group">
+                <label for="pwd">Logo:</label>
+                <input type="text" class="field" value="logo.jpg">
+              </div><br>
+              <div class="form-group">
+                <label for="pwd">Location:</label>
+                <input type="text" class="field" value="Nairobi - TRM">
+              </div><br>
+              <div class="form-group">
+                <label for="pwd">Contacts:</label>
+                <input type="text" class="field" value="+254 721 988 543">
+                </div><br>
+              
+  
+          </div>
+          <div class = "col-md-1"></div>
+          
+          <div class = "col-md-5"><br>
+                <div class="form-group">
+                        <label for="pwd">About:</label><br><br>
+                        <textarea name="" class="form-control" cols="30" rows="5"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </textarea>
+                      </div><br>
+                      <a href="index.html" style="float:right"><button type="submit" class="btn btn-default">Submit</button></a>
                     </form>
+          </div>
+
+          
+        <div class = "col-md-2"></div>
+
+              
+      </div>
+  <br />
+  </div>
 
 
-            </div>
-
-        </div>
-    </div>
-    <div class="jumbotron" style="text-align:right; margin-top:5%; color:maroon">
-            &copy;KzyDevelopers - 2018
-    
-    </div>
-    
 </body>
 </html>

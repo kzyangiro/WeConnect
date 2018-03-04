@@ -1,71 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>WeConnect</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <title>Weconnect</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
 </head>
-
-
 <body>
-    <div class="jumbotron">
-        <a href="index.html" style="text-decoration:none">
-        <font style="font-size:40px; color:maroon;">We</font>
-        <font style="font-size:30px; color:black;padding-left:0">Connect*</font></a>
+
+  <nav class="navbar navbar-inverse" style="position:relative;z-index:50;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>                        
+        </button>
+        <a class="navbar-brand" href="index.html"  style="font-size:24px; color:white;">WeConnect *</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar" style="background-color:rgb(54, 54, 129);">
+
+        <ul class="nav navbar-nav navbar-right" >
+            <li><a href="index.html" style="color:white"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="account.html" style="color:white"><span class="glyphicon glyphicon-user"></span> My Businesses</a></li>
+            <li><a href="editaccount.html" style="color:white"><span class="glyphicon glyphicon-user"></span> My Profile</a></li>
+            <li><a href="index.html" style="color:white"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
+  <div class="container" style="position:relative;z-index:10;">
 
-    <div class="container">
-        <div class="row">
-            <div class="main-nav"><a href="editaccount.html" style="color:blue">
-                <span style="margin-right:20px; ">User:</span></a>
-                <a href="index.html" style="margin-right:20px;"><span class="glyphicon glyphicon-log-out" style="margin:3px"></span>Logout</a>
-            </div><br />
+      <div style="text-align:center">
 
-            <div class="col-md-12"><br />
-                <div>
-                    <span style="font-size:25px; margin-right:10%"><a href="#" style="text-decoration:none">My businesses</a></span><span>
-                        <button class="btn btn-primary" id="add business"><a href="addbusiness.html" style="color:white">Register Business</a></button>
-                    </span>
-                </div>
-            </div>
-
-            <div class="col-md-12"> <br />
-
-                <table border="1"class="table table-condensed" style="width:70% !important;
-                margin:auto;">
-                    <thead>
-                        <tr>
-                            <th id="t1">Name</th>
-                            <th id="t2">Category</th>
-                            <th id="t3">Update</th>
-                            <th id="t3">Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>             
-                            <td><a href="business.html">Andela Kenya</a></td>
-                            <td>Technology</td>
-                            <td id="td3"><a href="editbusiness.html"><span class="glyphicon glyphicon-edit"></span></a></td>
-                            <td id="td3"><button onclick="if(!confirm('Delete Business?')){return false;}" style="border:1px solid #ddd; background-color:white"><span class="glyphicon glyphicon-remove"></span></button></td>
-                        </tr>
-                        
-
-                    </tbody>
-                </table>
-            </div>
+      <div class = "row">
+        <div class = "col-md-2"></div>
+        <div class = "col-md-8" style="text-align:left" ><br />
+          
+          <h3><span style="color:brown">My Businesses</span><span><button class="btn btn-primary" style="color:white; float:right"><a href="addbusiness.html" ><span class="glyphicon glyphicon-plus-sign"></span> Add Business</a></button></span><br />
+          </h3><br><br>
+          <div style="width:80%; margin:auto">
+          <table id="myTable">
+                
+              <tr class="header">
+                <th style="width:60%;">Name</th>
+                <th style="width:20%;">Edit</th>
+                <th style="width:20%;">Delete</th>
+              </tr>
+                           
+              <tr>
+                  <td><a href="business.html">Capstone Kenya</a> </td>
+                  <td id="td3"><a href="editbusiness.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                  <td><button onclick="if(!confirm('Delete Business?')){return false;}"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+              <tr>
+                  <td><a href="business.html">Jade Collection</a> </td>
+                  <td id="td3"><a href="editbusiness.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                  <td><button onclick="if(!confirm('Delete Business?')){return false;}"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+            </table><br><br>
+          </div>
 
         </div>
 
-        
-    </div>
-    <div class="jumbotron" style="text-align:right; margin-top:22%; color:maroon">
-            &copy;KzyDevelopers - 2018
-    
-    </div>
-    
+          
+        <div class = "col-md-2"></div>
+
+              
+      </div>
+  <br />
+  </div>
+
+
 </body>
 </html>

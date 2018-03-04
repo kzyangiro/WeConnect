@@ -1,63 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>WeConnect</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <title>Weconnect</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
 </head>
 <body>
-    <div class="jumbotron">
-        <a href="index.html" style="text-decoration:none">
-        <font style="font-size:40px; color:maroon;">We</font>
-        <font style="font-size:30px; color:black;padding-left:0">Connect*</font></a>
-    </div>
 
-    <div class="container">
-        <div class="row">
-                <div class="col-md-12">
-                    <div class="main-nav">
-                        <ul>
-                            <a href="login.html"><button class="btn btn-primary" id="signin">Login</button></a>
-                            <a href="register.html"><button class="btn btn-primary" id="signup">Register</button></a>
-                        </ul>
-                    </div><br><br>
-                </div>
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-4"></div>
-                        <div class="col-md-4">
-                            <div class="signupDiv">
-                                
-                                <div class="signinDiv1"><h4 style="float:left; margin-left:20px">Register:</h4><br><br><br>
-                                    <form method="post" enctype="multipart/form-data">
-    
-                                        FullName: <input type="text" id="text" ><br><br>
-                                        Username: <input type="text" id="text" ><br><br>
-                                        Password: <input type="password" id="text" ><br><br>
-                                        Confirm Password: <input type="text" id="text" ><br><br>
-    
-                                        <button><a href="login.html">Register</a></button>
-                                    <br /><br />
-                                        
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4"></div>
-                    </div>
-                        
-                </div>
-            </div>
+  <nav class="navbar navbar-inverse"  style="position:relative;z-index:50;" >
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>                        
+        </button>
+        <a class="navbar-brand" href="index.html"  style="font-size:24px; color:white;">WeConnect *</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar" style="background-color:rgb(54, 54, 129);">
+
+        <ul class="nav navbar-nav navbar-right" >
+          <li><a href="index.html" style="color:white"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li><a href="addbusiness.html" style="color:white"><span class="glyphicon glyphicon-plus-sign"></span> Add Business</a></li>
+          <li><a href="register.html" style="color:white"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="login.html" style="color:white"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="container" style="position:relative;z-index:10;">
+
+      <div style="text-align:center">
+
+      <div class = "row">
+        
+        <div class = "col-md-4" style="text-align:left; padding-left:20px" ><br />
+          
+          <h3 style="color:brown">Register</h3><br />
+
+          <form action="login.html">
+            <div class="form-group">
+              <label for="email">UserName:</label><input type="email" class="field">
+              
+            </div><br>
+            <div class="form-group">
+              <label for="pwd">Email:</label>
+              <input type="password" class="field" >
+            </div><br>
+            <div class="form-group">
+              <label for="pwd">Password:</label>
+              <input type="password" class="field">
+            </div><br>
+            <div class="form-group">
+              <label for="pwd">Confirm Password:</label>
+              <input type="password" class="field">
+            </div><br>
+            <a href="login.html"><button type="submit" class="btn btn-default">Submit</button></a>
+          </form>
+
         </div>
-    </div>
-    <div class="jumbotron" style="text-align:right; margin-top:10%; color:maroon">
-            &copy;KzyDevelopers - 2018
-    
-    </div>
-    
+
+          
+        <div class = "col-md-8"></div>
+
+              
+      </div>
+  <br />
+  </div>
+
+
 </body>
 </html>

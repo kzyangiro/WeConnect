@@ -1,83 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>WeConnect</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <title>Weconnect</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+
 </head>
-
-
 <body>
-    <div class="jumbotron">
-            <a href="index.html" style="text-decoration:none">
-            <font style="font-size:40px; color:maroon;">We</font>
-            <font style="font-size:30px; color:black;padding-left:0">Connect*</font></a>
+
+<nav class="navbar navbar-inverse" >
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="index.html"  style="font-size:24px; color:white;">WeConnect *</a>
     </div>
+    <div class="collapse navbar-collapse" id="myNavbar" style="background-color:rgb(54, 54, 129);opacity:1">
 
-    <div class="container">
-        <div class="row">
-               <div class="main-nav">
-                <ul>
-                    <a href="login.html"><button class="btn btn-primary" id="signin">Login</button></a>
-                    <a href="register.html"><button class="btn btn-primary" id="signup">Register</button></a>
-                </ul>
-                </div>  
-                <div class="search" style="float:right">
-                    <form action="/action_page.php" style="margin-left:20px ">
-                        <input type="text" placeholder="Search.." name="search" style="height:30px; border-radius:3px; border:1px solid #ddd;">
-                        <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                    </form><br />
-                </div><br /><br />
+      <ul class="nav navbar-nav navbar-right" >
+        <li><a href="index.html" style="color:white"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+        <li><a href="addbusiness.html" style="color:white"><span class="glyphicon glyphicon-plus-sign"></span> Add Business</a></li>
+        <li><a href="register.html" style="color:white"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li><a href="login.html" style="color:white"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container">
+    <div style="float:right">
+        <span><input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search.." title="Type in a name"></span>
+        <span><button type="submit" ><span class="glyphicon glyphicon-search" style="color: rgb(54, 54, 129)"></span></button></span>
+    </div><br /><br />
+    <div style="text-align:center">
+        
+  <h3 id="h1">Resourceful, Reliable, Individuals - Business connect platform.</h3>
+   <h3>You need it, Here you go, <font style="color:rgb(173, 32, 32);">Connect *</font></h3>
+   
 
-                <div class="col-md-12">
-                    <h3> <br />Resourseful, Reliable, Individuals to Business connect platform.</h3>
-                    
-                    <h3>You need it, Here you go, <font style="color:maroon">Connect *</font></h3> 
+   <br />
+   <div class = "row">
+      <div class = "col-md-1">
+      </div>
+      <div class = "col-md-3" style="text-align:left">
+
+        <h4 style="color:rgb(173, 32, 32);">Filter Businesses By:</h4><br />
+
+          <span>Category: </span><span>          
+          <select name="" id="filter">
+            <option value="">Default</option>
+            <option value="">Technology</option>
+            <option value="">Online Shopping</option>
+            <option value="">Fashion</option>
+            <option value="">Hotel</option>
+            <option value="">Building</option>
+          </select></span><br /><br />
+
+          <span>Location: </span><span>          
+              <select name="" id="filter">
+                <option value="">Default</option>
+                <option value="">Nairobi</option>
+                <option value="">Naivasha</option>
+              </select></span>
+
+      </div>
+        <div class = "col-md-7" style="text-align:left" id="fbus">
+            <h4 style="color:rgb(25, 25, 124);" >Featured Businesses</h4><br />
             
-                    <div class="col-md-12" style="padding-top:4%">
-                        <span style="font-size:25px; margin-right:10%; " ><a href="#" id="bus" style="text-decoration:none">Available Businesses</a></span>
-                        <span style="font-size:15px;">Filter By: <select style="border-radius:3px; height:30px">
-                            <option>Default</option>
-                            <option>Category</option>
-                            <option>Location</option>
-                        </select></span>
-                    </div>     <br />
-
-                </div>
-
-        <div class="col-md-12"> <br />
-
-            <table border="1"class="table table-condensed"style="width:60% !important; margin:auto;font-size:14px">
-                <thead>
-                    <tr>
-                    <th id="th1">Businesses</th>
-                    <th id="th2">Category</th>
-                    <th id="th2">Location</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>             
-                        <td><a href="business.html">Andela</a></td>
-                        <td>Technology</td>
-                        <td>TRM - Nairobi</td>
-                    </tr>
-                    <tr>             
-                        <td><a href="business.html">Kilimall Kenya</a></td>
-                        <td>Online Shopping</td>
-                        <td>Kilimani - Nairobi</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div></div><br /><br /><br /><br /><br />
-    <div class="jumbotron" style="text-align:right">
-        &copy;KzyDevelopers - 2018
-
+        <table id="myTable">
+                
+          <tr class="header">
+            <th style="width:40%;">Name</th>
+            <th style="width:30%;">Category</th>
+            <th style="width:30%;">Location</th>
+          </tr>
+          <tr>
+            <td><a href="business.html">Capstone Kenya</a> </td>
+            <td>Technology</td>
+            <td>Nairobi</td>
+          </tr>
+         
+          <tr>
+            <td><a href="business.html">Kilimall International</a> </td>
+            <td>Online Shopping</td>
+            <td>Naivasha</td>
+          </tr>
+          
+          <tr>
+              <td><a href="business.html">Alladin Fashion</a> </td>
+              <td>Fashion</td>
+              <td>Kitengela</td>
+            </tr>
+          <tr>
+              <td><a href="business.html">Jade Collection</a> </td>
+              <td>Fashion</td>
+              <td>Nakuru</td>
+            </tr>
+        </table>
     </div>
-    
+        
+        <script>
+        function myFunction() {
+          var input, filter, table, tr, td, i;
+          input = document.getElementById("myInput");
+          filter = input.value.toUpperCase();
+          table = document.getElementById("myTable");
+          tr = table.getElementsByTagName("tr");
+          for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+              if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+              } else {
+                tr[i].style.display = "none";
+              }
+            }       
+          }
+        }
+        </script>
+        
+        <div class = "col-md-1"></div>
+
+             
+</div>
+<br /><br /><br />
+  </div><br />
+
+
 </body>
 </html>
