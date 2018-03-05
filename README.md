@@ -11,6 +11,4 @@ Python
 <h4>Unit Testing:</h4>
 Nosetests
 
-<h4>Additional Resources:</h4>
-
 
