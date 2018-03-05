@@ -1,9 +1,11 @@
+"""Create a simple hello world file"""
 from flask import Flask
-app = Flask(__name__)
+APP = Flask(__name__)
 
-@app.route('/')
+@APP.route('/')
 def say_hello():
-    return ("Hello World")
+    """ Return Hello World greeting"""
+    return "Hello World"
 
 if __name__ == '__main__':
-    app.run()
+    APP.run()
