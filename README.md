@@ -4,11 +4,13 @@ This is an api that is to manage data access between various endpoints of the We
 WeConnect Api contains the endpoints that are used in acessing and managing information about the user, businesses and their reviews
 
 <h4>Languages/Frameworks:</h4>
-Flask
-Restful Api
-Python
+<ul>
+  <li>Flask</li>
+  <li>Restful Api</li>
+  <li>Python</li>
+ </ul>
 
 <h4>Unit Testing:</h4>
-Nosetests
+Nosetest
 
 
