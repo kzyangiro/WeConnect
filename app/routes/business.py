@@ -84,3 +84,25 @@ def get_businesses_by_id(businessid):
                 }), 301)
             
             return response
+
+@bs.route('/api/businesses/<businessid>', methods=['PUT'])
+def update_businesses(businessid):
+    business_name = str(request.data.get('business_name'))
+    location = str(request.data.get('location'))
+    contacts = str(request.data.get('contacts'))
+    about = str(request.data.get('about'))
+
+    for business in Business.business_list:
+        if businessid == business.businessid:
+            business.business_name=business_name
+            business.location=location
+            business.contacts=contacts
+            business.about=about
+
+    response = make_response(
+                jsonify({
+                'message':'Business Updated'
+                
+                }), 200)
+            
+    return response
