@@ -25,3 +25,32 @@ def register_business():
                 }
         ), 404)
         return response 
+
+@bs.route('/api/businesses', methods=['GET'])
+def retrieve_all_businesses():
+        Business.business_list
+    
+
+        if len(Business.business_list) == 0:
+            response = make_response(jsonify({
+                'message': "No businesses found"
+                }
+            ), 404)
+            return response
+
+        else:
+            businesses={}
+            for business in Business.business_list:
+                business.business_name
+                business.businessid
+                businesses.update({business.businessid:business.business_name})
+
+
+            response = make_response(
+                jsonify({
+                'message':'Available Businesses',
+                'businesses': businesses
+                
+                }), 200)
+            
+            return response
