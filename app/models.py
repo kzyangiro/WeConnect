@@ -21,13 +21,9 @@ class Business(object):
         return Business.business_list.remove(self)
 
 class User(object):
-    user=[]
+    pass
 
-    def __init__(self, username, fullname, email, password):
-        self.username = username
-        self.fullname=fullname
-        self.email=email
-        self.password=password
-
+class Review(object):
+    pass
 
 
