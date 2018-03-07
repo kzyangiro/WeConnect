@@ -106,3 +106,19 @@ def update_businesses(businessid):
                 }), 200)
             
     return response
+
+@bs.route('/api/businesses/<businessid>', methods=['DELETE'])
+def delete_businesses(businessid):
+    
+
+    for business in Business.business_list:
+        if businessid == business.businessid:
+            Business.business_list.remove(business)
+
+    response = make_response(
+                jsonify({
+                'message':'Business Deleted'
+                
+                }), 200)
+            
+    return response
