@@ -54,3 +54,33 @@ def retrieve_all_businesses():
                 }), 200)
             
             return response
+
+@bs.route('/api/businesses/<businessid>', methods=['GET'])
+def get_businesses_by_id(businessid):
+        Business.business_list
+    
+
+        if len(Business.business_list) == 0:
+            response = make_response(jsonify({
+                'message': "No businesses found"
+                }
+            ), 404)
+            return response
+
+        else:
+            businesses={}
+            for business in Business.business_list:
+                if businessid == business.businessid:
+                    business.business_name
+                    business.businessid
+                    businesses.update({business.businessid:business.business_name})
+
+
+            response = make_response(
+                jsonify({
+                'message':'Business Found: ',
+                'businesses': businesses
+                
+                }), 301)
+            
+            return response
