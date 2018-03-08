@@ -9,6 +9,7 @@ class Business(object):
         self.location=location
         self.about=about
         self.contacts=contacts
+        self.reviews= []
 
 
     def save(self, instance):
@@ -21,9 +22,23 @@ class Business(object):
         return Business.business_list.remove(self)
 
 class User(object):
-    pass
+    user = []
+    def __init__(self, username, email, password):
+        self.userid=str(uuid.uuid4())
+        self.username = username
+        self.email=email
+        self.password=password
+
+    def save(self,instance):
+        User.user.append(instance)
 
 class Review(object):
-    pass
+
+    def __init__(self, title, content):
+
+        self.id=str(uuid.uuid4())
+        self.title = title
+        self.content = content
+        
 
 
