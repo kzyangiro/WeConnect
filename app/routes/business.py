@@ -10,7 +10,16 @@ def register_business():
     about = str(request.data.get('about'))
     location = str(request.data.get('location'))
     contacts = str(request.data.get('contacts'))
+          
     if business_name and about and location and contacts:
+        for business in Business.business_list:
+            if business.business_name == business_name:
+                response =make_response(
+                jsonify({
+                    'message':'business already exists'
+                    
+                    }), 503)
+                return response
         business = Business(business_name=business_name, about=about, location=location, contacts=contacts)
         business.save(business)
         response =make_response(
@@ -28,7 +37,7 @@ def register_business():
 
 @bs.route('/api/businesses', methods=['GET'])
 def retrieve_all_businesses():
-        Business.business_list
+        
     
 
         if len(Business.business_list) == 0:
@@ -43,7 +52,7 @@ def retrieve_all_businesses():
             for business in Business.business_list:
                 business.business_name
                 business.businessid
-                businesses.update({business.businessid:business.business_name})
+                businesses.update({business.business_name:business.businessid})
 
 
             response = make_response(
@@ -62,7 +71,7 @@ def get_businesses_by_id(businessid):
 
         if len(Business.business_list) == 0:
             response = make_response(jsonify({
-                'message': "No businesses found"
+                'message': "No businesses available"
                 }
             ), 404)
             return response
@@ -76,14 +85,22 @@ def get_businesses_by_id(businessid):
                     businesses.update({business.businessid:business.business_name})
 
 
-            response = make_response(
-                jsonify({
-                'message':'Business Found: ',
-                'businesses': businesses
-                
-                }), 301)
-            
-            return response
+                    response = make_response(
+                        jsonify({
+                        'message':'Business found:',
+                        'businesses': businesses
+                        
+                        }), 200)
+                    
+                    return response
+                response = make_response(
+                    jsonify({
+                    'message':'Business not found:',
+                    'businesses': businesses
+                    
+                    }), 404)
+                    
+                return response
 
 @bs.route('/api/businesses/<businessid>', methods=['PUT'])
 def update_businesses(businessid):
@@ -99,12 +116,19 @@ def update_businesses(businessid):
             business.contacts=contacts
             business.about=about
 
-    response = make_response(
-                jsonify({
-                'message':'Business Updated'
+        response = make_response(
+                    jsonify({
+                    'message':'Business Updated'
+                    
+                    }), 200)
                 
-                }), 200)
-            
+        return response
+    response = make_response(
+                    jsonify({
+                    'message':'Business not found'
+                    
+                    }), 404)
+                
     return response
 
 @bs.route('/api/businesses/<businessid>', methods=['DELETE'])
@@ -115,10 +139,17 @@ def delete_businesses(businessid):
         if businessid == business.businessid:
             Business.business_list.remove(business)
 
+            response = make_response(
+                        jsonify({
+                        'message':'The business deleted successful'
+                        
+                        }), 204)
+                    
+            return response
     response = make_response(
-                jsonify({
-                'message':'Business Deleted'
+        jsonify({
+        'message':'The business not found'
+        
+        }), 404)
                 
-                }), 200)
-            
     return response
