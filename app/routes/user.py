@@ -57,3 +57,39 @@ def create_user_account():
                 }
         ), 403)
         return response
+
+@bs.route('/api/v1/auth/login', methods=['POST'])
+def user_login():
+    username = str(request.data.get('username'))
+    password = str(request.data.get('password'))
+    responce = ''
+    if username and password:
+        if [username==users.username and password==users.password for users in User.user]:
+            responce = make_response(
+                jsonify({
+                    'message':'User Logged in successfully'
+                }),200)
+            return responce
+            
+
+        else:
+            responce = make_response(
+                jsonify({
+                    'message':'Wrong username or password entered'
+                }),404)
+
+            return responce
+    else:
+        responce = make_response(
+            jsonify({
+                'message':'Empty username or password field'
+            }),403)
+
+        return responce
+
+@bs.route('/api/v1/auth/logout', methods=['POST'])
+def user_logout():
+    pass
+    
+
+  
