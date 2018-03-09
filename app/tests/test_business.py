@@ -69,7 +69,7 @@ class TestBusinessClass(unittest.TestCase):
     
     def test_update_business_by_none_existing_id(self):
         self.client.post('/api/v1/businesses', data=self.business)
-        response = self.client.put('/api/v1/businesses/100hjjgghs', data=self.new_business)
+        response = self.client.put('/api/v1/businesses/100', data=self.new_business)
         self.assertEqual(response.status_code, 404)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertIn("Business not found", response_msg["message"])
