@@ -80,7 +80,7 @@ def retrieve_all_businesses():
             
             return response
 
-@bs.route('/api/v1/businesses/<businessid>', methods=['GET'])
+@bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
 def get_businesses_by_id(businessid):
     
         if len(Business.business_list) == 0:
@@ -91,7 +91,6 @@ def get_businesses_by_id(businessid):
             return response
 
         else:
-            print("455556 kjgfdzdxfgchvjbknlm ")
             businesses={}
             for business in Business.business_list:
                 if businessid == business.businessid:
@@ -116,7 +115,7 @@ def get_businesses_by_id(businessid):
                 
             return response
 
-@bs.route('/api/v1/businesses/<businessid>', methods=['PUT'])
+@bs.route('/api/v1/businesses/<int:businessid>', methods=['PUT'])
 
 def update_businesses(businessid):
     business_name = str(request.data.get('business_name').strip(' '))
@@ -146,7 +145,7 @@ def update_businesses(businessid):
                 
     return response
 
-@bs.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
+@bs.route('/api/v1/businesses/<int:businessid>', methods=['DELETE'])
 def delete_businesses(businessid):
     
     for business in Business.business_list:
