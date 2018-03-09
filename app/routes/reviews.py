@@ -3,7 +3,7 @@ from . import bs
 from .. models import Business
 from .. models import Review
 
-@bs.route('/api/v1/businesses/<businessid>/review', methods=['POST'])
+@bs.route('/api/v1/businesses/<int:businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
     title = str(request.data.get('title'))
     content = str(request.data.get('content'))
@@ -37,7 +37,7 @@ def create_a_business_review(businessid):
         return response 
 
 
-@bs.route('/api/v1/businesses/<businessid>/review', methods=['GET'])
+@bs.route('/api/v1/businesses/<int:businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
   
     for business in Business.business_list:
@@ -55,7 +55,7 @@ def get_all_business_reviews(businessid):
                 business_review[reviews.title]= reviews.content
                 business_reviews.append(business_review)
             response = make_response(jsonify({
-                'message': "buness reviews",
+                'message': "Business reviews",
                 'reviews':business_reviews
                 }
                 ), 200)
@@ -72,8 +72,7 @@ def get_all_business_reviews(businessid):
 
     response = make_response(
             jsonify({
-            'message':'No businesses found',
-            'review': review
+            'message':'No businesses found'
             
             }), 404)
             
