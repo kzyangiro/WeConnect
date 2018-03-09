@@ -1,16 +1,17 @@
 from flask import request, make_response, jsonify
 from . import bs
 from .. models import User
-
-@bs.route('/')
+import re
 @bs.route('/api/v1/auth/register', methods=['POST'])
 def create_user_account():
     # import pdb; pdb.set_trace()
 
-    username = str(request.data.get('username'))
-    email = str(request.data.get('email'))
-    password = str(request.data.get('password'))
-    confirm_password = str(request.data.get('confirm_password'))
+    username = str(request.data.get('username').strip(' '))
+    email = str(request.data.get('email').strip(' '))
+    password = str(request.data.get('password').strip(' '))
+    confirm_password = str(request.data.get('confirm_password').strip(' '))
+
+    
 
     if username and email and password and confirm_password:
         
@@ -20,43 +21,47 @@ def create_user_account():
                 }
             ), 403)
             return response
-
-        elif email:
+        
+        elif not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
             response = make_response(jsonify({
                 'message': "Invalid email address"
                 }
             ), 403)
             return response
 
-        elif [email==users.email for users in User.user]:
-            response = make_response(jsonify({
-                'message': "The email address already exist use a different ones"
-                }
-            ), 403)
-            return response
-
-        elif [username==users.username for users in User.user]:
-            response = make_response(jsonify({
-                'message': "The username already exist use a different ones"
-                }
-            ), 40)
-            return response
-
         else:
-            user= User(username=username, email=email, password=password)
-            user.save(user)
-            response =make_response(
-                jsonify({
-                    'message':'User Created successfully'
+            for user in User.user:
+                if user.username == username:
+                    response =make_response(
+                    jsonify({
+                        'message':'The username already exists'
+                        
+                        }), 409)
+                    return response
+
+                if user.email == email:
+                    response =make_response(
+                    jsonify({
+                        'message':'The email address already exists'
+                        
+                        }), 409)
+                    return response
+
                     
-                    }), 201)
-            return response
-    else:
-        response = make_response(jsonify({
-                'message': "Input empty fields"
-                }
-        ), 403)
+        user= User(username=username, email=email, password=password)
+        user.save(user)
+        response =make_response(
+            jsonify({
+                'message':'User Created successfully'
+                
+                }), 201)
         return response
+    
+    response = make_response(jsonify({
+            'message': "Input empty fields"
+            }
+    ), 403)
+    return response
 
 @bs.route('/api/v1/auth/login', methods=['POST'])
 def user_login():

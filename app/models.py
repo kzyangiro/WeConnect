@@ -1,14 +1,15 @@
-import uuid
+#import uuid
 
 class Business(object):
     business_list = []
     
-    def __init__(self, business_name, about, location, contacts):
-        self.businessid=str(uuid.uuid4())
+    def __init__(self, business_name, about, location, category):
+        self.businessid=len(Business.business_list)+1
+        #self.businessid=str(uuid.uuid4())
         self.business_name = business_name
         self.location=location
         self.about=about
-        self.contacts=contacts
+        self.category=category
         self.reviews= []
 
 
@@ -24,7 +25,7 @@ class Business(object):
 class User(object):
     user = []
     def __init__(self, username, email, password):
-        self.userid=str(uuid.uuid4())
+        self.userid=len(User.user)+1
         self.username = username
         self.email=email
         self.password=password
@@ -33,10 +34,11 @@ class User(object):
         User.user.append(instance)
 
 class Review(object):
+    reviews=[]
 
     def __init__(self, title, content):
 
-        self.id=str(uuid.uuid4())
+        self.id=len(Review.reviews)+1
         self.title = title
         self.content = content
         
