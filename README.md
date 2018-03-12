@@ -1,10 +1,4 @@
-[![Build Status](https://travis-ci.org/kzyGit/WeConnect.svg?branch=api)](https://travis-ci.org/kzyGit/WeConnect)
-
-[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=master)](https://coveralls.io/github/kzyGit/WeConnect?branch=master)
-
-<a href="https://codeclimate.com/github/codeclimate/codeclimate/maintainability"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability" /></a>
-
-<a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a>
+[![Build Status](https://travis-ci.org/kzyGit/WeConnect.svg?branch=api)](https://travis-ci.org/kzyGit/WeConnect)[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=master)](https://coveralls.io/github/kzyGit/WeConnect?branch=master)<a href="https://codeclimate.com/github/codeclimate/codeclimate/maintainability"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability" /></a><a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a>
 
 <h3>WeConnect Api</h3>
 
