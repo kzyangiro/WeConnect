@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/kzyGit/WeConnect.svg?branch=api)](https://travis-ci.org/kzyGit/WeConnect)
 
-[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg)](https://coveralls.io/github/kzyGit/WeConnect)
+[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=master)](https://coveralls.io/github/kzyGit/WeConnect?branch=master)
 <h3>WeConnect Api</h3>
 
 This is an api that is to manage data access between various endpoints of the WeConnect application. WeConnect Application is an application that links users to businesses. A viewer is able to view avaiable businesses, view their profiles and post reviews about a business. A user is also able to create a business and manage the businesses by either updating or deleting.<br>
