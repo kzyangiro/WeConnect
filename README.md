@@ -4,6 +4,8 @@
 
 <a href="https://codeclimate.com/github/codeclimate/codeclimate/maintainability"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability" /></a>
 
+<a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a>
+
 <h3>WeConnect Api</h3>
 
 This is an api that is to manage data access between various endpoints of the WeConnect application. WeConnect Application is an application that links users to businesses. A viewer is able to view avaiable businesses, view their profiles and post reviews about a business. A user is also able to create a business and manage the businesses by either updating or deleting.<br>
