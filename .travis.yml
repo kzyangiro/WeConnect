@@ -7,3 +7,4 @@ install:
 services:
 script:
   - pytest
+after_success: coveralls
