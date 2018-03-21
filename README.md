@@ -16,7 +16,7 @@ WeConnect Api contains the endpoints that are used in acessing and managing info
  </ul>
 
 <h4>Installation</h4>
-Install python, create and activate a virtual environmet.<br>
+Install python, create and activate a virtual environment.<br>
 Ensure you have postman installed.<br>
 Run requirements.txt to install the necessary packages. To do this run > pip install -r requirements.txt 
 
@@ -41,8 +41,11 @@ Link: https://kzygit.github.io/designs/UI/index.html
 
 <h4>Features</h4>
   - A user can create an account<br>
-  - User can login<br>
+  - User can login and logout<br>
   - User can add businesses, update, delete and also view all businesses and business by ID.<br>
+  - Registeres user can reset password.<br>
+  - User can add reviews for a business and also view reviews for businesses by business ID.
+  
 
 
 
