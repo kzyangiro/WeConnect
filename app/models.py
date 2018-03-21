@@ -1,11 +1,9 @@
-#import uuid
-
 class Business(object):
+    """Business Class Creates an instance of business"""
     business_list = []
     
     def __init__(self, business_name, about, location, category):
         self.businessid=len(Business.business_list)+1
-        #self.businessid=str(uuid.uuid4())
         self.business_name = business_name
         self.location=location
         self.about=about
@@ -14,15 +12,12 @@ class Business(object):
 
 
     def save(self, instance):
-        Business.business_list.append(instance)
+        """ This method adds the instance of the business created into business_List"""
+        return Business.business_list.append(instance)
 
-    def get_all(self):
-        return Business.business_list
-
-    def delete(self):
-        return Business.business_list.remove(self)
 
 class User(object):
+    """User class creates an instance of a user"""
     user = []
     def __init__(self, username, email, password):
         self.userid=len(User.user)+1
@@ -31,9 +26,11 @@ class User(object):
         self.password=password
 
     def save(self,instance):
+        """Save method adds the created users details into the users list"""
         User.user.append(instance)
 
 class Review(object):
+    """Reviews class creates an instance of a review"""
     reviews=[]
 
     def __init__(self, title, content):
