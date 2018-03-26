@@ -2,7 +2,7 @@ from flask import request, make_response, jsonify
 from . import bs
 from .. models import Business
 
-@bs.route('/',methods=['POST'])
+@bs.route('/')
 def homepage():
     """This is the home endpoint"""
     res = make_response(
