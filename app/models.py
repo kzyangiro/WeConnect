@@ -1,6 +1,6 @@
 from app import db
 
-class Business(db.Model):
+class Business(db.Model): #This class represents the Businesses Table
     """Business Class Creates an instance of business"""
     #business_list = []
     __tablename__ = 'businesses'
@@ -32,9 +32,13 @@ class Business(db.Model):
     def get_all(self):
         return Business.query.all(self)
         
-    @staticmethod
+
     def delete(self):
         db.session.delete(self)
+
+    def __repr__(self):
+        #method represents the object instance of the model whenever it is queries.
+        return "<Business: {}>".format(self.business_name)
 
     
 
