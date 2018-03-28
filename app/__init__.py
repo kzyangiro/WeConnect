@@ -1,8 +1,9 @@
 from flask_api import FlaskAPI
-from config.config import app_config
-from flask import request, jsonify, abort, session
-from app.models import Business
 from flask_sqlalchemy import SQLAlchemy
+from config.config import app_config
+# from flask import request, jsonify, abort, session
+# from app.models import Business
+
 
 #Initialize SQLAlchemy
 db = SQLAlchemy()

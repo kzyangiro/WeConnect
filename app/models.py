@@ -1,6 +1,17 @@
-class Business(object):
+from app import db
+
+class Business(db.Model):
     """Business Class Creates an instance of business"""
-    business_list = []
+    #business_list = []
+    __tablename__ = 'businesses'
+
+    businessid = db.Column(db.Integer)
+    business_name = db.Column(db.String(255), primary_key=True)
+    location = db.Column(db.String(255))
+    about = db.Column(db.String(255))
+    category = db.Column(db.String(255))
+    
+
     
     def __init__(self, business_name, about, location, category):
         self.businessid=len(Business.business_list)+1
@@ -12,8 +23,21 @@ class Business(object):
 
 
     def save(self, instance):
-        """ This method adds the instance of the business created into business_List"""
-        return Business.business_list.append(instance)
+        """ This method adds the instance of the business created into businesses table"""
+        db.session.add(self)
+        db.session.commit()
+        #return Business.business_list.append(instance)
+
+    @staticmethod
+    def get_all(self):
+        return Business.query.all(self)
+        
+    @staticmethod
+    def delete(self):
+        db.session.delete(self)
+
+    
+
 
 
 class User(object):
