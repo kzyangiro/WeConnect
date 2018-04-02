@@ -129,6 +129,7 @@ def delete_businesses(businessid):
         response.status_code = 200
         return response
 
+
 @bs.route('/api/v1/businesses/<int:businessid>', methods=['PUT'])
 
 def update_businesses(businessid):
@@ -138,14 +139,18 @@ def update_businesses(businessid):
     category = str(request.data.get('category').strip(' '))
     about = str(request.data.get('about').strip(' '))
 
+    businesses=Business.get_all()
+
     if business_name and location and category and about:
 
-        for business in Business.business_list:
+        for business in businesses:
             if businessid == business.businessid:
                 business.business_name=business_name
                 business.location=location
                 business.category=category
                 business.about=about 
+
+                business.save()
 
                 response = make_response(
                             jsonify({
@@ -156,7 +161,7 @@ def update_businesses(businessid):
                 return response
         response = make_response(
                         jsonify({
-                        'message':'Business not found'
+                        'message':'No Business with that ID'
                         
                         }), 404)
                     
@@ -169,3 +174,4 @@ def update_businesses(businessid):
                     }), 400)
                 
     return response
+
