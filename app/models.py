@@ -6,16 +6,23 @@ class Business(db.Model): #This class represents the Businesses Table
     #business_list = []
     __tablename__ = 'businesses'
 
-    businessid = db.Column(db.Integer)
-    business_name = db.Column(db.String(255), primary_key=True)
+    businessid = db.Column(db.Integer, primary_key=True)
+    business_name = db.Column(db.String(255))
     location = db.Column(db.String(255))
     about = db.Column(db.String(255))
     category = db.Column(db.String(255))
 
+    #store modification timestamps
+    
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_modified = db.Column(
+    db.DateTime, default=db.func.current_timestamp(),
+        onupdate=db.func.current_timestamp())
+
     
     def __init__(self,business_name, about, location, category):
-        rows = Business.query.all()
-        self.businessid= len(rows) + 1
+        # rows = Business.query.all()
+        # self.businessid= len(rows) + 1
         self.business_name = business_name
         self.location=location
         self.about=about
