@@ -75,34 +75,36 @@ def register_business():
                 response.status_code = 200
             return response
 
-@bs.route('/api/v1/businesses', methods=['GET'])
-def retrieve_all_businesses():
-        """This endpoint retrieves all businesses"""
-    
 
-        if len(Business.business_list) == 0:
-            response = make_response(jsonify({
-                'message': "No businesses found"
+@bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
+def get_businesses_by_id(businessid):
+    """This endpoint retrieves a business by the given id"""
+    businesses = Business.get_all()
+
+    if len(businesses)==0:
+        response = make_response(jsonify({
+            'Message': "No Businesses Available"
+            }
+        ), 404)
+        return response
+
+    else:
+        for business in businesses:
+            if businessid == business.businessid:
+                obj={
+                    "Business Name":business.business_name,
+                    "Category":business.category,
+                    "Location":business.location,
+                    "about":business.about
                 }
-            ), 404)
-            return response
+                response=jsonify(obj)
+                response.status_code = 200
+                return response
 
-        else:
-            businesses={}
-            for business in Business.business_list:
-                business.business_name
-                business.businessid
-                businesses.update({business.businessid:business.business_name})
-                
-            response = make_response(
-                jsonify({
-                'Message':'Available Businesses:',
-                'businesses': businesses
-                
-                }), 200)
-            
-            return response
-
+        response=jsonify({"Error":"No Business with that ID"})
+        response.status_code = 200
+        return response
+        
 @bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
 def get_businesses_by_id(businessid):
     """This endpoint retrieves a business by the given id"""
