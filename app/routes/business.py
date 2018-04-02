@@ -13,46 +13,42 @@ def homepage():
                 
     return res
 
-@bs.route('/api/v1/businesses', methods=['POST'])
+@bs.route('/api/v1/businesses', methods=['POST', 'GET'])
 def register_business():
-    """This endpoint Creates a business"""
+    if request.method == 'POST':
 
-    business_name = str(request.data.get('business_name').strip(' '))
-    about = str(request.data.get('about').strip(' '))
-    location = str(request.data.get('location').strip(' '))
-    category = str(request.data.get('category').strip(' '))
-          
-    if business_name and about and location and category:
-        for business in Business.business_list:
-            if business.business_name == business_name:
-                """Ensure No duplicate entry of business name"""
-                response =make_response(
-                jsonify({
-                    'message':'Business already exists'                  
-                    
-                    }), 409)
-                return response
-        business = Business(business_name=business_name, about=about, location=location, category=category)
+        business_name = str(request.data.get('business_name').strip(' '))
+        about = str(request.data.get('about').strip(' '))
+        location = str(request.data.get('location').strip(' '))
+        category = str(request.data.get('category').strip(' '))
+        
+        if business_name and about and location and category:
+            businesses = Business.get_all()
+            for business in businesses:
+                if business.business_name == business_name:
+                    res = jsonify({
+                        "Error":"Business Already Exists"
+                    })
+                    res.status_code = 409
+                    return res
 
-        mybusinesses={'Business Name':business.business_name,'Description':business.about,'Location':business.location,'Category':business.category}
+            business = Business(business_name=business_name, about=about, location=location, category=category)
+            business.save()
+            response = jsonify({
+                "Success":"Business Created successfully",
+                "business Name":business.business_name,
+                "category":business.category,
+                "location":business.location
 
-        business.save(business)
-        response =make_response(
-            jsonify({
-                'business details': mybusinesses,
-                'Message':'Business created successfully',
-                "status-code": 201
-                
-                
-                
-                }), 201)
-        return response
-    else:
+            })
+            response.status_code = 201
+            return response
+
         response = make_response(jsonify({
-                'message': "Incomplete information"
+                'Message': "Kindly input the missing fields"
                 }
-        ), 400)
-        return response 
+            ), 400)
+        return response
 
 @bs.route('/api/v1/businesses', methods=['GET'])
 def retrieve_all_businesses():
