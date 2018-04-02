@@ -104,37 +104,29 @@ def get_businesses_by_id(businessid):
         response=jsonify({"Error":"No Business with that ID"})
         response.status_code = 200
         return response
-        
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
-def get_businesses_by_id(businessid):
-    """This endpoint retrieves a business by the given id"""
-    
-    if len(Business.business_list) == 0:
+
+@bs.route('/api/v1/businesses/<int:businessid>', methods=['DELETE'])
+def delete_businesses(businessid):
+    businesses=Business.get_all()
+
+
+    if len(businesses)==0:
         response = make_response(jsonify({
-            'message': "No businesses available"
+            'Message': "No Businesses Available"
             }
         ), 404)
         return response
 
     else:
-        
-        for business in Business.business_list:
+        for business in businesses:
             if businessid == business.businessid:
-                mybusiness={'Business Name':business.business_name,'Description':business.about,'Location':business.location,'Category':business.category}
-                
-                response = make_response(
-                    jsonify({
-                    'businesses': mybusiness
-                    
-                    }), 200)
-                
+                business.delete()
+                response=jsonify({"Success":"Business Deleted Successfully"})
+                response.status_code = 200
                 return response
-        response = make_response(
-            jsonify({
-            'message':'No Business with the given ID'
-            
-            }), 404)
-            
+
+        response=jsonify({"Error":"No Business with that ID"})
+        response.status_code = 200
         return response
 
 @bs.route('/api/v1/businesses/<int:businessid>', methods=['PUT'])
@@ -177,35 +169,3 @@ def update_businesses(businessid):
                     }), 400)
                 
     return response
-
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['DELETE'])
-def delete_businesses(businessid):
-    """This endpoint removes a business of the given ID from the business list"""
-    
-    for business in Business.business_list:
-        if businessid == business.businessid:
-            """Checks if that ID exists in our business list, if it does, delete"""
-            Business.business_list.remove(business)
-
-            response = make_response(
-                        jsonify({
-                        'message':'Business Deleted Successfully'
-                        
-                        }), 200)
-                    
-            return response
-        respo = make_response(
-            jsonify({
-            'message':'No Business with that ID'
-            
-            }), 404)
-                
-        return respo
-
-    respons = make_response(
-        jsonify({
-        'message':'No Business Found'
-        
-        }), 404)
-            
-    return respons
