@@ -12,7 +12,6 @@ def homepage():
         }))
                 
     return res
-
 @bs.route('/api/v1/businesses', methods=['POST', 'GET'])
 def register_business():
     if request.method == 'POST':
@@ -49,6 +48,32 @@ def register_business():
                 }
             ), 400)
         return response
+
+
+    elif request.method == 'GET':
+        #Retrieve all businesses
+        businesses = Business.get_all()
+        results = []
+
+        if len(businesses)==0:
+            response = make_response(jsonify({
+                'Message': "No Businesses Available"
+                }
+            ), 404)
+            return response
+
+        else:
+
+
+            for business in businesses:
+                obj={
+                    business.businessid:business.business_name
+                }
+                results.append(obj)
+
+                response=jsonify(results)
+                response.status_code = 200
+            return response
 
 @bs.route('/api/v1/businesses', methods=['GET'])
 def retrieve_all_businesses():
