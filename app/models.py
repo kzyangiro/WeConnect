@@ -1,5 +1,6 @@
 from app import db
 
+
 class Business(db.Model): #This class represents the Businesses Table
     """Business Class Creates an instance of business"""
     #business_list = []
@@ -10,11 +11,11 @@ class Business(db.Model): #This class represents the Businesses Table
     location = db.Column(db.String(255))
     about = db.Column(db.String(255))
     category = db.Column(db.String(255))
-    
 
     
-    def __init__(self, business_name, about, location, category):
-        self.businessid=len(Business.business_list)+1
+    def __init__(self,business_name, about, location, category):
+        rows = Business.query.all()
+        self.businessid= len(rows) + 1
         self.business_name = business_name
         self.location=location
         self.about=about
@@ -22,26 +23,24 @@ class Business(db.Model): #This class represents the Businesses Table
         self.reviews= []
 
 
-    def save(self, instance):
+    def save(self):
         """ This method adds the instance of the business created into businesses table"""
         db.session.add(self)
         db.session.commit()
         #return Business.business_list.append(instance)
 
     @staticmethod
-    def get_all(self):
-        return Business.query.all(self)
-        
+    def get_all():
+        return Business.query.all()
+ 
 
     def delete(self):
         db.session.delete(self)
+        db.session.commit()
 
     def __repr__(self):
         #method represents the object instance of the model whenever it is queries.
         return "<Business: {}>".format(self.business_name)
-
-    
-
 
 
 class User(object):
@@ -67,5 +66,3 @@ class Review(object):
         self.title = title
         self.content = content
         
-
-
