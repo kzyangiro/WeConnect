@@ -19,6 +19,11 @@ def create_app(config_name):
 
     from .routes import bs as bs_blueprint
     app.register_blueprint(bs_blueprint)
+
+
+    from .routes import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
+    
     return app
 
 app = create_app('development')
