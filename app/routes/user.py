@@ -1,12 +1,12 @@
 from flask import request, make_response, jsonify, session
-from . import bs
+from . import auth
 from .. models import User
 import re
+from flask_bcrypt import Bcrypt
 
-@bs.route('/api/v1/auth/register', methods=['POST'])
+@auth.route('/api/v1/auth/register', methods=['POST'])
 def create_user_account():
-    """Endpoint to create a user"""
-    # import pdb; pdb.set_trace()
+    """Endpoint to create a user"""    
 
     username = str(request.data.get('username').strip(' '))
     email = str(request.data.get('email').strip(' '))
@@ -17,7 +17,8 @@ def create_user_account():
 
     if username and email and password and confirm_password:
         """Checks is all fields have been filled in"""
-        
+        users=User.get_all()
+
         if password != confirm_password:
             response = make_response(jsonify({
                 'message': "Unmatched passwords"
@@ -34,11 +35,11 @@ def create_user_account():
             return response
 
         else:
-            for user in User.user:
+            for user in users:
                 if user.username == username:
                     response =make_response(
                     jsonify({
-                        'message':'The username already exists'
+                        'message':'The username is already registered, kindly chose a different one'
                         
                         }), 409)
                     return response
@@ -46,17 +47,18 @@ def create_user_account():
                 if user.email == email:
                     response =make_response(
                     jsonify({
-                        'message':'The email address already exists'
+                        'message':'The email is already registered, kindly chose a different one'
                         
                         }), 409)
                     return response
 
+
                     
         user= User(username=username, email=email, password=password)
-        user.save(user)
+        user.save()
         response =make_response(
             jsonify({
-                'message':'User Created successfully'
+                'message':'User Registered successfully'
                 
                 }), 201)
         return response
@@ -67,7 +69,7 @@ def create_user_account():
     ), 400)
     return response
 
-@bs.route('/api/v1/auth/login', methods=['POST'])
+@auth.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
     """Api to log in a user using username and password provided """ 
     username = str(request.data.get('username'))
@@ -107,7 +109,7 @@ def user_login():
 
     return responce
 
-@bs.route('/api/v1/auth/logout', methods=['POST'])
+@auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
     """this endpoint will logout the user by removing the username from the session"""
 
@@ -124,7 +126,7 @@ def user_logout():
     return responce
 
 
-@bs.route('/api/v1/auth/reset_password', methods=['PUT'])
+@auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
     """This endpoint enables a registered user to edit password"""
     username = str(request.data.get('username'))
