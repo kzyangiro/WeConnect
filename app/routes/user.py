@@ -74,37 +74,39 @@ def user_login():
     """Api to log in a user using username and password provided """ 
     username = str(request.data.get('username'))
     password = str(request.data.get('password'))
-    responce = ''
     if username and password:
-        for myuser in User.user:
-            if username==myuser.username and password==myuser.password:
-                """Add Logged in user into login session"""
 
-                session["username"]=username
+        #users = User.get_all()
+
+        user = User.query.filter_by(username=request.data['username']).first()
+
+        if user and user.password_is_valid(request.data['password']):
+    
+            #import pdb; pdb.set_trace()
+            """Add Logged in user into login session"""
+
+            #session["username"]=username
+            access_token = user.generate_token(user.id)
+            if access_token:
+                
                 responce = make_response(
                     jsonify({
-                        'message':'User Logged in successfully'
+                        'message':'User Logged in successfully',
+                        'access_token':access_token.decode()
                     }),200)
                 return responce
-                
+            
+        responce1 = make_response(
+            jsonify({
+                'message':'Wrong username or password entered'
+            }),404)
 
-            responce1 = make_response(
-                jsonify({
-                    'message':'Wrong username or password entered'
-                }),404)
+        return responce1
+            
 
-            return responce1
-
-        responce = make_response(
-                jsonify({
-                    'message':'User not found, kindly register first'
-                }),404)
-
-        return responce
-    
     responce = make_response(
         jsonify({
-            'message':'Empty username or password field'
+            'message':'Input empty fields'
         }),400)
 
     return responce
