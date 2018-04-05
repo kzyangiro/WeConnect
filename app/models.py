@@ -1,5 +1,83 @@
 from app import db
+from flask_bcrypt import Bcrypt
+import jwt
+from datetime import datetime, timedelta
+from flask import current_app
 
+
+class User(db.Model):
+    """User class creates an instance of a user"""
+    #user = []
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(256), nullable=False, unique=True)
+    email = db.Column(db.String(256), nullable=False, unique=True)
+    password = db.Column(db.String(256), nullable=False)
+    businesses = db.relationship(
+        'Business', order_by='Business.businessid', cascade="all, delete-orphan")
+
+
+    def __init__(self, username, email, password):
+         
+        self.username = username
+        self.email=email
+
+        #Hash password
+        self.password = Bcrypt().generate_password_hash(password).decode()
+
+    def password_is_valid(self, password):
+        """
+        Checks the password against it's hash to validates the user's password
+        """
+        return Bcrypt().check_password_hash(self.password, password)
+
+        
+    def save(self):
+        """Save method adds the created users details into the users list"""
+
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return User.query.all()
+
+    def generate_token(self, user_id):
+        """ This method generates the token to be used for authentification"""
+
+        try:
+            #set payload, and indicate expiry duration of the token
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'sub': user_id
+            }
+            # create the byte string token using the payload and the SECRET key
+            jwt_string = jwt.encode(
+                payload,
+                current_app.config.get('SECRET'),
+                algorithm='HS256'
+            )
+            return jwt_string
+
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
+
+    @staticmethod
+    def decode_token(token):
+        """Decodes the access token from the Authorization header."""
+        try:
+            # try to decode the token using our SECRET variable
+            payload = jwt.decode(token, current_app.config.get('SECRET'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            # the token is expired, return an error string
+            return "Expired token. Please login to get a new token"
+        except jwt.InvalidTokenError:
+            # the token is invalid, return an error string
+            return "Invalid token. Please register or login"
 
 class Business(db.Model): #This class represents the Businesses Table
     """Business Class Creates an instance of business"""
@@ -17,17 +95,22 @@ class Business(db.Model): #This class represents the Businesses Table
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
     db.DateTime, default=db.func.current_timestamp(),
-        onupdate=db.func.current_timestamp())
+    onupdate = db.func.current_timestamp())
+
+    created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
     
-    def __init__(self,business_name, about, location, category):
-        # rows = Business.query.all()
-        # self.businessid= len(rows) + 1
+    def __init__(self,business_name, about, location, category, created_by):
+
         self.business_name = business_name
         self.location=location
         self.about=about
         self.category=category
         self.reviews= []
+
+        #Save user who has created the business
+
+        self.created_by = created_by
 
 
     def save(self):
@@ -37,8 +120,10 @@ class Business(db.Model): #This class represents the Businesses Table
         #return Business.business_list.append(instance)
 
     @staticmethod
-    def get_all():
-        return Business.query.all()
+    def get_all(user_id):
+        #return Business.query.all()
+
+        return Business.query.filter_by(created_by = user_id)
  
 
     def delete(self):
@@ -50,18 +135,7 @@ class Business(db.Model): #This class represents the Businesses Table
         return "<Business: {}>".format(self.business_name)
 
 
-class User(object):
-    """User class creates an instance of a user"""
-    user = []
-    def __init__(self, username, email, password):
-        self.userid=len(User.user)+1
-        self.username = username
-        self.email=email
-        self.password=password
 
-    def save(self,instance):
-        """Save method adds the created users details into the users list"""
-        User.user.append(instance)
 
 class Review(object):
     """Reviews class creates an instance of a review"""
