@@ -1,6 +1,6 @@
 from flask import request, make_response, jsonify, session
 from . import auth
-from .. models import User
+from .. models import User 
 import re
 from flask_bcrypt import Bcrypt
 
@@ -130,43 +130,62 @@ def user_logout():
 
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
-    """This endpoint enables a registered user to edit password"""
-    username = str(request.data.get('username'))
-    current_password = str(request.data.get('current_password')) 
-    new_password = str(request.data.get('new_password').strip(' ')) 
-    confirm_password = str(request.data.get('confirm_password').strip(' ')) 
 
-    if username and current_password and new_password and confirm_password: 
+        #Obtain token from header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(' ')[1]
 
-        for myuser in User.user:
-            if myuser.username == username and myuser.password == current_password:
-              
-                if new_password != confirm_password:
-                    res = make_response(jsonify({
-                            'message':'Passords not matching'
-                        }), 400)
-                    return res
+    if access_token:
+        """If accessed, decode token to get userid"""
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+                    
+            """This endpoint enables a registered user to edit password"""
+            username = str(request.data.get('username'))
+            password = str(request.data.get('password')) 
+            new_password = str(request.data.get('new_password').strip(' ')) 
+            confirm_password = str(request.data.get('confirm_password').strip(' ')) 
 
-                myuser.password=new_password
+            if username and password and new_password and confirm_password: 
+                #users = User.get_all()
 
-                resp= make_response(jsonify({
-                            'message':'Password reset successfully'
-                        }), 200)
-                return resp
+                user = User.query.filter_by(username=request.data['username']).first()
 
-            respon = make_response(jsonify({
-                            'message':'Username or password error'
-                        }), 404)
-            return respon
+                if user and user.password_is_valid(request.data['password']):
 
-        respons = make_response(jsonify({
-                            'message':'No available user'
-                        }), 404)
-        return respons
+                    if new_password != confirm_password:
+                        res = make_response(jsonify({
+                                'error':'Passwords not matching'
+                            }), 400)
+                        return res
 
-    response = make_response(jsonify({
-                            'message':'Input Empty Fields'
-                        }), 400)
-    return response
+                    
+                    new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
+                    user.password=new_hashed_password
 
-         
+
+                    user.save()
+
+                    resp= make_response(jsonify({
+                                'message':'Password reset successfully'
+                            }), 200)
+                    return resp
+
+                respon = make_response(jsonify({
+                                'error':'Username or password error'
+                            }), 404)
+                return respon
+
+
+            response = make_response(jsonify({
+                                    'error':'Input Empty Fields'
+                                }), 400)
+            return response
+
+        else:
+            # last login session is expired/user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401              
