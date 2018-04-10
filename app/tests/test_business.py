@@ -172,7 +172,7 @@ class TestBusinessClass(unittest.TestCase):
         response_delete = self.client.delete('/api/v1/businesses/1', headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(response_delete.status_code, 200)
 
-    def test_delete_non_existing business(self):
+    def test_delete_non_existing_business(self):
 
         self.register_user()
         result=self.login_user()
