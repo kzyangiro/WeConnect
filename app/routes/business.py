@@ -35,7 +35,7 @@ def register_business():
                     for business in businesses:
                         if business.business_name == business_name:
                             res = jsonify({
-                                "Error":"Business Already Exists, use a different business name"
+                                "Error":"Business already exists, use a different business name"
                             })
                             res.status_code = 409
                             return res
@@ -148,7 +148,6 @@ def get_businesses_by_id(businessid):
 
     """This endpoint retrieves a business by the given id"""
     businesses = Business.get_all()
-    results = []
 
     for business in businesses:
         if businessid == business.businessid:
@@ -167,7 +166,7 @@ def get_businesses_by_id(businessid):
             return response
 
     response=jsonify({"Error":"No Business with that ID"})
-    response.status_code = 200
+    response.status_code = 404
     return response
 
 
@@ -244,14 +243,14 @@ def update_businesses(businessid):
 
                         business.save()
                         response = jsonify({
-                            "Success":"Business Updated successfully",
+                            "Success":"Business updated successfully",
                             "business Name":business.business_name,
                             "category":business.category,
                             "location":business.location,
                             "created_by":user_id
 
                         })
-                        response.status_code = 201
+                        response.status_code = 200
                         return response
 
                 response = make_response(jsonify({
