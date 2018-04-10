@@ -24,7 +24,7 @@ class User(db.Model):
         self.email=email
 
         #Hash password
-        self.password = Bcrypt().generate_password_hash(password).decode()
+        self.password = Bcrypt().generate_password_hash(password).decode('utf-8')
 
     def password_is_valid(self, password):
         """
@@ -120,12 +120,15 @@ class Business(db.Model): #This class represents the Businesses Table
         #return Business.business_list.append(instance)
 
     @staticmethod
-    def get_all(user_id):
-        #return Business.query.all()
+    def get_all_auth(user_id):
+        """ This method retrieves all busineses for the particular logged in user"""
 
         return Business.query.filter_by(created_by = user_id)
- 
-
+    @staticmethod
+    def get_all():
+        """ This method retrieves all busineses"""
+        return Business.query.all()
+        
     def delete(self):
         db.session.delete(self)
         db.session.commit()
