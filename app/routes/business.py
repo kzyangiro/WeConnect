@@ -44,10 +44,12 @@ def register_business():
                     business.save()
                     response = jsonify({
                         "Success":"Business Created successfully",
+                        "business Id":business.businessid,
                         "business Name":business.business_name,
-                        "category":business.category,
-                        "location":business.location,
-                        "created_by":user_id
+                        "business category":business.category,
+                        "business location":business.location,
+                        "date created":business.date_created,
+                        "owner":user_id
 
                     })
                     response.status_code = 201
@@ -60,7 +62,7 @@ def register_business():
                 return response
 
             else:
-                # user is not legit, so the payload is an error message
+                # payload error
                 message = user_id
                 response = {
                     'message': message
@@ -73,26 +75,29 @@ def get_all_business():
     businesses = Business.get_all()
     results = []
 
-    #rows=businesses.count()
-    for business in businesses:
-        obj={
-            "business id":business.businessid,
-            "business name":business.business_name
+    if len(businesses) == 0:
+        """ Checking if there is no business"""
+        response = make_response(jsonify({
+            'Message': "No Businesses Available"
+            }
+        ), 404)
+        return response
+        
+    else:
+        for business in businesses:
+            obj={
+                "Business id":business.businessid,
+                "Name":business.business_name
 
-        }
-        results.append(obj)
+            }
+            results.append(obj)
 
         response=jsonify(results)
         response.status_code = 200
         return response
 
 
-    """ Checking if there is no business"""
-    response = make_response(jsonify({
-        'Message': "No Businesses Available"
-        }
-    ), 404)
-    return response
+
 
 
 @bs.route('/api/v1/mybusinesses', methods=['GET'])
@@ -114,27 +119,29 @@ def get_my_business():
             businesses = Business.query.filter_by(created_by=user_id)
             results = []
 
-            for business in businesses:
-                obj={
-                    "business id":business.businessid,
-                    "business name":business.business_name
+            if businesses.count() == 0:
+                """ Checking if there is no business"""
+                response = make_response(jsonify({
+                    'Message': "You have registered no businesses"
+                    }
+                ), 404)
+                return response
+                
+            else:
+                for business in businesses:
+                    obj={
+                        "Business id":business.businessid,
+                        "Name":business.business_name
 
-                }
-                results.append(obj)
+                    }
+                    results.append(obj)
 
                 response=jsonify(results)
                 response.status_code = 200
                 return response
 
-
-            """ Checking if there is no business"""
-            response = make_response(jsonify({
-                'Message': "You have registered no businesses"
-                }
-            ), 404)
-            return response
         else:
-            # user is not legit, so the payload is an error message
+            # payload error
             message = user_id
             response = {
                 'message': message
@@ -152,14 +159,15 @@ def get_businesses_by_id(businessid):
     for business in businesses:
         if businessid == business.businessid:
             obj={
-                "business id":business.businessid,
-                "business name":business.business_name,
-                "category":business.category,
-                "location":business.location,
-                "description":business.about,
-                "date Created":business.date_created,
-                "date Modified":business.date_modified,
+                "Business Id":business.businessid,
+                "Business Name":business.business_name,
+                "Category":business.category,
+                "Business location":business.location,
+                "Description":business.about,
+                "date created":business.date_created,
+                "date modified":business.date_modified,
                 "created_by":business.created_by
+
             }
             response=jsonify(obj)
             response.status_code = 200
@@ -197,7 +205,7 @@ def delete_businesses(businessid):
             return response
 
         else:
-            # last login session is expired/user is not legit, so the payload is an error message
+            # last login session is expired/user is not legit, payload error
             message = user_id
             response = {
                 'message': message
@@ -266,7 +274,7 @@ def update_businesses(businessid):
             return response
 
         else:
-            # user is not legit, so the payload is an error message
+            # payload error
             message = user_id
             response = {
                 'message': message
