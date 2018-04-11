@@ -17,6 +17,9 @@ class User(db.Model):
     businesses = db.relationship(
         'Business', order_by='Business.businessid', cascade="all, delete-orphan")
 
+    reviews = db.relationship(
+        'Review', order_by='Review.id', cascade="all, delete-orphan")
+
 
     def __init__(self, username, email, password):
          
@@ -140,13 +143,34 @@ class Business(db.Model): #This class represents the Businesses Table
 
 
 
-class Review(object):
+class Review(db.Model):
     """Reviews class creates an instance of a review"""
-    reviews=[]
+    #reviews=[]
+    __tablename__ ='reviews'
 
-    def __init__(self, title, content):
+    id=db.Column(db.Integer, primary_key=True)
+    title=db.Column(db.String(255))
+    content=db.Column(db.String(255))
+    
+    created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
-        self.id=len(Review.reviews)+1
+    businessid = db.Column(db.Integer, db.ForeignKey(Business.businessid))
+
+    def __init__(self, title, content, created_by, businessid):
+
         self.title = title
         self.content = content
+        self.created_by = created_by
+        self.businessid = businessid
+
+ 
+    def save(self):
+        """ This method adds the instance of the review created into reviews table"""
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all(business_id):
+        """ This method retrieves all the reviews of a business"""
+        return Reviews.query.filter_by(businessid = business_id)
         
