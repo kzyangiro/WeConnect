@@ -19,37 +19,42 @@ def create_a_business_review(businessid):
             content = str(request.data.get('content'))
             
             if title and content:
-                
 
                 businesses = Business.get_all()
-                for business in businesses:
-                    if business.businessid == businessid:
 
-                        review = Review(title=title, content=content, created_by=user_id, businessid=businessid)
-                        review.save()
-                        response =make_response(
-                        jsonify({
-                            'message':'Review added successfully',
-                            'title': review.title,
-                            'content': review.content,
-                            "created_by":user_id
-                            
-                            }), 201)
-                        return response
-                            
-                    else:
-                        response = make_response(
-                        jsonify({
-                            'message':'No business with the given id'
-                            
-                            }), 404)
-                        return response
-                response = make_response(
-                jsonify({
-                    'message':'No business available'
-                    
-                    }), 404)
-                return response
+                if len(businesses) == 0:
+                    response = make_response(
+                    jsonify({
+                        'message':'No business available'
+                        
+                        }), 404)
+                    return response
+
+                else:
+                    for business in businesses:
+                        if business.businessid == businessid:
+
+                            review = Review(title=title, content=content, created_by=user_id, businessid=businessid)
+                            review.save()
+                            response =make_response(
+                            jsonify({
+                                'Message':'Review added successfully',
+                                'Title': review.title,
+                                'content': review.content,
+                                "created By":user_id,
+                                "creation date":review.date_created
+                                
+                                }), 201)
+                            return response
+                                
+                        
+                    response = make_response(
+                    jsonify({
+                        'message':'No business with the given id'
+                        
+                        }), 404)
+                    return response
+
             else:
                 response = make_response(jsonify({
                         'message': "Incomplete Information"
@@ -72,37 +77,38 @@ def get_all_business_reviews(businessid):
     businesses = Business.get_all()
     for business in businesses:
         if business.businessid == businessid:
-            if len(business.reviews) == 0:
+            reviews = Review.get_all(businessid)
+            results=[]
+
+            if reviews.count() == 0:
+                
                 response = make_response(jsonify({
-                    'message': "No reviews found"
+                    'message':'No reviews found'
                     }
-                ), 404)
+                    ), 404)
                 return response
+            else:
 
-            for reviews in business.reviews:
-                business_reviews = []
-                business_review = {}
-                business_review[reviews.title]= reviews.content
-                business_reviews.append(business_review)
-            response = make_response(jsonify({
-                'Business reviews':business_reviews
-                }
-                ), 302)
-            return response
-
-        else:
-             response =make_response(
-                jsonify({
-                    'message':'No business with the id'
+                for review in reviews:
                     
-                    }), 404)
-        return response    
+                    obj={
+                        "Title":review.title,
+                        "content":review.content,
+                        "created by":review.created_by,
+                        "creation date":review.date_created
+                    }
+
+                    results.append(obj)
+                    
+                return make_response(jsonify(results)),200
+
+
+    response =make_response(
+            jsonify({
+                'message':'No business with the id'
+                
+                }), 404)
+    return response    
        
 
-    response = make_response(
-            jsonify({
-            'message':'No businesses found'
-            
-            }), 404)
-            
-    return response
+
