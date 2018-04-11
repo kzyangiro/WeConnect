@@ -90,11 +90,38 @@ class TestReviewClass(unittest.TestCase):
         response=self.client.post('/api/v1/businesses/1/review', headers=dict(Authorization="Bearer " + access_token), data = self.reviews)
         self.assertEqual(response.status_code, 201)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Review added successfully", response_msg["message"])
+        self.assertEqual("Review added successfully", response_msg["Message"])
 
-    # def view_reviews(self):
-    #     self.client.post('/api/v1/businesses', data=self.business)
-    #     self.client.post('/api/v1/businesses/1/review', data = self.reviews)
-    #     response=self.client.get('/api/v1/businesses/1/review')
-    #     self.assertEqual(response.status_code, 302)
- 
+    def view_reviews(self):
+        """Test retrieving reviews"""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        #create business
+        self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token),data=self.business)
+        #create review
+        response=self.client.post('/api/v1/businesses/1/review', headers=dict(Authorization="Bearer " + access_token), data = self.reviews)
+        response=self.client.get('/api/v1/businesses/1/review')
+        self.assertEqual(response.status_code, 200)
+
+    def view_reviews_but_no_reviews(self):
+        """Test cannot retrieve reviews when none exists"""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        #create business
+        self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token),data=self.business)
+        #create review
+        response=self.client.get('/api/v1/businesses/1/review')
+        self.assertEqual(response.status_code, 404)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("No reviews found", response_msg["message"])
+
+    def view_reviews_but_no_business_with_given_id(self):
+        """Test cannot retrieve reviews when given id does not exists"""
+        response=self.client.get('/api/v1/businesses/1/review')
+        self.assertEqual(response.status_code, 404)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("No business with the id", response_msg["message"])
