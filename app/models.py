@@ -154,6 +154,14 @@ class Review(db.Model):
     
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
+    #store modification timestamps
+    
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_modified = db.Column(
+    db.DateTime, default=db.func.current_timestamp(),
+    onupdate = db.func.current_timestamp())
+
+
     businessid = db.Column(db.Integer, db.ForeignKey(Business.businessid))
 
     def __init__(self, title, content, created_by, businessid):
@@ -170,7 +178,7 @@ class Review(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all(business_id):
+    def get_all(businessid):
         """ This method retrieves all the reviews of a business"""
-        return Reviews.query.filter_by(businessid = business_id)
+        return Review.query.filter_by(businessid = businessid)
         
