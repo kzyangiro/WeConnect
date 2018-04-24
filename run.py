@@ -1,5 +1,3 @@
-require 'coveralls'
-Coveralls.wear!
 import os
 from app import create_app
 
