@@ -1,6 +1,6 @@
 from flask import request, make_response, jsonify, session
 from . import bs
-from .. models import Business, User
+from .. models import Business, User, Review
 
 @bs.route('/', methods=['POST', 'GET'])
 def homepage():
@@ -133,12 +133,12 @@ def get_my_business():
             else:
                 for business in businesses:
                     obj={
-                        "Business id":business.businessid,
-                        "Name":business.business_name,
+                        "Business Id":business.businessid,
+                        "Business Name":business.business_name,
                         "Category":business.category,
                         "Business location":business.location,
-                        "date created":business.date_created,
-                        "date modified":business.date_modified
+                        "Date created":business.date_created,
+                        "Date modified":business.date_modified
 
                     }
                     results.append(obj)
@@ -201,8 +201,17 @@ def delete_businesses(businessid):
             
             businesses = Business.query.filter_by(created_by=user_id)
 
+            reviews = Review.get_all(businessid)
+
             for business in businesses:
+                if reviews:
+                    reviews.delete()
+                else:
+                    pass
+
+                
                 if businessid == business.businessid:
+                    
                     business.delete()
                     response=jsonify({"Success":"Business Deleted Successfully"})
                     response.status_code = 200
