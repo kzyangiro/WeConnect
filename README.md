@@ -58,10 +58,7 @@ Copy the access token generated, fill in as authorisation "Bearer Token" then yo
 
 <h4>Unit Testing</h4>
   - Use pytest or nosetests for running the tests<br>
-  - To run tests using pytest, use the command:
-  ```sh
-  pytest
-  ```
+  - To run tests using pytest, use the command: $ pytest
 
 
 
