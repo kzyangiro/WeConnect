@@ -1,7 +1,6 @@
 from flask import request, make_response, jsonify, session
 from . import bs
 from .. models import Business, User
-from sqlalchemy.sql.expression import select, exists
 
 @bs.route('/', methods=['POST', 'GET'])
 def homepage():
@@ -13,71 +12,77 @@ def homepage():
         }))
                 
     return res
+
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
 
-        # Obtain token from header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(' ')[1]
+    """ Endpoint to register a new business. User has to be logged in"""
 
-        if access_token:
-            """If accessed, decode token to get userid"""
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                # If it returns a string then its an error, otherwise, token decoded, we can proceed
+    # Obtain token from header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(' ')[1]
 
-                business_name = str(request.data.get('business_name').strip(' '))
-                about = str(request.data.get('about').strip(' '))
-                location = str(request.data.get('location').strip(' '))
-                category = str(request.data.get('category').strip(' '))
-                
-                if business_name and about and location and category:
-                    businesses = Business.get_all()
-                    for business in businesses:
-                        if business.business_name == business_name:
-                            res = jsonify({
-                                "Error":"Business already exists, use a different business name"
-                            })
-                            res.status_code = 409
-                            return res
+    if access_token:
 
-                    business = Business(business_name=business_name, about=about, location=location, category=category, created_by=user_id)
-                    business.save()
-                    response = jsonify({
-                        "Success":"Business Created successfully",
-                        "business Id":business.businessid,
-                        "business Name":business.business_name,
-                        "business category":business.category,
-                        "business location":business.location,
-                        "date created":business.date_created,
-                        "owner":user_id
+        """decode token to get userid"""
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
 
-                    })
-                    response.status_code = 201
-                    return response
+            # If it returns a string then its an error, otherwise, token decoded, we can proceed
+            business_name = str(request.data.get('business_name').strip(' '))
+            about = str(request.data.get('about').strip(' '))
+            location = str(request.data.get('location').strip(' '))
+            category = str(request.data.get('category').strip(' '))
+            
+            if business_name and about and location and category:
+                businesses = Business.get_all()
+                for business in businesses:
+                    if business.business_name == business_name:
+                        res = jsonify({
+                            "Error":"Business already exists, use a different business name"
+                        })
+                        res.status_code = 409
+                        return res
 
-                response = make_response(jsonify({
-                        'Message': "Kindly input the missing fields"
-                        }
-                    ), 400)
+                business = Business(business_name=business_name, about=about, location=location, category=category, created_by=user_id)
+                business.save()
+                response = jsonify({
+                    "Success":"Business Created successfully",
+                    "business Id":business.businessid,
+                    "business Name":business.business_name,
+                    "business category":business.category,
+                    "business location":business.location,
+                    "date created":business.date_created,
+                    "owner":user_id
+
+                })
+                response.status_code = 201
                 return response
 
-            else:
-                # payload error
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return make_response(jsonify(response)), 401
+            response = make_response(jsonify({
+                    'Message': "Kindly input the missing fields"
+                    }
+                ), 400)
+            return response
+
+        else:
+            """Invalid Access token, payload error"""
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
+
 @bs.route('/api/v1/businesses', methods=['GET'])
 def get_all_business():
-    """retrieve all businesses """
+    """Retrieve all businesses"""
 
     businesses = Business.get_all()
     results = []
 
     if len(businesses) == 0:
         """ Checking if there is no business"""
+
         response = make_response(jsonify({
             'Message': "No Businesses Available"
             }
@@ -101,22 +106,17 @@ def get_all_business():
 
 
 
-
-
 @bs.route('/api/v1/mybusinesses', methods=['GET'])
 def get_my_business():
-    """Display all businesses of the loggedin user """
+    """Display all businesses of the loggedin user"""
 
-    # Obtain token from header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(' ')[1]
 
     if access_token:
-        """If accessed, decode token to get userid"""
         user_id = User.decode_token(access_token)
-        if not isinstance(user_id, str):
-            # If it returns a string then its an error, otherwise, token decoded, we can proceed
 
+        if not isinstance(user_id, str):
 
             """retrieve all for the specific logged in id """
             businesses = Business.query.filter_by(created_by=user_id)
@@ -148,7 +148,7 @@ def get_my_business():
                 return response
 
         else:
-            # payload error
+            """Invalid Access token, payload error"""
             message = user_id
             response = {
                 'message': message
@@ -160,7 +160,7 @@ def get_my_business():
 @bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
 def get_businesses_by_id(businessid):
 
-    """This endpoint retrieves a business by the given id"""
+    """Retrieve a business of a given id"""
     businesses = Business.get_all()
 
     for business in businesses:
@@ -189,15 +189,16 @@ def get_businesses_by_id(businessid):
 def delete_businesses(businessid):
     """This endpoint deletes a business, but only by the owner while logged in"""
 
-    #Obtain token from header
+    """Obtain token from header"""
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(' ')[1]
 
     if access_token:
         """If accessed, decode token to get userid"""
         user_id = User.decode_token(access_token)
+
         if not isinstance(user_id, str):
-            # If it returns a string then its an error, otherwise, token decoded, we can proceed
+            
             businesses = Business.query.filter_by(created_by=user_id)
 
             for business in businesses:
@@ -212,7 +213,7 @@ def delete_businesses(businessid):
             return response
 
         else:
-            # last login session is expired/user is not legit, payload error
+            """Invalid Access token, payload error"""
             message = user_id
             response = {
                 'message': message
@@ -223,9 +224,9 @@ def delete_businesses(businessid):
 @bs.route('/api/v1/businesses/<int:businessid>', methods=['PUT'])
 
 def update_businesses(businessid):
-    """This endpoint uses input data to update the content of a business of the ID indicated in the URL"""
+    """Edit details of the business of the ID indicated in the URL"""
 
-    # Ensure use is logged in, then obtain token from header
+    """Ensure use is logged in, then obtain token from header"""
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(' ')[1]
 
@@ -233,8 +234,7 @@ def update_businesses(businessid):
         """If accessed, decode token to get userid"""
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            # If it returns a string then its an error, otherwise, token decoded, we can proceed
-
+            
             business_name = str(request.data.get('business_name').strip(' '))
             about = str(request.data.get('about').strip(' '))
             location = str(request.data.get('location').strip(' '))
@@ -282,7 +282,7 @@ def update_businesses(businessid):
             return response
 
         else:
-            # payload error
+            """Invalid Access token payload error"""
             message = user_id
             response = {
                 'message': message
@@ -294,7 +294,7 @@ def update_businesses(businessid):
 
 def search_business_by_name(q):
 
-    """This endpoint retrieves a business by the given search name"""
+    """Retrieve a business by the given search name"""
     businesses = Business.query.filter(Business.business_name.contains(q))
     results = []
     not_found_message = "Sorry, No business with that name"
@@ -324,7 +324,8 @@ def search_business_by_name(q):
 
 def filter_business_by_location(location):
 
-    """This endpoint retrieves a list of busiesses in the given location"""
+    """Retrieve a list of busiesses in the given location"""
+
     businesses = Business.query.filter(Business.location.contains(location))
     results = []
     not_found_message = "Sorry, No business in that location"
@@ -353,7 +354,7 @@ def filter_business_by_location(location):
 
 def filter_business_by_category(category):
 
-    """This endpoint retrieves a list of busiesses in the given Category"""
+    """Retrieve a list of busiesses in the given Category"""
     businesses = Business.query.filter(Business.category.contains(category))
     results = []
     not_found_message = "Sorry, No business in that category"
@@ -382,7 +383,7 @@ def filter_business_by_category(category):
 
 def filter_business_by_limit(b_limit):
 
-    """This endpoint retrieves a business of just the indicated limit"""
+    """Retrieve a list of businesses of just the indicated limit"""
     businesses = Business.get_business_by_limit(b_limit)
     results = []
     not_found_message = "Sorry, No busineses found"

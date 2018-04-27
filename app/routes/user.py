@@ -1,4 +1,4 @@
-from flask import request, make_response, jsonify, session
+from flask import request, make_response, jsonify
 from . import auth
 from .. models import User 
 import re
@@ -6,7 +6,7 @@ from flask_bcrypt import Bcrypt
 
 @auth.route('/api/v1/auth/register', methods=['POST'])
 def create_user_account():
-    """Endpoint to create a user"""    
+    """Register a new user"""    
 
     username = str(request.data.get('username').strip(' '))
     email = str(request.data.get('email').strip(' '))
@@ -71,21 +71,18 @@ def create_user_account():
 
 @auth.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
-    """Api to log in a user using username and password provided """ 
+    """Log in a user using username and password provided """ 
     username = str(request.data.get('username'))
     password = str(request.data.get('password'))
     if username and password:
 
-        #users = User.get_all()
 
         user = User.query.filter_by(username=request.data['username']).first()
 
         if user and user.password_is_valid(request.data['password']):
     
-            #import pdb; pdb.set_trace()
-            """Add Logged in user into login session"""
+            """If token is generated, login is successful"""
 
-            #session["username"]=username
             access_token = user.generate_token(user.id)
             if access_token:
                 
@@ -113,7 +110,7 @@ def user_login():
 
 @auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
-    """this endpoint will logout the user by removing the username from the session"""
+    """Logout the user by revoking access token"""
 
     if session.get("username") is not None:
         session.pop("username", None)
@@ -130,8 +127,8 @@ def user_logout():
 
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
+    """ Logged in user can reset password """
 
-        #Obtain token from header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(' ')[1]
 
@@ -147,8 +144,7 @@ def reset_password():
             confirm_password = str(request.data.get('confirm_password').strip(' ')) 
 
             if username and password and new_password and confirm_password: 
-                #users = User.get_all()
-
+       
                 user = User.query.filter_by(username=request.data['username']).first()
 
                 if user and user.password_is_valid(request.data['password']):
@@ -183,7 +179,7 @@ def reset_password():
             return response
 
         else:
-            # last login session is expired/user is not legit, so the payload is an error message
+            """last login session is expired/user is not legit, so the payload is an error message"""
             message = user_id
             response = {
                 'message': message

@@ -5,7 +5,7 @@ from .. models import Business, Review, User
 @bs.route('/api/v1/businesses/<int:businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
 
-    # Obtain token from header
+    """Add review for a business, only a logged in user can add a review"""
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(' ')[1]
 
@@ -14,7 +14,6 @@ def create_a_business_review(businessid):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
 
-            """Endpoint to create a review for a given business"""
             title = str(request.data.get('title'))
             content = str(request.data.get('content'))
             
@@ -63,7 +62,6 @@ def create_a_business_review(businessid):
                 return response
 
         else:
-            # user is not legit, so the payload is an error message
             message = user_id
             response = {
                 'message': message
@@ -73,7 +71,7 @@ def create_a_business_review(businessid):
 
 @bs.route('/api/v1/businesses/<int:businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
-    """Endpoint to retrieve all reviews for a business"""
+    """Retrieve all reviews for a business"""
     businesses = Business.get_all()
     for business in businesses:
         if business.businessid == businessid:
@@ -105,7 +103,7 @@ def get_all_business_reviews(businessid):
 
     response =make_response(
             jsonify({
-                'message':'No business with the id'
+                'message':'No business with the given id'
                 
                 }), 404)
     return response    
