@@ -289,47 +289,25 @@ def update_businesses(businessid):
 def search_business_by_name(q):
 
     """This endpoint retrieves a business by the given search name"""
-    businesses = Business.get_all()
+    businesses = Business.query.filter(Business.business_name.contains(q))
     results = []
 
-    if len(businesses) == 0:
-        """ Checking if there is no business"""
-        response = make_response(jsonify({
-            'Message': "No Businesses Available"
-            }
-        ), 404)
-        return response
-        
-    else:
-        for business1 in businesses:
-            if q not in business1.business_name:
+    for business in businesses:
 
-                response = make_response(jsonify({
-                    'Message': "Businesses Not Available"
-                    }
-                ), 404)
-                return response
-                
-                
-        for business in businesses:
+        obj={
+        "Business Id":business.businessid,
+        "Business Name":business.business_name,
+        "Category":business.category,
+        "Business location":business.location,
+        "Description":business.about,
+        "date created":business.date_created,
+        "date modified":business.date_modified,
+        "created_by":business.created_by
+
+        }
+        results.append(obj)
             
-            #if LOWER(q) in LOWER(business.business_name):
 
-            if q in business.business_name:
-                obj={
-                "Business Id":business.businessid,
-                "Business Name":business.business_name,
-                "Category":business.category,
-                "Business location":business.location,
-                "Description":business.about,
-                "date created":business.date_created,
-                "date modified":business.date_modified,
-                "created_by":business.created_by
-
-                }
-                results.append(obj)
-                
-
-        response=jsonify(results)
-        response.status_code = 200
-        return response
+    response=jsonify(results)
+    response.status_code = 200
+    return response
