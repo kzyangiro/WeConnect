@@ -291,6 +291,7 @@ def search_business_by_name(q):
     """This endpoint retrieves a business by the given search name"""
     businesses = Business.query.filter(Business.business_name.contains(q))
     results = []
+    not_found_message = "Sorry, No business with that name"
 
     for business in businesses:
 
@@ -306,8 +307,13 @@ def search_business_by_name(q):
 
         }
         results.append(obj)
-            
 
-    response=jsonify(results)
-    response.status_code = 200
+    if results == []:
+        response=jsonify(not_found_message)
+        response.status_code = 404
+
+    else:
+        response=jsonify(results)
+        response.status_code = 200
+    
     return response
