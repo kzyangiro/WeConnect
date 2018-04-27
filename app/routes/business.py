@@ -351,3 +351,37 @@ def filter_business_by_location(location):
         response.status_code = 200
     
     return response
+
+@bs.route('/api/v1/business_category/<string:category>', methods=['GET'])
+
+def filter_business_by_category(category):
+
+    """This endpoint retrieves a list of busiesses in the given location"""
+    businesses = Business.query.filter(Business.category.contains(category))
+    results = []
+    not_found_message = "Sorry, No business in that category"
+
+    for business in businesses:
+
+        obj={
+        "Business Id":business.businessid,
+        "Business Name":business.business_name,
+        "Category":business.category,
+        "Business location":business.location,
+        "Description":business.about,
+        "date created":business.date_created,
+        "date modified":business.date_modified,
+        "created_by":business.created_by
+
+        }
+        results.append(obj)
+
+    if results == []:
+        response=jsonify(not_found_message)
+        response.status_code = 404
+
+    else:
+        response=jsonify(results)
+        response.status_code = 200
+    
+    return response
