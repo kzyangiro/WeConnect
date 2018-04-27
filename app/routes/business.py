@@ -1,6 +1,5 @@
 from flask import request, make_response, jsonify, session
 from . import bs
-
 from .. models import Business, User
 from sqlalchemy.sql.expression import select, exists
 
@@ -89,7 +88,9 @@ def get_all_business():
         for business in businesses:
             obj={
                 "Business id":business.businessid,
-                "Name":business.business_name
+                "Name":business.business_name,
+                "Category":business.category,
+                "Business location":business.location
 
             }
             results.append(obj)
@@ -133,7 +134,11 @@ def get_my_business():
                 for business in businesses:
                     obj={
                         "Business id":business.businessid,
-                        "Name":business.business_name
+                        "Name":business.business_name,
+                        "Category":business.category,
+                        "Business location":business.location,
+                        "date created":business.date_created,
+                        "date modified":business.date_modified
 
                     }
                     results.append(obj)
@@ -257,6 +262,7 @@ def update_businesses(businessid):
                             "business Name":business.business_name,
                             "category":business.category,
                             "location":business.location,
+                            "Description":business.about,
                             "created_by":user_id
 
                         })
@@ -299,11 +305,7 @@ def search_business_by_name(q):
         "Business Id":business.businessid,
         "Business Name":business.business_name,
         "Category":business.category,
-        "Business location":business.location,
-        "Description":business.about,
-        "date created":business.date_created,
-        "date modified":business.date_modified,
-        "created_by":business.created_by
+        "Business location":business.location
 
         }
         results.append(obj)
@@ -332,12 +334,7 @@ def filter_business_by_location(location):
         obj={
         "Business Id":business.businessid,
         "Business Name":business.business_name,
-        "Category":business.category,
-        "Business location":business.location,
-        "Description":business.about,
-        "date created":business.date_created,
-        "date modified":business.date_modified,
-        "created_by":business.created_by
+        "Category":business.category
 
         }
         results.append(obj)
@@ -356,7 +353,7 @@ def filter_business_by_location(location):
 
 def filter_business_by_category(category):
 
-    """This endpoint retrieves a list of busiesses in the given location"""
+    """This endpoint retrieves a list of busiesses in the given Category"""
     businesses = Business.query.filter(Business.category.contains(category))
     results = []
     not_found_message = "Sorry, No business in that category"
@@ -366,12 +363,7 @@ def filter_business_by_category(category):
         obj={
         "Business Id":business.businessid,
         "Business Name":business.business_name,
-        "Category":business.category,
-        "Business location":business.location,
-        "Description":business.about,
-        "date created":business.date_created,
-        "date modified":business.date_modified,
-        "created_by":business.created_by
+        "Business location":business.location
 
         }
         results.append(obj)
