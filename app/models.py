@@ -127,6 +127,13 @@ class Business(db.Model): #This class represents the Businesses Table
         """ This method retrieves all busineses for the particular logged in user"""
 
         return Business.query.filter_by(created_by = user_id)
+
+    @staticmethod
+    def get_business_by_limit(b_limit):
+        """ This method retrieves all busineses for the particular logged in user"""
+
+        return Business.query.filter().limit(b_limit).all()
+    
     @staticmethod
     def get_all():
         """ This method retrieves all busineses"""

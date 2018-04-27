@@ -385,3 +385,33 @@ def filter_business_by_category(category):
         response.status_code = 200
     
     return response
+
+@bs.route('/api/v1/businesses_by_limit/<int:b_limit>', methods=['GET'])
+
+def filter_business_by_limit(b_limit):
+
+    """This endpoint retrieves a business of just the indicated limit"""
+    businesses = Business.get_business_by_limit(b_limit)
+    results = []
+    not_found_message = "Sorry, No busineses found"
+
+    for business in businesses:
+
+        obj={
+        "Business Id":business.businessid,
+        "Business Name":business.business_name,
+        "Category":business.category,
+        "Business location":business.location
+
+        }
+        results.append(obj)
+
+    if results == []:
+        response=jsonify(not_found_message)
+        response.status_code = 404
+
+    else:
+        response=jsonify(results)
+        response.status_code = 200
+    
+    return response
