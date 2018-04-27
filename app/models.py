@@ -72,7 +72,7 @@ class User(db.Model):
         """Decodes the access token"""
         try:
             """Use SECRET variable used in configuration to decode token"""
-             payload = jwt.decode(token, current_app.config.get('SECRET'))
+            payload = jwt.decode(token, current_app.config.get('SECRET'))
             return payload['sub']
         except jwt.ExpiredSignatureError:            
             return "Kindly login to get a new token. Token is Expired"
@@ -179,6 +179,10 @@ class Review(db.Model):
         """ This method adds the instance of the review created into reviews table"""
         db.session.add(self)
         db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()        
 
     @staticmethod
     def get_all(businessid):
