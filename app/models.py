@@ -1,3 +1,8 @@
+import jwt
+from datetime import datetime, timedelta
+from flask import current_app
+
+
 class Business(object):
     """Business Class Creates an instance of business"""
     business_list = []
@@ -29,6 +34,54 @@ class User(object):
         """Save method adds the created users details into the users list"""
         User.user.append(instance)
 
+    @staticmethod
+    def get_all():
+        return User.query.all()
+
+    def generate_token(self, user_id):
+        """ This method generates the token to be used for authentification, returns a string"""
+
+        try:
+            """set payload, and indicate expiry duration of the token"""
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'sub': user_id
+            }
+            """create the byte string token"""
+            jwt_string = jwt.encode(
+                payload,
+                current_app.config.get('SECRET'),
+                algorithm='HS256'
+            )
+
+            jwt_string1 = jwt_string.decode("utf-8")
+            return jwt_string1
+
+        except Exception as e:
+            return str(e)
+
+    @staticmethod
+    def decode_token(token):
+        """Decodes the access token"""
+        try:
+            """Use SECRET variable used in configuration to decode token"""
+            payload = jwt.decode(token, current_app.config.get('SECRET'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:            
+            return "Kindly login to get a new token. Access Token is Expired"
+
+        except jwt.InvalidTokenError:
+            return "Please register or login, Invalid Token"
+class BlacklistToken(object):
+    """List for storing blacklisted JWT tokens"""
+    blacklist_tokens = []
+
+
+    def __init__(self, token):
+        self.id=len(BlacklistToken.blacklist_tokens)+1
+        self.token = token
+        
 class Review(object):
     """Reviews class creates an instance of a review"""
     reviews=[]
@@ -38,6 +91,9 @@ class Review(object):
         self.id=len(Review.reviews)+1
         self.title = title
         self.content = content
-        
+
+
+
+
 
 
