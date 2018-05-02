@@ -1,19 +1,17 @@
 from flask import request, make_response, jsonify, session
 from . import bs
-from .. models import User
+from .. models import User, BlacklistToken
 import re
+
 
 @bs.route('/api/v1/auth/register', methods=['POST'])
 def create_user_account():
-    """Endpoint to create a user"""
-    # import pdb; pdb.set_trace()
+    """Register a new user"""
 
     username = str(request.data.get('username').strip(' '))
     email = str(request.data.get('email').strip(' '))
     password = str(request.data.get('password').strip(' '))
     confirm_password = str(request.data.get('confirm_password').strip(' '))
-
-    
 
     if username and email and password and confirm_password:
         """Checks is all fields have been filled in"""
@@ -69,21 +67,25 @@ def create_user_account():
 
 @bs.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
-    """Api to log in a user using username and password provided """ 
+    """log in a user using username and password provided """ 
     username = str(request.data.get('username'))
     password = str(request.data.get('password'))
-    responce = ''
+    
     if username and password:
         for myuser in User.user:
             if username==myuser.username and password==myuser.password:
-                """Add Logged in user into login session"""
+                """Generate access token"""
 
-                session["username"]=username
-                responce = make_response(
-                    jsonify({
-                        'message':'User Logged in successfully'
-                    }),200)
-                return responce
+                access_token = myuser.generate_token(myuser.userid)
+
+                if access_token:
+
+                    responce = make_response(
+                        jsonify({
+                            'message':'User Logged in successfully',
+                            'access_token':access_token
+                        }),200)
+                    return responce
                 
 
             responce1 = make_response(
@@ -102,67 +104,121 @@ def user_login():
     
     responce = make_response(
         jsonify({
-            'message':'Empty username or password field'
+            'message':'Fill in the empty fields'
         }),400)
 
     return responce
 
 @bs.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
-    """this endpoint will logout the user by removing the username from the session"""
+    """logout the user by blacklisting the acess_token"""
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'
 
-    if session.get("username") is not None:
-        session.pop("username", None)
-        return jsonify({"message": "User Logged out successfully"})
-    
+    if access_token:
 
-    responce = make_response(
-    jsonify({
-        'message':'You are not logged in'
-    }),400)
+        for token in BlacklistToken.blacklist_tokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token == access_token:
+                responce = make_response(jsonify({'status':'You are already Logged Out, kindly login first'}),400)
+                return responce 
+          
 
-    return responce
+        """Decode token"""
+        user_id = User.decode_token(access_token)
+
+        if not isinstance(user_id, str):
+            
+            try:
+                BlacklistToken.blacklist_tokens.append(access_token)
+                response = make_response(
+                jsonify({
+                    'status':'Successfully Logged Out'
+                }),400)
+
+                return response
+
+            except Exception as e:
+                response = {
+                    'message': e
+                }
+                return make_response(jsonify(response)), 401
+        else:
+            responseObject = {
+                'status': 'failed',
+                'message': 'Invalid Access Token'
+            }
+            return make_response(jsonify(responseObject)), 401
 
 
 @bs.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
-    """This endpoint enables a registered user to edit password"""
-    username = str(request.data.get('username'))
-    current_password = str(request.data.get('current_password')) 
-    new_password = str(request.data.get('new_password').strip(' ')) 
-    confirm_password = str(request.data.get('confirm_password').strip(' ')) 
 
-    if username and current_password and new_password and confirm_password: 
+    """A registered user to edit password"""
 
-        for myuser in User.user:
-            if myuser.username == username and myuser.password == current_password:
-              
-                if new_password != confirm_password:
-                    res = make_response(jsonify({
-                            'message':'Passords not matching'
-                        }), 400)
-                    return res
 
-                myuser.password=new_password
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'    
+    
+    if access_token:
 
-                resp= make_response(jsonify({
-                            'message':'Password reset successfully'
-                        }), 200)
-                return resp
+        for token in BlacklistToken.blacklist_tokens:
+            if token == access_token:
+                responce = make_response(jsonify({'status':'You are Logged Out, kindly login first'}),400)
+                return responce 
 
-            respon = make_response(jsonify({
-                            'message':'Username or password error'
-                        }), 404)
-            return respon
+        """Decode Token"""
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            
+            username = str(request.data.get('username'))
+            current_password = str(request.data.get('current_password')) 
+            new_password = str(request.data.get('new_password').strip(' ')) 
+            confirm_password = str(request.data.get('confirm_password').strip(' ')) 
 
-        respons = make_response(jsonify({
-                            'message':'No available user'
-                        }), 404)
-        return respons
+            if username and current_password and new_password and confirm_password: 
 
-    response = make_response(jsonify({
-                            'message':'Input Empty Fields'
-                        }), 400)
-    return response
+                for myuser in User.user:
+                    if myuser.username == username and myuser.password == current_password:
+                    
+                        if new_password != confirm_password:
+                            res = make_response(jsonify({
+                                    'message':'Passords not matching'
+                                }), 400)
+                            return res
 
-         
+                        myuser.password=new_password
+
+                        resp= make_response(jsonify({
+                                    'message':'Password reset successfully'
+                                }), 200)
+                        return resp
+
+                    respon = make_response(jsonify({
+                                    'message':'Username or password error'
+                                }), 404)
+                    return respon
+
+                respons = make_response(jsonify({
+                                    'message':'No available user'
+                                }), 404)
+                return respons
+
+            response = make_response(jsonify({
+                                    'message':'Input Empty Fields'
+                                }), 400)
+            return response
+
+        else:
+            """last login session is expired/user is not legit, so the payload is an error message"""
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401       
