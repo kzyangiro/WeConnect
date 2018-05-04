@@ -13,6 +13,7 @@ class Business(object):
         self.location=location
         self.about=about
         self.category=category
+        self.created_by=category
         self.reviews= []
 
 
@@ -23,16 +24,16 @@ class Business(object):
 
 class User(object):
     """User class creates an instance of a user"""
-    user = []
+    USERS = []
     def __init__(self, username, email, password):
-        self.userid=len(User.user)+1
+        self.userid=len(User.USERS)+1
         self.username = username
         self.email=email
         self.password=password
 
     def save(self,instance):
         """Save method adds the created users details into the users list"""
-        User.user.append(instance)
+        User.USERS.append(instance)
 
     @staticmethod
     def get_all():
