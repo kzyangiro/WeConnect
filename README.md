@@ -5,7 +5,7 @@
 
 <h3>WeConnect</h3>
 
-WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. A authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses<br>
+WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. An authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses.<br><br>
 Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br> 
 
 <h4>Technology used</h4>
