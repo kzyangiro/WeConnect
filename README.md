@@ -95,7 +95,7 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 
 </table>
 
-<h4> Author </h4>
+<h4> Author </h4><br>
 Kezzy Ang'iro
 
 
