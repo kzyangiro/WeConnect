@@ -16,7 +16,7 @@ Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.htm
  </ul>
 
 <h4>Installation and Setup</h4>
- - Clone or download the api from github. To clone:
+ - Clone or download the api from github. To clone:<br>
 ```sh
 git clone https://github.com/kzyGit/WeConnect.git
 ```
@@ -41,7 +41,7 @@ $ export SECRET="a-long-string-of-random-characters-CHANGE-TO-YOUR-LIKING"
 
 <h4>Running the api</h4>
 
-- To run the application use the comand:
+- To run the application use the comand:<br>
 ```sh
 python run.py
 ```
@@ -56,7 +56,7 @@ python run.py
 
 <h4>Unit Testing</h4>
   - Use pytest or nosetests for running the tests<br>
-  - Example:
+  - Using pytest to run tests:<br>
 
   ```sh
   pytest
