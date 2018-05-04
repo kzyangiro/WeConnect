@@ -78,7 +78,7 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
   </ul>
 
 <h4> Api Endpoints </h4>
-
+<br>
 <table>
 <tr><td>Functionality</td><td>Endpoint</td></tr>
 
@@ -94,7 +94,6 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 <tr><td>Get reviews of a business</td><td>GET /api/businesses/<businessId>/reviews</td></tr>
 
 </table>
-<br>
 
 <h4> Author </h4>
 Kezzy Ang'iro
