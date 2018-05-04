@@ -80,7 +80,7 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 <h4> Api Endpoints </h4>
 <br>
 <table>
-<tr><td>Functionality</td><td>Endpoint</td></tr>
+  <tr><td><b>Functionality</b></td><td><b>Endpoint</b></td></tr>
 
 <tr><td>Create a new user</td><td>POST /api/auth/register</td></tr>
 <tr><td>Log in a registered User</td><td>POST /api/auth/login</td></tr>
@@ -95,8 +95,7 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 
 </table>
 
-<h4> Author </h4><br>
-Kezzy Ang'iro
+<b> Author </b>: Kezzy Ang'iro
 
 
 
