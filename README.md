@@ -16,24 +16,28 @@ Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.htm
  </ul>
 
 <h4>Installation and Setup</h4>
- - Clone or download the api from github. To clone:<br>
+Clone or download the api from github. To clone:<br>
+
 ```sh
 git clone https://github.com/kzyGit/WeConnect.git
 ```
+<br>
 
- - Create and activate a virtual environment:<br>
+Create and activate a virtual environment:<br>
  ```sh
-$ export FLASK_APP="run.py"
-$ export APP_SETTINGS="development"
-$ export SECRET="a-long-string-of-random-characters-CHANGE-TO-YOUR-LIKING"
+export FLASK_APP="run.py"
+export APP_SETTINGS="development"
+export SECRET="a-long-string-of-random-characters-CHANGE-TO-YOUR-LIKING"
  ```
 <br>
  - Move into our WeConnect directory <br>
+ 
  ```sh
  cd WeConnect
  ```
 <br>
  - Install Dependencies: run requirements file<br>
+ 
  ```sh
  pip install -r requirements.txt
  ```
@@ -72,8 +76,28 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
   <li>Registered user can login, reset password,logout, add a business, manage the businesses and add business reviews</li>
   <li>All sers can view businesses and their reviews</li>
   </ul>
-  
 
+<h4> Api Endpoints </h4>
+
+<table>
+<tr><td>Functionality</td><td>Endpoint</td></tr>
+
+<tr><td>Create a new user</td><td>POST /api/auth/register</td></tr>
+<tr><td>Log in a registered User</td><td>POST /api/auth/login</td></tr>
+<tr><td>Logout a User</td><td>POST /api/auth/logout</td></tr>
+<tr><td>Password Reset</td><td>POST /api/auth/reset-password</td></tr>
+<tr><td>Register a business</td><td>POST /api/businesses</td></tr>
+<tr><td>Update a business</td><td>PUT /api/businesses/<businessId></td></tr>
+<tr><td>Delete a Business</td><td>DELETE /api/businesses/<businessId></td></tr>
+<tr><td>Retrieve a business by id</td><td>GET /api/businesses/<businessId></td></tr>
+<tr><td>Add a business review</td><td>POST /api/businesses/<businessId>/reviews</td></tr>
+<tr><td>Get reviews of a business</td><td>GET /api/businesses/<businessId>/reviews</td></tr>
+
+</table>
+<br>
+
+<h4> Author </h4>
+Kezzy Ang'iro
 
 
 
