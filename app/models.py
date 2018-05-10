@@ -35,10 +35,6 @@ class User(object):
         """Save method adds the created users details into the users list"""
         User.USERS.append(instance)
 
-    @staticmethod
-    def get_all():
-        return User.query.all()
-
     def generate_token(self, user_id):
         """ This method generates the token to be used for authentification, returns a string"""
 
