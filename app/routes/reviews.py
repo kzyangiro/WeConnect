@@ -5,8 +5,8 @@ from .. models import Review, Business, User, BlacklistToken
 @bs.route('/api/v1/businesses/<int:businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
     """Endpoint to create a review for a given business"""
-    title = str(request.data.get('title'))
-    content = str(request.data.get('content'))
+    title = str(request.data.get('title').strip(' '))
+    content = str(request.data.get('content').strip(' '))
     
     """ Confirm user is authorised """
     auth_header = request.headers.get('Authorization')
@@ -34,14 +34,17 @@ def create_a_business_review(businessid):
                             
                 if title and content:
                     review = Review(title, content)
-                    for business in Business.business_list:
-                        if business.businessid == businessid:
-                            
-                            business.reviews.append(review)
 
-                            return jsonify({'message': 'Review added successfully'}), 201
-                                
-                        return jsonify({'message': 'No business with the given id'}), 404
+                    business = [business1 for business1 in Business.business_list if business1.businessid == businessid]
+                    
+                    if business:
+                        business = business[0]
+                        
+                        business.reviews.append(review)
+
+                        return jsonify({'message': 'Review added successfully'}), 201
+                            
+                    return jsonify({'message': 'No business with the given id'}), 404
 
                 return jsonify({'message': 'Incomplete Information'}), 400
 
@@ -53,23 +56,24 @@ def create_a_business_review(businessid):
 @bs.route('/api/v1/businesses/<int:businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
     """Endpoint to retrieve all reviews for a business"""
-    for business in Business.business_list:
-        if business.businessid == businessid:
-            business_reviews = []
-            
-            if len(business.reviews) == 0:
-                return jsonify({'message': 'No review found'}), 404
 
-            for reviews in business.reviews:
-                
-                business_review = {}
-                business_review[reviews.title]= reviews.content
-                business_reviews.append(business_review)
-            
-            return jsonify({'Business reviews':business_reviews}), 200
+    business = [business1 for business1 in Business.business_list if business1.businessid == businessid]
+    if business:
+        business = business[0]
+        
+        business_reviews = []
+        
+        rev = [review for review in business.reviews]
+        if not rev:
+            return jsonify({'message': 'No reviews found'}), 404 
+             
+        for reviews in business.reviews:
 
-        return jsonify({'message': 'No business with that id'}), 404   
- 
-            
-    return jsonify({'message': 'No businesses found'}), 404
+            business_review = {}
+            business_review[reviews.title]= reviews.content
+            business_reviews.append(business_review)
+        
+        return jsonify(business_reviews), 200
+
+    return jsonify({'message': 'No business with that id'}), 404 
  
