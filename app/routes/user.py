@@ -146,7 +146,7 @@ def reset_password():
 
                     return jsonify({'message':'Wrong Password'}), 401
 
-                return jsonify({'message':'User not Found'}), 404
+                return jsonify({'message':'User not found, invalid email'}), 404
 
             return jsonify({'message':'Input Empty Fields'}), 400
 
