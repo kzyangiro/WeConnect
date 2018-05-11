@@ -1,6 +1,10 @@
 language: python
 python:
   - "3.6.0"
+
+addons:
+  apt:
+    update: true
 install:
   - pip install -r requirements.txt
   - pip install nose
@@ -11,5 +15,3 @@ script:
   - coveralls
   - nosetests --exe -v
   - nosetests --exe --with-coverage --cover-package=app
-after_success:
-  - "coveralls"
