@@ -6,7 +6,8 @@
 <h3>WeConnect</h3>
 
 WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. An authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses.<br><br>
-Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br> 
+Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br><br>
+Link to WeConnect API documentation: https://app.swaggerhub.com/apis/Andela19/your-api/1.0.0<br> 
 
 <h4>Technology used</h4>
 <ul>
@@ -82,16 +83,16 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 <table>
   <tr><td><b>Functionality</b></td><td><b>Endpoint</b></td></tr>
 
-<tr><td>Create a new user</td><td>POST /api/auth/register</td></tr>
-<tr><td>Log in a registered User</td><td>POST /api/auth/login</td></tr>
-<tr><td>Logout a User</td><td>POST /api/auth/logout</td></tr>
-<tr><td>Password Reset</td><td>POST /api/auth/reset-password</td></tr>
-<tr><td>Register a business</td><td>POST /api/businesses</td></tr>
-<tr><td>Update a business</td><td>PUT /api/businesses/<businessId></td></tr>
-<tr><td>Delete a Business</td><td>DELETE /api/businesses/<businessId></td></tr>
-<tr><td>Retrieve a business by id</td><td>GET /api/businesses/<businessId></td></tr>
-<tr><td>Add a business review</td><td>POST /api/businesses/<businessId>/reviews</td></tr>
-<tr><td>Get reviews of a business</td><td>GET /api/businesses/<businessId>/reviews</td></tr>
+<tr><td>Create a new user</td><td>POST /api/v1/auth/register</td></tr>
+<tr><td>Log in a registered User</td><td>POST /api/v1/auth/login</td></tr>
+<tr><td>Logout a User</td><td>POST /api/v1/auth/logout</td></tr>
+<tr><td>Password Reset</td><td>POST /api/v1/auth/reset-password</td></tr>
+<tr><td>Register a business</td><td>POST /api/v1/businesses</td></tr>
+<tr><td>Update a business</td><td>PUT /api/v1/businesses/<businessId></td></tr>
+<tr><td>Delete a Business</td><td>DELETE /api/v1/businesses/<businessId></td></tr>
+<tr><td>Retrieve a business by id</td><td>GET /api/v1/businesses/<businessId></td></tr>
+<tr><td>Add a business review</td><td>POST /api/v1/businesses/<businessId>/review</td></tr>
+<tr><td>Get reviews of a business</td><td>GET /api/v1/businesses/<businessId>/review</td></tr>
 
 </table>
 
