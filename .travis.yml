@@ -12,6 +12,5 @@ install:
 services:
 script:
   - pytest
-  - coveralls
   - nosetests --exe -v
   - nosetests --exe --with-coverage --cover-package=app
