@@ -24,11 +24,19 @@ git clone https://github.com/kzyGit/WeConnect.git
 ```
 <br>
 
-Create and activate a virtual environment:<br>
+Install virtualenv:<br>
  ```sh
-export FLASK_APP="run.py"
-export APP_SETTINGS="development"
-export SECRET="a-long-string-of-random-characters-CHANGE-TO-YOUR-LIKING"
+pip install virtualenv venv
+ ```
+<br>
+- Create a virtual environment
+ ```sh
+virtualenv venv
+ ```
+<br>
+- Activate the irtual environment
+ ```sh
+source venv/bin/activate
  ```
 <br>
  - Move into our WeConnect directory <br>
@@ -37,6 +45,7 @@ export SECRET="a-long-string-of-random-characters-CHANGE-TO-YOUR-LIKING"
  cd WeConnect
  ```
 <br>
+
  - Install Dependencies: run requirements file<br>
  
  ```sh
