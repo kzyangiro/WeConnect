@@ -184,7 +184,7 @@ class TestBusinessClass(unittest.TestCase):
         response = self.client.put('/api/v1/businesses/1', headers=dict(Authorization="Bearer " + access_token),data=self.business1)
         self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertIn('Fill in the Empty fields', response_msg['message'])
+        self.assertIn('Fill in the empty fields', response_msg['message'])
        
 
     def test_delete_business(self):        
