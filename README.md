@@ -17,27 +17,30 @@ Link to WeConnect API documentation: https://app.swaggerhub.com/apis/Andela19/We
  </ul>
 
 <h4>Installation and Setup</h4>
+
+Install virtualenv:<br>
+
+ ```sh
+pip install virtualenv venv
+ ```
+<br>
+- Create a virtual environment:
+
+ ```sh
+virtualenv venv
+ ```
+<br>
+- Activate the irtual environment:
+
+ ```sh
+source venv/bin/activate
+ ```
+<br>
 Clone or download the api from github. To clone:<br>
 
 ```sh
 git clone https://github.com/kzyGit/WeConnect.git
 ```
-<br>
-
-Install virtualenv:<br>
- ```sh
-pip install virtualenv venv
- ```
-<br>
-- Create a virtual environment
- ```sh
-virtualenv venv
- ```
-<br>
-- Activate the irtual environment
- ```sh
-source venv/bin/activate
- ```
 <br>
  - Move into our WeConnect directory <br>
  
@@ -45,14 +48,12 @@ source venv/bin/activate
  cd WeConnect
  ```
 <br>
-
  - Install Dependencies: run requirements file<br>
  
  ```sh
  pip install -r requirements.txt
  ```
 <br>
-
 <h4>Running the api</h4>
 
 - To run the application use the comand:<br>
