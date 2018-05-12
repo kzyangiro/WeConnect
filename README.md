@@ -24,13 +24,13 @@ Install virtualenv:<br>
 pip install virtualenv venv
  ```
 <br>
-- Create a virtual environment:
+Create a virtual environment:<br>
 
  ```sh
 virtualenv venv
  ```
 <br>
-- Activate the irtual environment:
+Activate the virtual environment:<br>
 
  ```sh
 source venv/bin/activate
