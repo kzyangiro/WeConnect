@@ -29,31 +29,26 @@ Create a virtual environment:<br>
  ```sh
 virtualenv venv
  ```
-<br>
 Activate the virtual environment:<br>
 
  ```sh
 source venv/bin/activate
  ```
-<br>
 Clone or download the api from github. To clone:<br>
 
 ```sh
 git clone https://github.com/kzyGit/WeConnect.git
 ```
-<br>
- - Move into our WeConnect directory <br>
+Move into our WeConnect directory <br>
  
  ```sh
  cd WeConnect
  ```
-<br>
- - Install Dependencies: run requirements file<br>
+Install Dependencies: run requirements file<br>
  
  ```sh
  pip install -r requirements.txt
  ```
-<br>
 <h4>Running the api</h4>
 
 - To run the application use the comand:<br>
