@@ -8,10 +8,19 @@ import re
 def create_user_account():
     """Register a new user"""
 
-    username = str(request.data.get('username').strip(' '))
-    email = str(request.data.get('email').strip(' '))
-    password = str(request.data.get('password').strip(' '))
-    confirm_password = str(request.data.get('confirm_password').strip(' '))
+    username1 = request.data.get('username')
+    email1 = request.data.get('email')
+    password1 = request.data.get('password')
+    confirm_password1 = request.data.get('confirm_password')
+
+    if username1 and email1 and password1 and confirm_password1:
+
+        username = str(username1.strip(' '))
+        email = str(email1.strip(' '))
+        password = str(password1.strip(' '))
+        confirm_password = str(confirm_password1.strip(' '))
+    else:
+        return jsonify({'message': "Fill in the empty fields"}), 400
 
     if username and email and password and confirm_password:
         """Checks is all fields have been filled in"""
@@ -108,10 +117,10 @@ def user_logout():
 def reset_password():
     """A registered user to edit password"""
             
-    email = str(request.data.get('email'))
-    current_password = str(request.data.get('current_password')) 
-    new_password = str(request.data.get('new_password').strip(' ')) 
-    confirm_password = str(request.data.get('confirm_password').strip(' '))
+    email1 = request.data.get('email')
+    current_password1 = request.data.get('current_password')
+    new_password1 = request.data.get('new_password')
+    confirm_password1 = request.data.get('confirm_password')
 
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -130,6 +139,16 @@ def reset_password():
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
+
+            if email1 and current_password1 and new_password1 and confirm_password1:
+
+                email = str(email1.strip(' '))
+                current_password = str(current_password1.strip(' '))
+                new_password = str(new_password1.strip(' '))
+                confirm_password = str(confirm_password1.strip(' '))
+            else:
+                return jsonify({'message': "Fill in the empty fields"}), 400
+
 
             if email and current_password and new_password and confirm_password: 
 

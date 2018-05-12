@@ -5,9 +5,9 @@ from .. models import Review, Business, User, BlacklistToken
 @bs.route('/api/v1/businesses/<int:businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
     """Endpoint to create a review for a given business"""
-    title = str(request.data.get('title').strip(' '))
-    content = str(request.data.get('content').strip(' '))
-    
+    title1 = request.data.get('title')
+    content1 = request.data.get('content')
+
     """ Confirm user is authorised """
     auth_header = request.headers.get('Authorization')
 
@@ -31,22 +31,30 @@ def create_a_business_review(businessid):
         if not isinstance(user_id, str):
             
             try:
-                            
-                if title and content:
-                    review = Review(title, content)
+                business = [business1 for business1 in Business.business_list if business1.businessid == businessid]
+                
+                if not business:
+                    return jsonify({'message': 'No business with the given id'}), 404
 
-                    business = [business1 for business1 in Business.business_list if business1.businessid == businessid]
+                else:
+                    business = business[0]
+
+                    if title1 and content1:
+
+                        title = str(title1.strip(' '))
+                        content = str(content1.strip(' '))
+                    else:
+                        return jsonify({'message': 'Incomplete Information'}), 400
                     
-                    if business:
-                        business = business[0]
-                        
+                    if title and content:
+                        review = Review(title, content)
                         business.reviews.append(review)
 
                         return jsonify({'message': 'Review added successfully'}), 201
-                            
-                    return jsonify({'message': 'No business with the given id'}), 404
-
-                return jsonify({'message': 'Incomplete Information'}), 400
+                    
+                    return jsonify({'message': 'Incomplete Information'}), 400   
+                
+                
 
             except Exception as e:
                 return jsonify({'message': e}), 401

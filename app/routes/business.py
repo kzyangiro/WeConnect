@@ -10,11 +10,13 @@ def homepage():
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
     """This method Creates a business by only authorised users"""
+    
 
-    business_name = str(request.data.get('business_name').strip(' '))
-    about = str(request.data.get('about').strip(' '))
-    location = str(request.data.get('location').strip(' '))
-    category = str(request.data.get('category').strip(' '))
+    business_name1 = request.data.get('business_name')
+    about1 = request.data.get('about')
+    location1 = request.data.get('location')
+    category1 = request.data.get('category')
+
 
     """ Confirm user is authorised """
     auth_header = request.headers.get('Authorization')
@@ -39,7 +41,18 @@ def register_business():
         if not isinstance(user_id, str):
             
             try:
+
+                if business_name1 and about1 and location1 and category1:
+
+                    business_name = str(business_name1.strip(' '))
+                    location = str(location1.strip(' '))
+                    category = str(category1.strip(' '))
+                    about = str(about1.strip(' '))
+                else:
+                    return jsonify({'message': "Fill in the empty fields"}), 400
+
                 if business_name and about and location and category:
+
                     for business in Business.business_list:
                         if business.business_name == business_name:
                             """Ensure No duplicate entry of business name"""
@@ -119,10 +132,11 @@ def update_businesses(businessid):
 
     """This method uses input data to update the content of a business of the ID indicated in the URL"""
 
-    business_name = str(request.data.get('business_name').strip(' '))
-    location = str(request.data.get('location').strip(' '))
-    category = str(request.data.get('category').strip(' '))
-    about = str(request.data.get('about').strip(' '))
+    business_name1 = request.data.get('business_name')
+    about1 = request.data.get('about')
+    location1 = request.data.get('location')
+    category1 = request.data.get('category')
+
 
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -145,15 +159,23 @@ def update_businesses(businessid):
         if not isinstance(user_id, str):
             
             try:
+                if business_name1 and about1 and location1 and category1:
+
+                    business_name = str(business_name1.strip(' '))
+                    location = str(location1.strip(' '))
+                    category = str(category1.strip(' '))
+                    about = str(about1.strip(' '))
+                else:
+                    return jsonify({'message': "Fill in the empty fields"}), 400
                 
                 if business_name and location and category and about:
                     existing = [bus for bus in Business.business_list if business_name == bus.business_name and businessid != bus.businessid]
 
-                    if existing:
-                        return jsonify({'message':'That business name is already registered'}), 409
-
                     for business in Business.business_list:
                         if businessid == business.businessid:
+                            if existing:
+                                return jsonify({'message':'That business name is already registered'}), 409
+
                             business.business_name=business_name
                             business.location=location
                             business.category=category
