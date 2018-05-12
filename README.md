@@ -23,7 +23,7 @@ Install virtualenv:<br>
  ```sh
 pip install virtualenv venv
  ```
-<br>
+ 
 Create a virtual environment:<br>
 
  ```sh
