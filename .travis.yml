@@ -17,9 +17,7 @@ services:
   - postgresql
 
 before_script: 
-  - psql -c "CREATE USER kzy;" 
-  - psql -c 'CREATE DATABASE test_db;' -U kzy
-  
+  - psql -c 'CREATE DATABASE test_db;' -U postgres
 
 after_sucess:
   - "coveralls"
