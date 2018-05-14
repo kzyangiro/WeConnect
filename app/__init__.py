@@ -1,3 +1,4 @@
+""" Doc """
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from config.config import app_config
@@ -10,8 +11,7 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     app = FlaskAPI(__name__, instance_relative_config=True)    
-    SESSION_TYPE = 'redis'
-    app.secret_key='my-key'
+    app.secret_key = 'my-key'
     app.config.from_object(app_config[config_name])
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -23,9 +23,6 @@ def create_app(config_name):
 
     from .routes import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
-    
     return app
 
 app = create_app('development')
-
-    

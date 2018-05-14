@@ -17,57 +17,28 @@ def create_user_account():
 
     if username and email and password and confirm_password:
         """Checks is all fields have been filled in"""
-        users=User.get_all()
+        users = User.get_all()
 
         if password != confirm_password:
-            response = make_response(jsonify({
-                'message': "Unmatched passwords"
-                }
-            ), 400)
-            return response
+            return jsonify({'message': "Unmatched passwords"}), 400
         
         elif not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
             """Email Validation"""
-            response = make_response(jsonify({
-                'message': "Invalid email address"
-                }
-            ), 400)
-            return response
+            return jsonify({'message': "Invalid email address"}), 400
 
         else:
             for user in users:
                 if user.username == username:
-                    response =make_response(
-                    jsonify({
-                        'message':'The username is already registered, kindly chose a different one'
-                        
-                        }), 409)
-                    return response
+                    return jsonify({'message': "The username is already registered, kindly chose a different one"}), 409
 
                 if user.email == email:
-                    response =make_response(
-                    jsonify({
-                        'message':'The email is already registered, kindly chose a different one'
-                        
-                        }), 409)
-                    return response
-
-
-                    
+                    return jsonify({'message': "The email is already registered, kindly chose a different one"}), 409
+          
         user= User(username=username, email=email, password=password)
         user.save()
-        response =make_response(
-            jsonify({
-                'message':'User Registered successfully'
-                
-                }), 201)
-        return response
-    
-    response = make_response(jsonify({
-            'message': "Input empty fields"
-            }
-    ), 400)
-    return response
+        return jsonify({'message': "User Registered successfully"}), 201
+
+    return jsonify({'message': "Input empty fields"}), 400
 
 @auth.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
@@ -93,37 +64,14 @@ def user_login():
                     }),200)
                 return responce
             
-        responce1 = make_response(
-            jsonify({
-                'message':'Wrong username or password entered'
-            }),404)
-
-        return responce1
-            
-
-    responce = make_response(
-        jsonify({
-            'message':'Input empty fields'
-        }),400)
-
-    return responce
+        return jsonify({'message': "Wrong username or password entered"}), 404
+       
+    return jsonify({'message': "Input empty fields"}), 400
 
 @auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
     """Logout the user by revoking access token"""
-
-    if session.get("username") is not None:
-        session.pop("username", None)
-        return jsonify({"message": "User Logged out successfully"})
-    
-
-    responce = make_response(
-    jsonify({
-        'message':'You are not logged in'
-    }),400)
-
-    return responce
-
+    pass
 
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
@@ -150,33 +98,17 @@ def reset_password():
                 if user and user.password_is_valid(request.data['password']):
 
                     if new_password != confirm_password:
-                        res = make_response(jsonify({
-                                'error':'Passwords not matching'
-                            }), 400)
-                        return res
+                        return jsonify({'message': "Passwords not matching"}), 400
 
-                    
                     new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
                     user.password=new_hashed_password
 
-
                     user.save()
+                    return jsonify({'message': "Password reset successfully"}), 200
 
-                    resp= make_response(jsonify({
-                                'message':'Password reset successfully'
-                            }), 200)
-                    return resp
+                return jsonify({'error': "sername or password error"}), 404
 
-                respon = make_response(jsonify({
-                                'error':'Username or password error'
-                            }), 404)
-                return respon
-
-
-            response = make_response(jsonify({
-                                    'error':'Input Empty Fields'
-                                }), 400)
-            return response
+            return jsonify({'error':'Input Empty Fields'}), 400
 
         else:
             """last login session is expired/user is not legit, so the payload is an error message"""
