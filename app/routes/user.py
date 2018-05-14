@@ -1,6 +1,6 @@
 from flask import request, make_response, jsonify
 from . import auth
-from .. models import User 
+from .. models import User
 import re
 from flask_bcrypt import Bcrypt
 
@@ -8,12 +8,19 @@ from flask_bcrypt import Bcrypt
 def create_user_account():
     """Register a new user"""    
 
-    username = str(request.data.get('username').strip(' '))
-    email = str(request.data.get('email').strip(' '))
-    password = str(request.data.get('password').strip(' '))
-    confirm_password = str(request.data.get('confirm_password').strip(' '))
+    username1 = request.data.get('username')
+    email1 = request.data.get('email')
+    password1 = request.data.get('password')
+    confirm_password1 = request.data.get('confirm_password')
 
-    
+    if username1 and email1 and password1 and confirm_password1:
+
+        username = str(username1.strip(' '))
+        email = str(email1.strip(' '))
+        password = str(password1.strip(' '))
+        confirm_password = str(confirm_password1.strip(' '))
+    else:
+        return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
 
     if username and email and password and confirm_password:
         """Checks is all fields have been filled in"""
@@ -43,10 +50,16 @@ def create_user_account():
 @auth.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
     """Log in a user using username and password provided """ 
-    username = str(request.data.get('username'))
-    password = str(request.data.get('password'))
-    if username and password:
+    username1 = request.data.get('username')
+    password1 = request.data.get('password')
 
+    if username1 and password1:
+        username = str(username1.strip(' '))
+        password = str(password1.strip(' '))
+    else:
+        return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
+
+    if username and password:
 
         user = User.query.filter_by(username=request.data['username']).first()
 
@@ -59,7 +72,7 @@ def user_login():
                 
                 responce = make_response(
                     jsonify({
-                        'message':'User Logged in successfully',
+                        'message':'Successfully Logged in',
                         'access_token':access_token.decode()
                     }),200)
                 return responce
@@ -70,43 +83,54 @@ def user_login():
 
 @auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
-    """Logout the user by revoking access token"""
-    pass
+    """Logout the user by blacklisting access token"""
 
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
     """ Logged in user can reset password """
 
+    email1 = request.data.get('email')
+    current_password1 = request.data.get('current_password')
+    new_password1 = request.data.get('new_password')
+    confirm_password1 = request.data.get('confirm_password')
+
     auth_header = request.headers.get('Authorization')
-    access_token = auth_header.split(' ')[1]
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'  
 
     if access_token:
         """If accessed, decode token to get userid"""
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
                     
-            """This endpoint enables a registered user to edit password"""
-            username = str(request.data.get('username'))
-            password = str(request.data.get('password')) 
-            new_password = str(request.data.get('new_password').strip(' ')) 
-            confirm_password = str(request.data.get('confirm_password').strip(' ')) 
+            if email1 and current_password1 and new_password1 and confirm_password1:
 
-            if username and password and new_password and confirm_password: 
+                email = str(email1.strip(' '))
+                current_password = str(current_password1.strip(' '))
+                new_password = str(new_password1.strip(' '))
+                confirm_password = str(confirm_password1.strip(' '))
+            else:
+                return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400 
+
+            if email and current_password and new_password and confirm_password: 
        
-                user = User.query.filter_by(username=request.data['username']).first()
+                user = User.query.filter_by(email=request.data['email']).first()
 
-                if user and user.password_is_valid(request.data['password']):
+                if user and user.password_is_valid(request.data['current_password']):
 
                     if new_password != confirm_password:
                         return jsonify({'message': "Passwords not matching"}), 400
 
                     new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
-                    user.password=new_hashed_password
+                    user.current_password=new_hashed_password
 
                     user.save()
                     return jsonify({'message': "Password reset successfully"}), 200
 
-                return jsonify({'error': "sername or password error"}), 404
+
+                return jsonify({'error': "Email or password error"}), 404
 
             return jsonify({'error':'Input Empty Fields'}), 400
 
