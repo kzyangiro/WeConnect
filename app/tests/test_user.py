@@ -17,7 +17,7 @@ class TestUserClass(unittest.TestCase):
         self.user_login_data = { 'username':'kezzy','password':'user_password'}
         self.user_login_unregistered = { 'username':'Newkezzy','password':'Newuser_password'}
 
-        self.reset_pwd_data = {'username':'kezzy','password':'user_password','new_password':'pwd','confirm_password':'pwd'}
+        self.reset_pwd_data = {'email':'user@email.com','current_password':'user_password','new_password':'pwd','confirm_password':'pwd'}
         
         with self.app.app_context():
             """ create tables for out testing data"""
@@ -90,7 +90,7 @@ class TestUserClass(unittest.TestCase):
         self.assertEqual(res_login.status_code, 200)
 
         result = json.loads(res_login.data.decode('UTF-8'))
-        self.assertEqual(result['message'], 'User Logged in successfully')
+        self.assertEqual(result['message'], 'Successfully Logged in')
 
         self.assertTrue(result['access_token'])
         
@@ -109,7 +109,7 @@ class TestUserClass(unittest.TestCase):
         res=self.client.post('/api/v1/auth/login', data={"username":"", "password":"password"})
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
-        self.assertEqual(res_msg['message'], 'Input empty fields')
+        self.assertEqual(res_msg['message'], 'Invalid input, kindly fill in all required input')
 
     def test_reset_password(self):
 
