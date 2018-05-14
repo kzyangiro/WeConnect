@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 5a6e9f98a631
+Revision ID: 5859e9093f0d
 Revises: 
-Create Date: 2018-05-14 15:38:12.761554
+Create Date: 2018-05-14 22:12:21.590855
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5a6e9f98a631'
+revision = '5859e9093f0d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -36,7 +36,7 @@ def upgrade():
     sa.Column('date_created', sa.DateTime(), nullable=True),
     sa.Column('date_modified', sa.DateTime(), nullable=True),
     sa.Column('created_by', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['created_by'], [u'users.id'], ),
+    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.PrimaryKeyConstraint('businessid')
     )
     op.create_table('reviews',
@@ -47,8 +47,8 @@ def upgrade():
     sa.Column('date_created', sa.DateTime(), nullable=True),
     sa.Column('date_modified', sa.DateTime(), nullable=True),
     sa.Column('businessid', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['businessid'], [u'businesses.businessid'], ),
-    sa.ForeignKeyConstraint(['created_by'], [u'users.id'], ),
+    sa.ForeignKeyConstraint(['businessid'], ['businesses.businessid'], ),
+    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
