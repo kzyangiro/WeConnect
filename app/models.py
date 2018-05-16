@@ -79,6 +79,30 @@ class User(db.Model):
 
         except jwt.InvalidTokenError:
             return "Please register or login, Token is Invalid"
+class BlacklistToken(db.Model):
+    """User class creates an instance of a user"""
+ 
+    __tablename__ = 'blacklist'
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(), nullable=False)
+
+
+    def __init__(self,token):
+         
+        self.token = token
+        
+    def save(self):
+        """Add the token details into the blacklists table"""
+
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return BlacklistToken.query.all()
+
+
 
 class Business(db.Model): #This class represents the Businesses Table
     """Business Class Creates an instance of business"""
