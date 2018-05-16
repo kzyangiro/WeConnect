@@ -18,13 +18,11 @@ Link to WeConnect API documentation: https://app.swaggerhub.com/apis/Andela19/We
 
 <h4>Installation and Setup</h4>
 
-Setup virtual environment:<br>
+Create and activate virtual environment:<br>
 
  ```sh
-$ export FLASK_APP="run.py"
-$ export APP_SETTINGS="development"
-$ export SECRET="select-your-secret"
-$ export DATABASE_URL="postgresql://localhost/flask_api"
+python3 -m venv env
+source ./env/bin/activate 
  ```
 Clone or download the api from github. To clone:<br>
 
