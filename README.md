@@ -88,8 +88,6 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 <tr><td>Update a business</td><td>PUT /api/v1/businesses/<businessId></td></tr>
 <tr><td>Delete a Business</td><td>DELETE /api/v1/businesses/<businessId></td></tr>
 <tr><td>Search a business by name</td><td>GET /api/v1/businesses/<q></td></tr>
-<tr><td>Filter businesses by location</td><td>GET /api/v1/business_location/<string:location>/td></tr>
-<tr><td>Filter businesses by category</td><td>GET /api/v1/business_category/<string:category>'</td></tr>
 <tr><td>Add a business review</td><td>POST /api/v1/businesses/<businessId>/review</td></tr>
 <tr><td>Get reviews of a business</td><td>GET /api/v1/businesses/<businessId>/review</td></tr>
 
