@@ -1,4 +1,4 @@
-from flask import request, make_response, jsonify, session
+from flask import request, make_response, jsonify
 from . import bs
 from .. models import Business, User, Review, BlacklistToken
 
@@ -91,6 +91,7 @@ def get_all_business():
     location = request.args.get('location')
     category = request.args.get('category')
     limit = request.args.get('limit')
+    offset = request.args.get('offset')
     
     """Retrieve all businesses"""
 
@@ -183,15 +184,22 @@ def get_all_business():
             
             return response
 
-        elif limit:
+        elif limit and not offset:
+            return make_response(jsonify({"Message" :"Indicate the offset"}), 200)
+
+        elif offset and not limit:
+            return make_response(jsonify({"Message" :"Indicate the limit"}), 200)
+
+        elif limit and offset:
             try:
                 limit = int(limit)
+                offset = int(offset)
 
             except ValueError:
-                return make_response(jsonify({"Message" :"Invalid Limit, kindly use an integer"}), 400)
+                return make_response(jsonify({"Message" :"Invalid Limit or offset, kindly use an integer"}), 400)
 
             """Retrieve businesses in a given location"""
-            businesses = Business.get_business_by_limit(limit)
+            businesses = Business.businesses_pagination(offset,limit)
             results = []
 
             business = [bus for bus in businesses]
