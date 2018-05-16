@@ -149,10 +149,10 @@ class Business(db.Model): #This class represents the Businesses Table
         return Business.query.filter_by(created_by = user_id)
 
     @staticmethod
-    def get_business_by_limit(b_limit):
+    def businesses_pagination(offset_num, limit_num):
         """ This method retrieves a list of businesses f only the indicated limit"""
 
-        return Business.query.filter().limit(b_limit).all()
+        return Business.query.filter().offset(offset_num).limit(limit_num).all()
     
     @staticmethod
     def get_all():
