@@ -21,7 +21,6 @@ class TestReviewClass(unittest.TestCase):
    
         with self.app.app_context():
         #Create all testing tables
-            db.session.close()
             db.drop_all()
             db.create_all()
 
@@ -71,7 +70,7 @@ class TestReviewClass(unittest.TestCase):
         response = self.client.post('/api/v1/businesses/1/review', headers=dict(Authorization="Bearer " + access_token),data=self.reviews1)
         self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Incomplete Information", response_msg["message"])
+        self.assertEqual("Invalid input, kindly fill in all required variables", response_msg["message"])
 
 
     def test_review_created(self):
@@ -91,6 +90,7 @@ class TestReviewClass(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("Review added successfully", response_msg["Message"])
+
 
     def view_reviews(self):
         """Test retrieving reviews"""
@@ -121,7 +121,14 @@ class TestReviewClass(unittest.TestCase):
 
     def view_reviews_but_no_business_with_given_id(self):
         """Test cannot retrieve reviews when given id does not exists"""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        #create business
+        self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token),data=self.business)
+        #create review
         response=self.client.get('/api/v1/businesses/1/review')
         self.assertEqual(response.status_code, 404)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("No business with the id", response_msg["message"])
+        self.assertEqual("No business with the given id", response_msg["message"])

@@ -7,7 +7,7 @@ from flask import current_app
 
 class User(db.Model):
     """User class creates an instance of a user"""
-    #user = []
+ 
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -26,18 +26,18 @@ class User(db.Model):
         self.username = username
         self.email=email
 
-        #Hash password
+        """Hash password"""
         self.password = Bcrypt().generate_password_hash(password).decode('utf-8')
 
     def password_is_valid(self, password):
         """
-        Checks the password against it's hash to validates the user's password
+        Checks if provided password matches the hashed stored password
         """
         return Bcrypt().check_password_hash(self.password, password)
 
         
     def save(self):
-        """Save method adds the created users details into the users list"""
+        """Add the created users details into the users table"""
 
         db.session.add(self)
         db.session.commit()
@@ -50,13 +50,13 @@ class User(db.Model):
         """ This method generates the token to be used for authentification"""
 
         try:
-            #set payload, and indicate expiry duration of the token
+            """set payload, and indicate expiry duration of the token"""
             payload = {
                 'exp': datetime.utcnow() + timedelta(minutes=5),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
-            # create the byte string token using the payload and the SECRET key
+            """create the byte string token"""
             jwt_string = jwt.encode(
                 payload,
                 current_app.config.get('SECRET'),
@@ -65,26 +65,47 @@ class User(db.Model):
             return jwt_string
 
         except Exception as e:
-            # return an error in string format if an exception occurs
             return str(e)
 
     @staticmethod
     def decode_token(token):
-        """Decodes the access token from the Authorization header."""
+        """Decodes the access token"""
         try:
-            # try to decode the token using our SECRET variable
+            """Use SECRET variable used in configuration to decode token"""
             payload = jwt.decode(token, current_app.config.get('SECRET'))
             return payload['sub']
-        except jwt.ExpiredSignatureError:
-            # the token is expired, return an error string
-            return "Expired token. Please login to get a new token"
+        except jwt.ExpiredSignatureError:            
+            return "Kindly login to get a new token. Token is Expired"
+
         except jwt.InvalidTokenError:
-            # the token is invalid, return an error string
-            return "Invalid token. Please register or login"
+            return "Please register or login, Token is Invalid"
+class BlacklistToken(db.Model):
+    """User class creates an instance of a user"""
+ 
+    __tablename__ = 'blacklist'
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(), nullable=False)
+
+
+    def __init__(self,token):
+         
+        self.token = token
+        
+    def save(self):
+        """Add the token details into the blacklists table"""
+
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return BlacklistToken.query.all()
+
+
 
 class Business(db.Model): #This class represents the Businesses Table
     """Business Class Creates an instance of business"""
-    #business_list = []
     __tablename__ = 'businesses'
 
     businessid = db.Column(db.Integer, primary_key=True)
@@ -93,7 +114,7 @@ class Business(db.Model): #This class represents the Businesses Table
     about = db.Column(db.String(255))
     category = db.Column(db.String(255))
 
-    #store modification timestamps
+    """store modification timestamps"""
     
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
@@ -120,13 +141,19 @@ class Business(db.Model): #This class represents the Businesses Table
         """ This method adds the instance of the business created into businesses table"""
         db.session.add(self)
         db.session.commit()
-        #return Business.business_list.append(instance)
 
     @staticmethod
     def get_all_auth(user_id):
         """ This method retrieves all busineses for the particular logged in user"""
 
         return Business.query.filter_by(created_by = user_id)
+
+    @staticmethod
+    def businesses_pagination(offset_num, limit_num):
+        """ This method retrieves a list of businesses f only the indicated limit"""
+
+        return Business.query.filter().offset(offset_num).limit(limit_num).all()
+    
     @staticmethod
     def get_all():
         """ This method retrieves all busineses"""
@@ -145,7 +172,7 @@ class Business(db.Model): #This class represents the Businesses Table
 
 class Review(db.Model):
     """Reviews class creates an instance of a review"""
-    #reviews=[]
+   
     __tablename__ ='reviews'
 
     id=db.Column(db.Integer, primary_key=True)
@@ -176,6 +203,10 @@ class Review(db.Model):
         """ This method adds the instance of the review created into reviews table"""
         db.session.add(self)
         db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()        
 
     @staticmethod
     def get_all(businessid):
