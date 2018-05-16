@@ -1,8 +1,8 @@
 from flask import request, make_response, jsonify, session
 from . import bs
-from .. models import Business, User, Review
+from .. models import Business, User, Review, BlacklistToken
 
-@bs.route('/', methods=['POST', 'GET'])
+@bs.route('/')
 def homepage():
     """This is the home endpoint"""
     res = make_response(
@@ -15,66 +15,83 @@ def homepage():
 
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
+    """This method Creates a business by only authorised users"""
+    
 
-    """ Endpoint to register a new business. User has to be logged in"""
+    business_name1 = request.data.get('business_name')
+    about1 = request.data.get('about')
+    location1 = request.data.get('location')
+    category1 = request.data.get('category')
 
-    # Obtain token from header
+
+    """ Confirm user is authorised """
     auth_header = request.headers.get('Authorization')
-    access_token = auth_header.split(' ')[1]
+
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'
 
     if access_token:
+        blacklisttokens = BlacklistToken.get_all()
 
-        """decode token to get userid"""
+        for token in blacklisttokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token.token == access_token:
+                return jsonify({'status':'You are logged out kindly login to get a new token'}),401
+
+
         user_id = User.decode_token(access_token)
+
         if not isinstance(user_id, str):
-
-            # If it returns a string then its an error, otherwise, token decoded, we can proceed
-            business_name = str(request.data.get('business_name').strip(' '))
-            about = str(request.data.get('about').strip(' '))
-            location = str(request.data.get('location').strip(' '))
-            category = str(request.data.get('category').strip(' '))
             
-            if business_name and about and location and category:
-                businesses = Business.get_all()
-                for business in businesses:
-                    if business.business_name == business_name:
-                        res = jsonify({
-                            "Error":"Business already exists, use a different business name"
-                        })
-                        res.status_code = 409
-                        return res
+            try:
 
-                business = Business(business_name=business_name, about=about, location=location, category=category, created_by=user_id)
-                business.save()
-                response = jsonify({
-                    "Success":"Business Created successfully",
-                    "business Id":business.businessid,
-                    "business Name":business.business_name,
-                    "business category":business.category,
-                    "business location":business.location,
-                    "date created":business.date_created,
-                    "owner":user_id
+                if business_name1 and about1 and location1 and category1:
 
-                })
-                response.status_code = 201
-                return response
+                    business_name = str(business_name1.strip(' '))
+                    location = str(location1.strip(' '))
+                    category = str(category1.strip(' '))
+                    about = str(about1.strip(' '))
+                else:
+                    return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
 
-            response = make_response(jsonify({
-                    'Message': "Kindly input the missing fields"
-                    }
-                ), 400)
-            return response
+                if business_name and about and location and category:
+                    businesses = Business.get_all()
+                    for business in businesses:
+                        if business.business_name == business_name:
+                            return jsonify({"Error":"Business already exists, use a different business name"}), 409
 
+                    business = Business(business_name=business_name, about=about, location=location, category=category, created_by=user_id)
+                    business.save()
+                    response = jsonify({
+                        "Success":"Business Created successfully",
+                        "business Id":business.businessid,
+                        "business Name":business.business_name,
+                        "business category":business.category,
+                        "business location":business.location,
+                        "date created":business.date_created,
+                        "owner":user_id
+
+                    })
+                    response.status_code = 201
+                    return response
+
+                return jsonify({'Message': "Kindly input the missing fields"}), 400
+
+            except Exception as e:
+                return jsonify({'message': e}), 401
         else:
-            """Invalid Access token, payload error"""
-            message = user_id
-            response = {
-                'message': message
-            }
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': 'Invalid token, Login to obtain a new token'}), 401
 
 @bs.route('/api/v1/businesses', methods=['GET'])
 def get_all_business():
+
+    q = request.args.get('q')
+    location = request.args.get('location')
+    category = request.args.get('category')
+    limit = request.args.get('limit')
+    
     """Retrieve all businesses"""
 
     businesses = Business.get_all()
@@ -83,26 +100,136 @@ def get_all_business():
     if len(businesses) == 0:
         """ Checking if there is no business"""
 
-        response = make_response(jsonify({
-            'Message': "No Businesses Available"
-            }
-        ), 404)
-        return response
+        return make_response(jsonify({'Message': "No Businesses Available"}), 404)
         
     else:
-        for business in businesses:
-            obj={
-                "Business id":business.businessid,
-                "Name":business.business_name,
+
+        if q:
+            
+            """Retrieve a business by the given search name"""
+            businesses = Business.query.filter(Business.business_name.contains(q))
+            results = []
+
+            business = [bus for bus in businesses]
+            if not business:
+                return make_response(jsonify({"message":"Sorry, No business with that name"}), 404)
+            for business in businesses:
+
+                obj={
+                "Business Id":business.businessid,
+                "Business Name":business.business_name,
                 "Category":business.category,
                 "Business location":business.location
 
-            }
-            results.append(obj)
+                }
+                results.append(obj)
 
-        response=jsonify(results)
-        response.status_code = 200
-        return response
+
+                response=jsonify(results)
+                response.status_code = 200
+            
+                return response
+
+        elif location:
+
+            """Retrieve businesses in a given location"""
+            businesses = Business.query.filter(Business.location.contains(location))
+            results = []
+
+            business = [bus for bus in businesses]
+            if not business:
+                return make_response(jsonify({"Message" :"Sorry, No business in that location"}), 404)
+            for business in businesses:
+
+                obj={
+                "Business Id":business.businessid,
+                "Business Name":business.business_name,
+                "Category":business.category,
+                "Business location":business.location
+
+                }
+                results.append(obj)
+
+
+                response=jsonify(results)
+                response.status_code = 200
+            
+            return response
+
+
+        elif category:
+
+            """Retrieve businesses in a given location"""
+            businesses = Business.query.filter(Business.category.contains(category))
+            results = []
+
+            business = [bus for bus in businesses]
+            if not business:
+                return make_response(jsonify({"Message" :"Sorry, No business in that category"}), 404)
+            for business in businesses:
+
+                obj={
+                "Business Id":business.businessid,
+                "Business Name":business.business_name,
+                "Category":business.category,
+                "Business location":business.location
+
+                }
+                results.append(obj)
+
+
+                response=jsonify(results)
+                response.status_code = 200
+            
+            return response
+
+        elif limit:
+            try:
+                limit = int(limit)
+
+            except ValueError:
+                return make_response(jsonify({"Message" :"Invalid Limit, kindly use an integer"}), 400)
+
+            """Retrieve businesses in a given location"""
+            businesses = Business.get_business_by_limit(limit)
+            results = []
+
+            business = [bus for bus in businesses]
+            if not business:
+                return make_response(jsonify({"Message" :"Sorry, No business found"}), 404)
+            for business in businesses:
+
+                obj={
+                "Business Id":business.businessid,
+                "Business Name":business.business_name,
+                "Category":business.category,
+                "Business location":business.location
+
+                }
+                results.append(obj)
+
+
+                response=jsonify(results)
+                response.status_code = 200
+            
+            return response
+
+
+        else:
+
+            for business in businesses:
+                obj={
+                    "Business id":business.businessid,
+                    "Name":business.business_name,
+                    "Category":business.category,
+                    "Business location":business.location
+
+                }
+                results.append(obj)
+
+            response=jsonify(results)
+            response.status_code = 200
+            return response
 
 
 
@@ -114,6 +241,13 @@ def get_my_business():
     access_token = auth_header.split(' ')[1]
 
     if access_token:
+        blacklisttokens = BlacklistToken.get_all()
+
+        for token in blacklisttokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token.token == access_token:
+                return jsonify({'status':'You are logged out kindly login to get a new token'}),401
+
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
@@ -157,10 +291,17 @@ def get_my_business():
 
 
 
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
+@bs.route('/api/v1/businesses/<businessid>', methods=['GET'])
 def get_businesses_by_id(businessid):
+    try:
+        businessid = int(businessid)
+
+    except ValueError:
+        return make_response(jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400)
+
 
     """Retrieve a business of a given id"""
+    
     businesses = Business.get_all()
 
     for business in businesses:
@@ -185,41 +326,55 @@ def get_businesses_by_id(businessid):
     return response
 
 
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['DELETE'])
+@bs.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 def delete_businesses(businessid):
-    """This endpoint deletes a business, but only by the owner while logged in"""
+    """This method deletes a business, but only by the owner while logged in"""
+    try:
+        businessid = int(businessid)
 
+    except ValueError:
+        return make_response(jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400)
+
+    
     """Obtain token from header"""
     auth_header = request.headers.get('Authorization')
-    access_token = auth_header.split(' ')[1]
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'
 
     if access_token:
+        blacklisttokens = BlacklistToken.get_all()
+
+        for token in blacklisttokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token.token == access_token:
+                return jsonify({'status':'You are logged out kindly login to get a new token'}),401
+        
         """If accessed, decode token to get userid"""
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
+            
             
             businesses = Business.query.filter_by(created_by=user_id)
 
             reviews = Review.get_all(businessid)
 
             for business in businesses:
-                if reviews:
-                    reviews.delete()
-                else:
-                    pass
 
-                
                 if businessid == business.businessid:
                     
                     business.delete()
-                    response=jsonify({"Success":"Business Deleted Successfully"})
-                    response.status_code = 200
-                    return response
+                    
+                    if reviews:
+                        reviews.delete()
+                    else:
+                        pass
 
-            response=jsonify({"Error":"No Business with that ID"})
-            response.status_code = 404
-            return response
+                    return jsonify({"Success":"Business Deleted Successfully"}), 200
+
+            return jsonify({"Error":"No Business with that ID"}), 404
 
         else:
             """Invalid Access token, payload error"""
@@ -229,191 +384,91 @@ def delete_businesses(businessid):
             }
             return make_response(jsonify(response)), 401
 
-
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['PUT'])
+    return make_response(jsonify({'message': 'Invalid token, Login to obtain a new token'})), 401
+        
+@bs.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 
 def update_businesses(businessid):
-    """Edit details of the business of the ID indicated in the URL"""
+    """This method uses input data to update the content of a business of the ID indicated in the URL"""
 
-    """Ensure use is logged in, then obtain token from header"""
+    try:
+        businessid = int(businessid)
+
+    except ValueError:
+        return make_response(jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400)
+
+    
+    business_name1 = request.data.get('business_name')
+    about1 = request.data.get('about')
+    location1 = request.data.get('location')
+    category1 = request.data.get('category')
+
+
     auth_header = request.headers.get('Authorization')
-    access_token = auth_header.split(' ')[1]
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'
 
     if access_token:
-        """If accessed, decode token to get userid"""
+        blacklisttokens = BlacklistToken.get_all()
+
+        for token in blacklisttokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token.token == access_token:
+                return jsonify({'status':'You are logged out kindly login to get a new token'}),401
+
+
+        """Decode token"""
         user_id = User.decode_token(access_token)
+
         if not isinstance(user_id, str):
             
-            business_name = str(request.data.get('business_name').strip(' '))
-            about = str(request.data.get('about').strip(' '))
-            location = str(request.data.get('location').strip(' '))
-            category = str(request.data.get('category').strip(' '))
-            
-            if business_name and about and location and category:
-                businesses = Business.query.filter_by(created_by=user_id)
-                for business in businesses:
-                    if business.business_name == business_name and business.businessid != businessid:
-                        res = jsonify({
-                            "Error":"Business Already Exists, use a different business name"
-                        })
-                        res.status_code = 409
-                        return res
+            try:
+                if business_name1 and about1 and location1 and category1:
 
-                    else:
-                        business.business_name=business_name
-                        business.about=about
-                        business.location=location
-                        business.category=category
+                    business_name = str(business_name1.strip(' '))
+                    location = str(location1.strip(' '))
+                    category = str(category1.strip(' '))
+                    about = str(about1.strip(' '))
+                else:
+                    return jsonify({'message': "Fill in the empty fields"}), 400
 
-                        business.save()
-                        response = jsonify({
-                            "Success":"Business updated successfully",
-                            "business Name":business.business_name,
-                            "category":business.category,
-                            "location":business.location,
-                            "Description":business.about,
-                            "created_by":user_id
+                if business_name and about and location and category:
+                    businesses = Business.query.filter_by(created_by=user_id)
+                    business = [bus for bus in businesses if bus.businessid == businessid]
 
-                        })
-                        response.status_code = 200
-                        return response
+                    existing = [bus1 for bus1 in businesses if bus1.business_name == business_name and bus1.businessid != businessid]
 
-                response = make_response(jsonify({
-                        'Message': "No Business with that ID"
-                        }
-                    ), 404)
-                return response
-            
-            response = make_response(jsonify({
-                    'Message': "Fill in the Empty fields"
-                    }
-                ), 400)
-            return response
+                    if not business:
+                            return jsonify({'Message': "No Business with that ID"}), 404
 
-        else:
-            """Invalid Access token payload error"""
-            message = user_id
-            response = {
-                'message': message
-            }
-            return make_response(jsonify(response)), 401
+                    for business in businesses:
+                        if existing:
+                            return jsonify({"Error":"Business Already Exists, use a different business name"}), 409
 
+                        else:
+                            business.business_name=business_name
+                            business.about=about
+                            business.location=location
+                            business.category=category
 
-@bs.route('/api/v1/businesses/<q>', methods=['GET'])
+                            business.save()
+                            response = jsonify({
+                                "Success":"Business updated successfully",
+                                "business Name":business.business_name,
+                                "category":business.category,
+                                "location":business.location,
+                                "description":business.about,
+                                "modified_by":user_id
 
-def search_business_by_name(q):
+                            })
+                            response.status_code = 200
+                            return response
+                
+                return jsonify({'Message': "Fill in the Empty fields"}), 400
 
-    """Retrieve a business by the given search name"""
-    businesses = Business.query.filter(Business.business_name.contains(q))
-    results = []
-    not_found_message = "Sorry, No business with that name"
+            except Exception as e:
+                return make_response(jsonify({'message': e})), 401
 
-    for business in businesses:
-
-        obj={
-        "Business Id":business.businessid,
-        "Business Name":business.business_name,
-        "Category":business.category,
-        "Business location":business.location
-
-        }
-        results.append(obj)
-
-    if results == []:
-        response=jsonify(not_found_message)
-        response.status_code = 404
-
-    else:
-        response=jsonify(results)
-        response.status_code = 200
-    
-    return response
-
-@bs.route('/api/v1/business_location/<string:location>', methods=['GET'])
-
-def filter_business_by_location(location):
-
-    """Retrieve a list of busiesses in the given location"""
-
-    businesses = Business.query.filter(Business.location.contains(location))
-    results = []
-    not_found_message = "Sorry, No business in that location"
-
-    for business in businesses:
-
-        obj={
-        "Business Id":business.businessid,
-        "Business Name":business.business_name,
-        "Category":business.category
-
-        }
-        results.append(obj)
-
-    if results == []:
-        response=jsonify(not_found_message)
-        response.status_code = 404
-
-    else:
-        response=jsonify(results)
-        response.status_code = 200
-    
-    return response
-
-@bs.route('/api/v1/business_category/<string:category>', methods=['GET'])
-
-def filter_business_by_category(category):
-
-    """Retrieve a list of busiesses in the given Category"""
-    businesses = Business.query.filter(Business.category.contains(category))
-    results = []
-    not_found_message = "Sorry, No business in that category"
-
-    for business in businesses:
-
-        obj={
-        "Business Id":business.businessid,
-        "Business Name":business.business_name,
-        "Business location":business.location
-
-        }
-        results.append(obj)
-
-    if results == []:
-        response=jsonify(not_found_message)
-        response.status_code = 404
-
-    else:
-        response=jsonify(results)
-        response.status_code = 200
-    
-    return response
-
-@bs.route('/api/v1/businesses_by_limit/<int:b_limit>', methods=['GET'])
-
-def filter_business_by_limit(b_limit):
-
-    """Retrieve a list of businesses of just the indicated limit"""
-    businesses = Business.get_business_by_limit(b_limit)
-    results = []
-    not_found_message = "Sorry, No busineses found"
-
-    for business in businesses:
-
-        obj={
-        "Business Id":business.businessid,
-        "Business Name":business.business_name,
-        "Category":business.category,
-        "Business location":business.location
-
-        }
-        results.append(obj)
-
-    if results == []:
-        response=jsonify(not_found_message)
-        response.status_code = 404
-
-    else:
-        response=jsonify(results)
-        response.status_code = 200
-    
-    return response
+        return make_response(jsonify({'message': 'Invalid token, Login to obtain a new token'})), 401
