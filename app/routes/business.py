@@ -117,7 +117,7 @@ def get_all_business():
             for business in businesses:
 
                 obj={
-                "Business Id":business.businessid,
+                "Business id":business.businessid,
                 "Business Name":business.business_name,
                 "Category":business.category,
                 "Business location":business.location
@@ -143,7 +143,7 @@ def get_all_business():
             for business in businesses:
 
                 obj={
-                "Business Id":business.businessid,
+                "Business id":business.businessid,
                 "Business Name":business.business_name,
                 "Category":business.category,
                 "Business location":business.location
@@ -170,7 +170,7 @@ def get_all_business():
             for business in businesses:
 
                 obj={
-                "Business Id":business.businessid,
+                "Business id":business.businessid,
                 "Business Name":business.business_name,
                 "Category":business.category,
                 "Business location":business.location
@@ -208,7 +208,7 @@ def get_all_business():
             for business in businesses:
 
                 obj={
-                "Business Id":business.businessid,
+                "Business id":business.businessid,
                 "Business Name":business.business_name,
                 "Category":business.category,
                 "Business location":business.location
@@ -228,7 +228,7 @@ def get_all_business():
             for business in businesses:
                 obj={
                     "Business id":business.businessid,
-                    "Name":business.business_name,
+                    "Business Name":business.business_name,
                     "Category":business.category,
                     "Business location":business.location
 

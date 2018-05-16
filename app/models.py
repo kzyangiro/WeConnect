@@ -56,7 +56,7 @@ class User(db.Model):
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
-            """create the byte string token"""
+            """create the token"""
             jwt_string = jwt.encode(
                 payload,
                 current_app.config.get('SECRET'),
