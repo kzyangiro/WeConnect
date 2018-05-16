@@ -1,6 +1,6 @@
 from flask import request, make_response, jsonify
 from . import auth
-from .. models import User
+from .. models import User, BlacklistToken
 import re
 from flask_bcrypt import Bcrypt
 
@@ -13,6 +13,7 @@ def create_user_account():
     password1 = request.data.get('password')
     confirm_password1 = request.data.get('confirm_password')
 
+    
     if username1 and email1 and password1 and confirm_password1:
 
         username = str(username1.strip(' '))
@@ -23,6 +24,14 @@ def create_user_account():
         return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
 
     if username and email and password and confirm_password:
+
+        if len(username) < 3:
+            return jsonify({'message': "Invalid input, kindly set a username of more than 3 letters"}), 200
+        
+        if len(password) < 3:
+            return jsonify({'message': "Kindly set a password of more than 3 characters"}), 200
+                
+
         """Checks is all fields have been filled in"""
         users = User.get_all()
 
@@ -85,6 +94,41 @@ def user_login():
 def user_logout():
     """Logout the user by blacklisting access token"""
 
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'
+
+    if access_token:
+
+        blacklisttokens = BlacklistToken.get_all()
+
+        for token in blacklisttokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token.token == access_token:
+                return jsonify({'status':'Invalid acess token, login to get a new one'}),401
+
+        """Decode token"""
+        user_id = User.decode_token(access_token)
+
+        if not isinstance(user_id, str):
+            
+            try:
+                token= BlacklistToken(token=access_token)
+                token.save()
+                return jsonify({'message':'Successfully Logged Out'}),200
+
+            except ValueError:
+                return make_response(jsonify({"Message" :"Not Logged out"}), 400)
+
+        else:
+            return jsonify({'message': 'Invalid Access Token'}), 401
+
+    return make_response(jsonify({'message': 'Invalid token, Login to obtain a new token'})), 401
+     
+
+
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
     """ Logged in user can reset password """
@@ -101,6 +145,13 @@ def reset_password():
         access_token = 'Invalid Token'  
 
     if access_token:
+        blacklisttokens = BlacklistToken.get_all()
+
+        for token in blacklisttokens:
+            "Check if input access token is blacklisted, if yes, prompt new login"
+            if token.token == access_token:
+                return jsonify({'status':'You are already Logged Out'}),401
+
         """If accessed, decode token to get userid"""
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
