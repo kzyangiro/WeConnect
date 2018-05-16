@@ -17,8 +17,6 @@ class TestBusinessClass(unittest.TestCase):
         self.new_business = {'business_name':'hemstar', 'about':'about', 'location':'location', 'category':'category'}
 
         with self.app.app_context():
-            #Create all testing tables
-            db.session.close()
             db.drop_all()
             db.create_all()
 
@@ -72,7 +70,7 @@ class TestBusinessClass(unittest.TestCase):
         response = self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token),data=self.business1)
         self.assertEqual(response.status_code, 400) 
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Kindly input the missing fields", response_msg["Message"])  
+        self.assertEqual("Invalid input, kindly fill in all required input", response_msg["message"])  
 
 
     def test_retrieve_all_businesses(self): 
@@ -148,7 +146,7 @@ class TestBusinessClass(unittest.TestCase):
         response = self.client.put('/api/v1/businesses/1',headers=dict(Authorization="Bearer " + access_token), data=self.business1)
         self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertIn('Fill in the Empty fields', response_msg['Message'])
+        self.assertIn('Fill in the empty fields', response_msg['message'])
 
     def test_update_business_with_non_existent_id(self):
 
