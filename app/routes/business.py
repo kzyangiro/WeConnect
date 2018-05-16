@@ -246,7 +246,11 @@ def get_my_business():
     """Display all businesses of the loggedin user"""
 
     auth_header = request.headers.get('Authorization')
-    access_token = auth_header.split(' ')[1]
+
+    if auth_header:
+        access_token = auth_header.split(' ')[1]
+    else:
+        access_token = 'Invalid Token'
 
     if access_token:
         blacklisttokens = BlacklistToken.get_all()

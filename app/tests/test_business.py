@@ -14,6 +14,7 @@ class TestBusinessClass(unittest.TestCase):
         self.user_login_data = { 'username':'kezzy','password':'user_password'}
         self.business = {'business_name':'my business', 'about':'about', 'location':'location', 'category':'category'}
         self.business1 = {'business_name':'', 'about':'about', 'location':'location', 'category':'category'}
+        self.business2 = {'business_name':'  ', 'about':'about', 'location':'location', 'category':'category'}
         self.new_business = {'business_name':'hemstar', 'about':'about', 'location':'location', 'category':'category'}
 
         with self.app.app_context():
@@ -71,6 +72,19 @@ class TestBusinessClass(unittest.TestCase):
         self.assertEqual(response.status_code, 400) 
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("Invalid input, kindly fill in all required input", response_msg["message"])  
+ 
+    def test_empty_spaces_inputs(self):  
+        """ User has to be registered and logged in """
+        self.register_user()
+        result = self.login_user()
+
+        access_token = json.loads(result.data.decode())['access_token']
+
+        """Tests if a business cannot be created with some fields empty"""
+        response = self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token),data=self.business2)
+        self.assertEqual(response.status_code, 400) 
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("Kindly input the missing fields", response_msg["Message"])  
 
 
     def test_retrieve_all_businesses(self): 
@@ -96,6 +110,49 @@ class TestBusinessClass(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         response = self.client.get('/api/v1/mybusinesses', headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(response.status_code, 200)
+
+    def test_retrieve_non_existent_businesses_by_name(self): 
+        """Tests if all a logged in user can retrieve his registered businesses""" 
+        self.register_user()
+        result = self.login_user()    
+
+        access_token = json.loads(result.data.decode())['access_token']
+
+        response = self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token), data=self.business)
+        self.assertEqual(response.status_code, 201)
+        response = self.client.get('/api/v1/businesses?q=Classy')
+        self.assertEqual(response.status_code, 404)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertIn("Sorry, No business with that name", response_msg["message"])
+
+    def test_retrieve_non_existent_businesses_in_location(self): 
+        """Tests if all a logged in user can retrieve his registered businesses""" 
+        self.register_user()
+        result = self.login_user()    
+
+        access_token = json.loads(result.data.decode())['access_token']
+
+        response = self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token), data=self.business)
+        self.assertEqual(response.status_code, 201)
+        response = self.client.get('/api/v1/businesses?location=Classy')
+        self.assertEqual(response.status_code, 404)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertIn("Sorry, No business in that location", response_msg["Message"])
+
+
+    def test_retrieve_non_existent_businesses_in_category(self): 
+        """Tests if all a logged in user can retrieve his registered businesses""" 
+        self.register_user()
+        result = self.login_user()    
+
+        access_token = json.loads(result.data.decode())['access_token']
+
+        response = self.client.post('/api/v1/businesses', headers=dict(Authorization="Bearer " + access_token), data=self.business)
+        self.assertEqual(response.status_code, 201)
+        response = self.client.get('/api/v1/businesses?category=Classy')
+        self.assertEqual(response.status_code, 404)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertIn("Sorry, No business in that category", response_msg["Message"])
 
 
     def test_retrieve_all_businesses_when_none_exists(self):
