@@ -235,7 +235,7 @@ def get_all_business():
                 }
                 results.append(obj)
 
-            response=jsonify(results)
+            response =jsonify(results)
             response.status_code = 200
             return response
 
@@ -386,7 +386,7 @@ def delete_businesses(businessid):
 
                     return jsonify({"Success":"Business Deleted Successfully"}), 200
 
-            return jsonify({"Error":"No Business with that ID"}), 404
+            return jsonify({"Error":"You have no business with that ID"}), 404
 
         else:
             """Invalid Access token, payload error"""
@@ -448,18 +448,23 @@ def update_businesses(businessid):
 
                 if business_name and about and location and category:
                     businesses = Business.query.filter_by(created_by=user_id)
+
+                    all_businesses = Business.get_all()
                     business = [bus for bus in businesses if bus.businessid == businessid]
 
-                    existing = [bus1 for bus1 in businesses if bus1.business_name == business_name and bus1.businessid != businessid]
+                    existing = [bus1 for bus1 in all_businesses if bus1.business_name == business_name and bus1.businessid != businessid]
 
                     if not business:
-                            return jsonify({'Message': "No Business with that ID"}), 404
+                            return jsonify({'Message': "You have no business with that ID"}), 404
 
-                    for business in businesses:
+                    else:
+                        
                         if existing:
                             return jsonify({"Error":"Business Already Exists, use a different business name"}), 409
 
                         else:
+                            business = business[0]
+                            
                             business.business_name=business_name
                             business.about=about
                             business.location=location
