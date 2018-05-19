@@ -13,7 +13,10 @@ def create_user_account():
     password1 = request.data.get('password')
     confirm_password1 = request.data.get('confirm_password')
 
-    
+
+    if isinstance(username1, int) or isinstance(email1, int) or isinstance(password1, int) or isinstance(confirm_password1, int) or not username1.isalpha():
+            return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
     if username1 and email1 and password1 and confirm_password1:
 
         username = str(username1.strip(' '))
@@ -25,8 +28,10 @@ def create_user_account():
 
     if username and email and password and confirm_password:
 
+        
+
         if len(username) < 3:
-            return jsonify({'message': "Invalid input, kindly set a username of more than 3 letters"}), 200
+            return jsonify({'message': "Kindly set a username of more than 3 letters"}), 200
         
         if len(password) < 3:
             return jsonify({'message': "Kindly set a password of more than 3 characters"}), 200
@@ -61,6 +66,9 @@ def user_login():
     """Log in a user using username and password provided """ 
     username1 = request.data.get('username')
     password1 = request.data.get('password')
+
+    if isinstance(username1, int) or isinstance(password1, int):
+            return jsonify({'message': "Invalid input, kindly use strings"}), 400
 
     if username1 and password1:
         username = str(username1.strip(' '))
@@ -129,8 +137,8 @@ def user_logout():
      
 
 
-@auth.route('/api/v1/auth/reset_password', methods=['PUT'])
-def reset_password():
+@auth.route('/api/v1/auth/update_password', methods=['PUT'])
+def update_password():
     """ Logged in user can reset password """
 
     email1 = request.data.get('email')
@@ -175,10 +183,10 @@ def reset_password():
                         return jsonify({'message': "Passwords not matching"}), 400
 
                     new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
-                    user.current_password=new_hashed_password
+                    user.password=new_hashed_password
 
                     user.save()
-                    return jsonify({'message': "Password reset successfully"}), 200
+                    return jsonify({'message': "Password updated successfully"}), 200
 
 
                 return jsonify({'error': "Email or password error"}), 404
@@ -192,3 +200,54 @@ def reset_password():
                 'message': message
             }
             return make_response(jsonify(response)), 401              
+
+
+@auth.route('/api/v1/auth/reset_password', methods=['PUT'])
+def reset_password():
+    """ user can reset password using username and email"""
+
+    email1 = request.data.get('email')
+    username1 = request.data.get('username')
+    new_password1 = request.data.get('new_password')
+    confirm_password1 = request.data.get('confirm_password')
+
+    if isinstance(username1, int) or isinstance(email1, int) or isinstance(new_password1, int) or isinstance(confirm_password1, int):
+            return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+                    
+    if email1 and username1 and new_password1 and confirm_password1:
+
+        email = str(email1.strip(' '))
+        username = str(username1.strip(' '))
+        new_password = str(new_password1.strip(' '))
+        confirm_password = str(confirm_password1.strip(' '))
+    else:
+        return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400 
+
+    if email and username and new_password and confirm_password: 
+
+        user= User.query.filter_by(username=request.data['username']).first()
+
+        if user:
+
+            if user.email == email:
+                if len(new_password) < 3:
+                    return jsonify({'message': "Kindly set a password of more than 3 characters"}), 200
+          
+                if new_password != confirm_password:
+                    return jsonify({'message': "Passwords not matching"}), 400
+
+                new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
+                user.password=new_hashed_password
+
+                user.save()
+                return jsonify({'message': "Password reset successfully"}), 200
+
+            return jsonify({'error': "Email error, kindly ensure the indicated email is correct"}), 404
+
+
+        return jsonify({'error': "Username error, kindly ensure the indicated username is correct"}), 404
+
+    return jsonify({'error':'Input Empty Fields'}), 400
+
+        
