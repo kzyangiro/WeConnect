@@ -47,6 +47,12 @@ def register_business():
         if not isinstance(user_id, str):
             
             try:
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
+                    return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+                if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
+                    return jsonify({'message': "Kindly use input of at least 2 characters"}), 200
+          
 
                 if business_name1 and about1 and location1 and category1:
 
@@ -417,7 +423,6 @@ def update_businesses(businessid):
     location1 = request.data.get('location')
     category1 = request.data.get('category')
 
-
     auth_header = request.headers.get('Authorization')
     if auth_header:
         access_token = auth_header.split(' ')[1]
@@ -439,6 +444,14 @@ def update_businesses(businessid):
         if not isinstance(user_id, str):
             
             try:
+
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
+                    return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+                if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
+                    return jsonify({'message': "Kindly use input of at least 2 characters"}), 200
+          
+
                 if business_name1 and about1 and location1 and category1:
 
                     business_name = str(business_name1.strip(' '))
