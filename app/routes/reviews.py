@@ -1,9 +1,12 @@
 from flask import request, make_response, jsonify
 from . import bs
+import re
 from .. models import Business, Review, User, BlacklistToken
 
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
+
+    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
 
     try:
         businessid = int(businessid)
@@ -13,7 +16,6 @@ def create_a_business_review(businessid):
 
 
     """Add review for a business, only a logged in user can add a review"""
-    title1 = request.data.get('title')
     content1 = request.data.get('content')
 
     """ Confirm user is authorised """
@@ -36,8 +38,13 @@ def create_a_business_review(businessid):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
 
-            if title1 and content1:
-                title = str(title1.strip(' '))
+            if content1:
+                if isinstance(content1, int) or not re.match(valid, content1):
+                    return jsonify({'message': "Invalid input, kindly input a valid review"}), 400
+
+                if len(content1) < 3:
+                    return jsonify({'message': "Kindly add review of at least 3 characters"}), 200
+          
                 content = str(content1.strip(' '))
 
 
@@ -50,12 +57,11 @@ def create_a_business_review(businessid):
                     for business in businesses:
                         if business.businessid == businessid:
 
-                            review = Review(title=title, content=content, created_by=user_id, businessid=businessid)
+                            review = Review(content=content, created_by=user_id, businessid=businessid)
                             review.save()
                             response =make_response(
                             jsonify({
                                 'Message':'Review added successfully',
-                                'Title': review.title,
                                 'content': review.content,
                                 "created By":user_id,
                                 "creation date":review.date_created
@@ -72,7 +78,7 @@ def create_a_business_review(businessid):
                     return response
 
             else:
-                return make_response(jsonify({'message': "Invalid input, kindly fill in all required variables"}), 400)
+                return make_response(jsonify({'message': "Invalid input, kindly fill in all required input"}), 400)
 
         else:
             message = user_id
@@ -107,8 +113,7 @@ def get_all_business_reviews(businessid):
                 for review in reviews:
                     
                     obj={
-                        "Title":review.title,
-                        "content":review.content,
+                        "Review":review.content,
                         "created by":review.created_by,
                         "creation date":review.date_created
                     }

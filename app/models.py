@@ -176,7 +176,6 @@ class Review(db.Model):
     __tablename__ ='reviews'
 
     id=db.Column(db.Integer, primary_key=True)
-    title=db.Column(db.String(255))
     content=db.Column(db.String(255))
     
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
@@ -191,9 +190,8 @@ class Review(db.Model):
 
     businessid = db.Column(db.Integer, db.ForeignKey(Business.businessid))
 
-    def __init__(self, title, content, created_by, businessid):
+    def __init__(self, content, created_by, businessid):
 
-        self.title = title
         self.content = content
         self.created_by = created_by
         self.businessid = businessid

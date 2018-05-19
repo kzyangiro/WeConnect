@@ -1,6 +1,7 @@
 from flask import request, make_response, jsonify
 from . import bs
 from .. models import Business, User, Review, BlacklistToken
+import re
 from sqlalchemy import func # Change variable case
 
 @bs.route('/')
@@ -16,6 +17,8 @@ def homepage():
 
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
+    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
+
     """This method Creates a business by only authorised users"""
     
 
@@ -45,9 +48,9 @@ def register_business():
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
-            
+
             try:
-                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int) or not re.match(valid, business_name1) or not re.match(valid, location1) or not re.match(valid, about1) or not re.match(valid, category1):
                     return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
 
                 if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
@@ -444,8 +447,7 @@ def update_businesses(businessid):
         if not isinstance(user_id, str):
             
             try:
-
-                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int) or not re.match(valid, business_name1) or not re.match(valid, location1) or not re.match(valid, about1) or not re.match(valid, category1):
                     return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
 
                 if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:

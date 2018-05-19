@@ -42,7 +42,7 @@ def create_user_account():
 
         if password != confirm_password:
             return jsonify({'message': "Unmatched passwords"}), 400
-        
+
         elif not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
             """Email Validation"""
             return jsonify({'message': "Invalid email address"}), 400
