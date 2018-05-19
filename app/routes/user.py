@@ -44,10 +44,10 @@ def create_user_account():
 
         else:
             for user in users:
-                if user.username == username:
+                if user.username.lower()== username.lower():
                     return jsonify({'message': "The username is already registered, kindly chose a different one"}), 409
 
-                if user.email == email:
+                if user.email.lower() == email.lower():
                     return jsonify({'message': "The email is already registered, kindly chose a different one"}), 409
           
         user= User(username=username, email=email, password=password)

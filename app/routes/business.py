@@ -1,6 +1,7 @@
 from flask import request, make_response, jsonify
 from . import bs
 from .. models import Business, User, Review, BlacklistToken
+from sqlalchemy import func # Change variable case
 
 @bs.route('/')
 def homepage():
@@ -59,7 +60,7 @@ def register_business():
                 if business_name and about and location and category:
                     businesses = Business.get_all()
                     for business in businesses:
-                        if business.business_name == business_name:
+                        if business.business_name.lower() == business_name.lower():
                             return jsonify({"Error":"Business already exists, use a different business name"}), 409
 
                     business = Business(business_name=business_name, about=about, location=location, category=category, created_by=user_id)
@@ -108,7 +109,8 @@ def get_all_business():
         if q:
             
             """Retrieve a business by the given search name"""
-            businesses = Business.query.filter(Business.business_name.contains(q))
+
+            businesses = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
             results = []
 
             business = [bus for bus in businesses]
@@ -134,7 +136,7 @@ def get_all_business():
         elif location:
 
             """Retrieve businesses in a given location"""
-            businesses = Business.query.filter(Business.location.contains(location))
+            businesses = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
             results = []
 
             business = [bus for bus in businesses]
@@ -161,7 +163,7 @@ def get_all_business():
         elif category:
 
             """Retrieve businesses in a given location"""
-            businesses = Business.query.filter(Business.category.contains(category))
+            businesses = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
             results = []
 
             business = [bus for bus in businesses]
@@ -452,7 +454,7 @@ def update_businesses(businessid):
                     all_businesses = Business.get_all()
                     business = [bus for bus in businesses if bus.businessid == businessid]
 
-                    existing = [bus1 for bus1 in all_businesses if bus1.business_name == business_name and bus1.businessid != businessid]
+                    existing = [bus1 for bus1 in all_businesses if bus1.business_name.lower() == business_name.lower() and bus1.businessid != businessid]
 
                     if not business:
                             return jsonify({'Message': "You have no business with that ID"}), 404
