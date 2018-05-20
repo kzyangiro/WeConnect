@@ -7,36 +7,20 @@ from sqlalchemy import func # Change variable case
 @bs.route('/')
 def homepage():
     """This is the home endpoint"""
-    res = make_response(
-        jsonify({
-        'message':'Welcome to Weconnect'
-        
-        }))
+    responce = make_response(jsonify({'message':'Welcome to Weconnect'}))
                 
-    return res
-
-
-valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
+    return responce
 
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
-
-    """This method Creates a business by only authorised users"""
-    
+    """Creates a new business"""
 
     business_name1 = request.data.get('business_name')
     about1 = request.data.get('about')
     location1 = request.data.get('location')
     category1 = request.data.get('category')
 
-
-    """ Confirm user is authorised """
-    auth_header = request.headers.get('Authorization')
-
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
-    else:
-        access_token = 'Invalid Token'
+    access_token = User.get_token()
 
     if access_token:
         blacklisttokens = BlacklistToken.get_all()
@@ -52,12 +36,10 @@ def register_business():
         if not isinstance(user_id, str):
 
             try:
-                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int) or not re.match(valid, business_name1) or not re.match(valid, location1) or not re.match(valid, about1) or not re.match(valid, category1):
+                
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
                     return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
 
-                if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
-                    return jsonify({'message': "Kindly use input of at least 2 characters"}), 200
-          
 
                 if business_name1 and about1 and location1 and category1:
 
@@ -68,7 +50,21 @@ def register_business():
                 else:
                     return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
 
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
+                    return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+
                 if business_name and about and location and category:
+
+                    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
+                    if not re.match(valid, business_name) or  not re.match(valid, about) or not re.match(valid, location) or not re.match(valid, category):
+                        return jsonify({'message': "Input should not be only digits, kindly use letters as well"}), 400         
+
+
+                    if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
+                        return jsonify({'message': "Kindly use input of at least 2 characters"}), 400
+
+
                     businesses = Business.get_all()
                     for business in businesses:
                         if business.business_name.lower() == business_name.lower():
@@ -118,7 +114,6 @@ def get_all_business():
     else:
 
         if q:
-            
             """Retrieve a business by the given search name"""
 
             businesses = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
@@ -142,7 +137,7 @@ def get_all_business():
                 response=jsonify(results)
                 response.status_code = 200
             
-                return response
+            return response
 
         elif location:
 
@@ -360,13 +355,7 @@ def delete_businesses(businessid):
     except ValueError:
         return make_response(jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400)
 
-    
-    """Obtain token from header"""
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
-    else:
-        access_token = 'Invalid Token'
+    access_token = User.get_token()
 
     if access_token:
         blacklisttokens = BlacklistToken.get_all()
@@ -428,11 +417,8 @@ def update_businesses(businessid):
     location1 = request.data.get('location')
     category1 = request.data.get('category')
 
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
-    else:
-        access_token = 'Invalid Token'
+
+    access_token = User.get_token()
 
     if access_token:
         blacklisttokens = BlacklistToken.get_all()
@@ -443,18 +429,15 @@ def update_businesses(businessid):
                 return jsonify({'status':'You are logged out kindly login to get a new token'}),401
 
 
-        """Decode token"""
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
-            
+
             try:
-                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int) or not re.match(valid, business_name1) or not re.match(valid, location1) or not re.match(valid, about1) or not re.match(valid, category1):
+                
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
                     return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
 
-                if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
-                    return jsonify({'message': "Kindly use input of at least 2 characters"}), 200
-          
 
                 if business_name1 and about1 and location1 and category1:
 
@@ -463,7 +446,18 @@ def update_businesses(businessid):
                     category = str(category1.strip(' '))
                     about = str(about1.strip(' '))
                 else:
-                    return jsonify({'message': "Fill in the empty fields"}), 400
+                    return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
+
+                if isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int):
+                    return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+                valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
+                if not re.match(valid, business_name) or  not re.match(valid, about) or not re.match(valid, location) or not re.match(valid, category):
+                    return jsonify({'message': "Input should not be only digits, kindly use letters as well"}), 400         
+
+
+                if len(business_name1) < 2 or len(about1) < 2 or len(location1) < 2 or len(category1) < 2:
+                    return jsonify({'message': "Kindly use input of at least 2 characters"}), 400
 
                 if business_name and about and location and category:
                     businesses = Business.query.filter_by(created_by=user_id)
