@@ -15,9 +15,11 @@ def homepage():
                 
     return res
 
+
+valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
+
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
-    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
 
     """This method Creates a business by only authorised users"""
     
