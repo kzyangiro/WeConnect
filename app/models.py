@@ -2,7 +2,7 @@ from app import db
 from flask_bcrypt import Bcrypt
 import jwt
 from datetime import datetime, timedelta
-from flask import current_app
+from flask import request, current_app
 
 
 class User(db.Model):
@@ -66,6 +66,18 @@ class User(db.Model):
 
         except Exception as e:
             return str(e)
+
+        
+    @staticmethod
+    def get_token():
+
+        auth_header = request.headers.get('Authorization')
+
+        if auth_header:
+            access_token = auth_header.split(' ')[1]
+        else:
+            access_token = 'Invalid Token'
+        return access_token
 
     @staticmethod
     def decode_token(token):
@@ -153,7 +165,8 @@ class Business(db.Model): #This class represents the Businesses Table
         """ This method retrieves a list of businesses f only the indicated limit"""
 
         return Business.query.filter().offset(offset_num).limit(limit_num).all()
-    
+
+
     @staticmethod
     def get_all():
         """ This method retrieves all busineses"""
