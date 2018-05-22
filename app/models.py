@@ -80,6 +80,23 @@ class User(db.Model):
         return access_token
 
     @staticmethod
+    def validate_token():
+        """ Check if token used is valid"""
+
+        access_token = User.get_token()
+        user_id = User.decode_token(access_token)
+        blacklisttoken = BlacklistToken.query.filter_by(
+                token=access_token).first()
+
+        res = {'access_token':User.get_token(),
+            'user_id': User.decode_token(access_token),
+            'decodable_token':access_token and isinstance(user_id, str),
+            'blacklisted_token':access_token and blacklisttoken}
+        return res
+
+
+
+    @staticmethod
     def decode_token(token):
         """Decodes the access token"""
         try:
@@ -91,6 +108,7 @@ class User(db.Model):
 
         except jwt.InvalidTokenError:
             return "Please register or login, Token is Invalid"
+
 class BlacklistToken(db.Model):
     """User class creates an instance of a user"""
  
@@ -116,7 +134,7 @@ class BlacklistToken(db.Model):
 
 
 
-class Business(db.Model): #This class represents the Businesses Table
+class Business(db.Model): 
     """Business Class Creates an instance of business"""
     __tablename__ = 'businesses'
 
