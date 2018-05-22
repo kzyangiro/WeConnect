@@ -6,134 +6,128 @@ from flask_bcrypt import Bcrypt
 
 @auth.route('/api/v1/auth/register', methods=['POST'])
 def create_user_account():
-    """Register a new user"""    
+    """Register a new user"""
 
     username1 = request.data.get('username')
     email1 = request.data.get('email')
     password1 = request.data.get('password')
     confirm_password1 = request.data.get('confirm_password')
 
+    users = User.get_all()
+    all_input = username1 and email1 and password1 and confirm_password1
 
     if isinstance(username1, int) or isinstance(email1, int) or isinstance(password1, int) or isinstance(confirm_password1, int):
-            return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
-    
-    if username1 and email1 and password1 and confirm_password1:
+        return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+    if all_input:
         """ Remove whitespaces before and after input """
 
         username = str(username1.strip(' '))
         email = str(email1.strip(' '))
         password = str(password1.strip(' '))
         confirm_password = str(confirm_password1.strip(' '))
+
+        existing_username = [
+            u for u in users if u.username.lower() == username.lower()]
+        existing_email = [e for e in users if e.email.lower() == email.lower()]
+        all_stripped_input = username and email and password and confirm_password
+
+    if not all_input:
+        response = jsonify(
+            {'message': "Invalid input, kindly fill in all required input"}), 400
+
+    elif not all_stripped_input:
+        response = jsonify({'message': "Input empty fields"}), 400
+
+    elif not username.isalpha():
+        response = jsonify(
+            {'message': "kindly use only letters for a username"}), 400
+
+    elif len(username) < 3:
+        response = jsonify(
+            {'message': "Kindly set a username of more than 3 letters"}), 400
+
+    elif len(password) < 3:
+        response = jsonify(
+            {'message': "Kindly set a password of more than 3 characters"}), 400
+
+    elif password != confirm_password:
+        response = jsonify({'message': "Unmatched passwords"}), 400
+
+    elif not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+        response = jsonify({'message': "Invalid email address"}), 400
+
+    elif existing_username:
+        response = jsonify(
+            {'message': "The username is already registered, kindly chose a different one"}), 409
+
+    elif existing_email:
+        response = jsonify(
+            {'message': "The email is already registered, kindly chose a different one"}), 409
+
     else:
-        return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
 
-    if username and email and password and confirm_password:
-        if  not username.isalpha():
-            return jsonify({'message': "Use a valid username"}), 400
-        
-        if len(username) < 3:
-            return jsonify({'message': "Kindly set a username of more than 3 letters"}), 400
-        
-        if len(password) < 3:
-            return jsonify({'message': "Kindly set a password of more than 3 characters"}), 400
-                
-        users = User.get_all()
-
-        if password != confirm_password:
-            return jsonify({'message': "Unmatched passwords"}), 400
-
-        elif not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
-            return jsonify({'message': "Invalid email address"}), 400
-
-        else:
-            for user in users:
-                if user.username.lower()== username.lower():
-                    return jsonify({'message': "The username is already registered, kindly chose a different one"}), 409
-
-                if user.email.lower() == email.lower():
-                    return jsonify({'message': "The email is already registered, kindly chose a different one"}), 409
-          
-        user= User(username=username, email=email, password=password)
+        user = User(username=username, email=email, password=password)
         user.save()
-        return jsonify({'message': "User Registered successfully"}), 201
+        response = jsonify({'message': "User Registered successfully"}), 201
 
-    return jsonify({'message': "Input empty fields"}), 400
+    return response
 
 
 @auth.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
-    """Log in a user using username and password provided, and generate access token """ 
+    """Log in a user using username and password provided, and generate access token """
     username1 = request.data.get('username')
     password1 = request.data.get('password')
 
-    if isinstance(username1, int) or isinstance(password1, int):
-            return jsonify({'message': "Invalid input, kindly use strings"}), 400
+    all_credentials = username1 and password1
+    int_input = isinstance(username1, int) or isinstance(password1, int)
 
-    if username1 and password1:
+    if int_input or not all_credentials:
+        return jsonify({'message': "Invalid input, fill in all required inputs, and kindly use strings"}), 400
+
+    if all_credentials:
         username = str(username1.strip(' '))
         password = str(password1.strip(' '))
-    else:
-        return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
-
-    if username and password:
-
         user = User.query.filter_by(username=request.data['username']).first()
 
-        if user:
-            if not user.password_is_valid(request.data['password']):
-                return jsonify({'message': "Wrong password entered"}), 401
+    if user:
+        correct_pwd = user.password_is_valid(request.data['password'])
+        access_token = user.generate_token(user.id)
 
-            access_token = user.generate_token(user.id)
-            if access_token:
-                
-                responce = make_response(
-                    jsonify({
-                        'Message':'Successfully Logged in',
-                        'access_token':access_token.decode()
-                    }),200)
-                return responce
-            
-        return jsonify({'message': "Invalid username"}), 404
-       
-    return jsonify({'message': "Fill in the empty fields"}), 400
+    if not username and password:
+        response = jsonify({'message': "Fill in the empty fields"}), 400
+
+    elif not user:
+        response = jsonify({'message': "Invalid username"}), 404
+
+    elif user and not correct_pwd:
+        response = jsonify({'message': "Wrong password entered"}), 401
+
+    else:
+        response = make_response(jsonify({
+            'Message': 'Successfully Logged in',
+            'access_token': access_token.decode()}), 200)
+    return response
 
 
 @auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
     """Logout the user by blacklisting access token"""
 
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
+    token = User.validate_token()
+
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        response = jsonify(
+            {'message': 'Invalid token, Login to obtain a new token'}), 401
+
     else:
-        access_token = 'Invalid Token'
+        token = BlacklistToken(token=token['access_token'])
+        token.save()
+        response = jsonify({'message': 'Successfully Logged Out'}), 200
 
-    if access_token:
+    return response
 
-        blacklisttokens = BlacklistToken.get_all()
-
-        for token in blacklisttokens:
-            "Check if input access token is blacklisted, if yes, prompt new login"
-
-            if token.token == access_token:
-                return jsonify({'status':'Invalid acess token, login to get a new one'}),401
-        
-        user_id = User.decode_token(access_token)
-        if not isinstance(user_id, str):
-            
-            try:
-                token= BlacklistToken(token=access_token)
-                token.save()
-                return jsonify({'message':'Successfully Logged Out'}),200
-
-            except ValueError:
-                return make_response(jsonify({"message" :"Not Logged out"}), 400)
-
-        else:
-            return jsonify({'message': 'Invalid Access Token'}), 401
-
-    return make_response(jsonify({'message': 'Invalid token, Login to obtain a new token'})), 401
-    
 
 @auth.route('/api/v1/auth/update_password', methods=['PUT'])
 def update_password():
@@ -144,56 +138,53 @@ def update_password():
     new_password1 = request.data.get('new_password')
     confirm_password1 = request.data.get('confirm_password')
 
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
+    all_input = email1 and current_password1 and new_password1 and confirm_password1
+
+    token = User.validate_token()
+
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'message': 'Invalid token, Login to obtain a new token'}), 401
+
+    if isinstance(email1, int) or isinstance(current_password1, int) or isinstance(new_password1, int) or isinstance(confirm_password1, int):
+        return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+    if all_input:
+
+        email = str(email1.strip(' '))
+        current_password = str(current_password1.strip(' '))
+        new_password = str(new_password1.strip(' '))
+        confirm_password = str(confirm_password1.strip(' '))
+
+        user = User.query.filter_by(email=request.data['email']).first()
+
+        all_stripped_input = email and current_password and new_password and confirm_password
+        valid_user = user and user.password_is_valid(
+            request.data['current_password'])
+
+    if not all_input:
+        response = jsonify(
+            {'message': "Invalid input, kindly fill in all required input"}), 400
+
+    elif not all_stripped_input:
+        response = jsonify({'error': 'Input Empty Fields'}), 400
+
+    elif not user:
+        response = jsonify({'error': "Invalid Email"}), 404
+
+    elif not valid_user:
+        response = jsonify({'error': "Wrong password"}), 400
+
+    elif new_password != confirm_password:
+        response = jsonify({'message': "Passwords not matching"}), 400
+
     else:
-        access_token = 'Invalid Token'  
+        new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
+        user.password = new_hashed_password
 
-    if access_token:
-        blacklisttokens = BlacklistToken.get_all()
+        user.save()
+        response = jsonify({'message': "Password updated successfully"}), 200
 
-        for token in blacklisttokens:
-            "Check if input access token is blacklisted, if yes, prompt new login"
-            if token.token == access_token:
-                return jsonify({'status':'You are already Logged Out, kindly login to obtain a new token'}),401
-
-        user_id = User.decode_token(access_token)
-        if not isinstance(user_id, str):
-                    
-            if email1 and current_password1 and new_password1 and confirm_password1:
-
-                email = str(email1.strip(' '))
-                current_password = str(current_password1.strip(' '))
-                new_password = str(new_password1.strip(' '))
-                confirm_password = str(confirm_password1.strip(' '))
-            else:
-                return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400 
-
-            if email and current_password and new_password and confirm_password: 
-       
-                user = User.query.filter_by(email=request.data['email']).first()
-
-                if user and user.password_is_valid(request.data['current_password']):
-
-                    if new_password != confirm_password:
-                        return jsonify({'message': "Passwords not matching"}), 400
-
-                    new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
-                    user.password=new_hashed_password
-
-                    user.save()
-                    return jsonify({'message': "Password updated successfully"}), 200
-
-
-                return jsonify({'error': "Email or password error"}), 404
-
-            return jsonify({'error':'Input Empty Fields'}), 400
-
-        else:
-            """last login session is expired/user is not legit, so the payload is an error message"""
-            message = user_id
-            return jsonify({'message': message}), 401              
+    return response
 
 
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
@@ -205,43 +196,43 @@ def reset_password():
     new_password1 = request.data.get('new_password')
     confirm_password1 = request.data.get('confirm_password')
 
-    if isinstance(username1, int) or isinstance(email1, int) or isinstance(new_password1, int) or isinstance(confirm_password1, int):
-            return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+    all_input = email1 and username1 and new_password1 and confirm_password1
 
-                    
-    if email1 and username1 and new_password1 and confirm_password1:
+    if isinstance(username1, int) or isinstance(email1, int) or isinstance(new_password1, int) or isinstance(confirm_password1, int):
+        return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
+
+    if all_input:
 
         email = str(email1.strip(' '))
         username = str(username1.strip(' '))
         new_password = str(new_password1.strip(' '))
         confirm_password = str(confirm_password1.strip(' '))
+
+        reg_email = User.query.filter_by(email=email).first()
+        reg_username = User.query.filter_by(username=username).first()
+
+        all_stripped_input = email and username and new_password and confirm_password
+
+    if not all_input:
+        response = jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
+
+    elif not all_stripped_input:
+        response = jsonify({'error': 'Input Empty Fields'}), 400
+
+    elif not reg_email:
+        response = jsonify({'error': "Email error, kindly ensure the indicated email is correct"}), 404
+
+    elif not reg_username:
+        response = jsonify({'error': "Username error, kindly ensure the indicated username is correct"}), 404
+
+    elif new_password != confirm_password:
+        response = jsonify({'message': "Passwords not matching"}), 400
+
     else:
-        return jsonify({'message': "Invalid input, kindly fill in all required input"}), 400 
+        new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
+        reg_username.password = new_hashed_password
 
-    if email and username and new_password and confirm_password: 
+        reg_username.save()
+        response = jsonify({'message': "Password reset successfully"}), 200
 
-        user= User.query.filter_by(username=request.data['username']).first()
-
-        if user:
-
-            if user.email == email:
-                if len(new_password) < 3:
-                    return jsonify({'message': "Kindly set a password of more than 3 characters"}), 400
-          
-                if new_password != confirm_password:
-                    return jsonify({'message': "Passwords not matching"}), 400
-
-                new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
-                user.password=new_hashed_password
-
-                user.save()
-                return jsonify({'message': "Password reset successfully"}), 200
-
-            return jsonify({'error': "Email error, kindly ensure the indicated email is correct"}), 404
-
-
-        return jsonify({'error': "Username error, kindly ensure the indicated username is correct"}), 404
-
-    return jsonify({'error':'Input empty fields'}), 400
-
-        
+    return response
