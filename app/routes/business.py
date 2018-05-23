@@ -84,8 +84,8 @@ def get_all_business():
     q = request.args.get('q')
     location = request.args.get('location')
     category = request.args.get('category')
-    page = request.args.get('page', 1)
-    limit = request.args.get('limit', Business.query.count())
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', Business.query.count(), type=int)
  
     businesses = Business.get_all()
  
@@ -123,30 +123,18 @@ def get_all_business():
             response = jsonify({"message":"Sorry, No business in that category", 'status_code': 204})
         else:
             response = jsonify(business=[business.serialize for business in business_by_category]), 200
-    
-    # elif page.isdigitor limit and limit.isalpha():
-    #     response = jsonify({"Message" :"Invalid Limit or page, kindly use an integer"}), 400   
-
-
-
-    # elif page and page.isalpha():
-    #     response = jsonify({"Message" :"Invalid Limit or page number, kindly use an integer"}), 400   
-
 
     elif limit and page:
         """ Retrieve businesses of a given limit from a particular starting point"""
         
         business_limit = Business.query.paginate(int(page), int(limit), False)
 
-
-        
         b = [b for b in business_limit.items]
 
         if not b:
             response = jsonify({"Message" :"Sorry, No business found", 'status_code': 204})
         else:
             response = jsonify(business=[business.serialize for business in business_limit.items]), 200
-
 
     else:
         response = jsonify(business=[business.serialize for business in businesses]), 200
