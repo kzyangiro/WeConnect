@@ -9,8 +9,7 @@ from flask import jsonify
 db = SQLAlchemy()
 
 def create_app(config_name):
-    app = FlaskAPI(__name__, instance_relative_config=True)    
-    # SESSION_TYPE = 'redis'
+    app = FlaskAPI(__name__, instance_relative_config=True) 
     app.secret_key='my-key'
     app.config.from_object(app_config[config_name])
 
@@ -30,7 +29,7 @@ def create_app(config_name):
         
     @app.errorhandler(404)
     def error1(error:None):
-        return jsonify({"Error":"Invalid Access Url"})
+        return jsonify({"Error":"Invalid access Url or access method"})
 
     return app
 
