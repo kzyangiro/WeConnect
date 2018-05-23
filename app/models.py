@@ -179,13 +179,6 @@ class Business(db.Model):
         return Business.query.filter_by(created_by = user_id)
 
     @staticmethod
-    def businesses_pagination(offset_num, limit_num):
-        """ This method retrieves a list of businesses f only the indicated limit"""
-
-        return Business.query.filter().offset(offset_num).limit(limit_num).all()
-
-
-    @staticmethod
     def get_all():
         """ This method retrieves all busineses"""
         return Business.query.all()
@@ -199,6 +192,17 @@ class Business(db.Model):
         return "<Business: {}>".format(self.business_name)
 
 
+    @property
+    def serialize(self):
+        """Serialize."""
+        obj = {
+            "Business id":self.businessid,
+            "Business Name":self.business_name,
+            "Category":self.category,
+            "Business location":self.location
+        }
+
+        return obj
 
 
 class Review(db.Model):
@@ -241,4 +245,3 @@ class Review(db.Model):
     def get_all(businessid):
         """ This method retrieves all the reviews of a business"""
         return Review.query.filter_by(businessid = businessid)
-        
