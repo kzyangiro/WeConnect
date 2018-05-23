@@ -22,14 +22,13 @@ class TestUser(unittest.TestCase):
 
         """ Initial input """
         self.client.post(TestUser.register, data={ 'username':'kezzy', 'email':'kzynjokerio@gmail.com', 'password':'user_password', 'confirm_password':'user_password'})
-               
+        self.client.post(TestUser.login, data={ 'username':'kezzy','password':'user_password'})
 
     """ Endpoints to test """
     register = '/api/v1/auth/register'
     login = '/api/v1/auth/login'
+    logout = '/api/v1/auth/logout'
     change_pwd = '/api/v1/auth/update_password'
-    reset_pwd = '/api/v1/auth/reset_password'
-
 
     def test_new_user_registration(self):
         """ Test if api can register a new user"""
@@ -46,6 +45,14 @@ class TestUser(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         result = json.loads(res.data.decode('UTF-8'))
         self.assertEqual(result['message'], 'Unmatched passwords')
+
+    def test_new_user_registration_with_invalid_input(self):
+        """ Test if api can't register user with an invalid input i.e using integers as input"""
+
+        res = self.client.post(TestUser.register, data={ 'username':"88888", 'email':'annette@gmail.com', 'password':'ann', 'confirm_password':'ann'})
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode('UTF-8'))
+        self.assertEqual(result['message'], "kindly use only letters for a username")
 
     def test_new_user_registration_with_invalid_email(self):
         """ Test if api can't register user with an invalid email format"""
@@ -110,30 +117,36 @@ class TestUser(unittest.TestCase):
         res_msg = json.loads(res.data.decode("UTF-8"))
         self.assertEqual(res_msg['message'], 'Invalid input, fill in all required inputs, and kindly use strings')
 
+    def test_logout(self):
+        """Test if api can log out a logged in user"""
+
+        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
+        res = self.client.post(TestUser.logout, headers=dict(Authorization="Bearer " + access_token))
+
+        self.assertEqual(res.status_code, 200)
+        res_msg = json.loads(res.data.decode("UTF-8"))
+        self.assertEqual(res_msg['message'], 'Successfully Logged Out')
+
+    def test_logout_with_invalid_access_token(self):
+        """Test if api cannot logout if access token is invalid"""
+
+        res = self.client.post(TestUser.logout, headers=dict(Authorization="Bearer " + 'wrong_access_token'))
+
+        self.assertEqual(res.status_code, 401)
+        res_msg = json.loads(res.data.decode("UTF-8"))
+        self.assertEqual(res_msg['message'], 'Invalid token, Login to obtain a new token')
+
+
     def test_change_password(self):
         """Test if api can change password for a logged in user"""
 
-        result = self.client.post(TestUser.login, data=self.login)
-        access_token = json.loads(result.data.decode())['access_token']
-
+        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
         res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + access_token), data={'email':'kzynjokerio@gmail.com','current_password':'user_password', 'new_password':'pwd','confirm_password':'pwd'})
 
         self.assertEqual(res.status_code, 200)
         res_msg = json.loads(res.data.decode("UTF-8"))
         self.assertEqual(res_msg['message'], 'Password updated successfully')
 
-    def test_reset_password(self):
-        """Test if api can reset password for a registered user when correct email is filled in"""
-
-        res = self.client.put(TestUser.reset_pwd, data={'email':'kzynjokerio@gmail.com'})
-
-        gmail_user = "kezzyangiro@gmail.com"
-        gmail_pwd = "k0717658539h"
-        self.assertEqual(res.status_code, 200)
-        res_msg = json.loads(res.data.decode("UTF-8"))
-        self.assertEqual(res_msg['message'], 'Password reset successfully, check your email for your new password')
-
-    
     def tearDown(self):
         """clear all test variables."""
         with self.app.app_context():
