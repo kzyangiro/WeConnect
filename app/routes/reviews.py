@@ -5,7 +5,7 @@ from .. models import Business, Review, User, BlacklistToken
 
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
-    """Add review for a business, only a logged in user can add a review"""
+    """Create a business review, only a logged in user can add a review"""
 
     content1 = request.data.get('content')
     business = Business.query.filter_by(businessid=businessid).first()
@@ -25,7 +25,7 @@ def create_a_business_review(businessid):
         response = jsonify({"message" :"Invalid business Id, kindly use an integer for business ID"}), 400
 
     elif not business:
-        response = jsonify({'message':'No business with the given id'}), 404
+        response = jsonify({'message':'No business with the given id', 'status_code': 204})
 
     elif not content1:
         response = jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
@@ -53,7 +53,7 @@ def create_a_business_review(businessid):
          
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
-    """Retrieve all reviews for a business using a business id"""
+    """Retrieve all reviews for a business using business id"""
     reviews = Review.get_all(businessid)
     results = []
 
@@ -61,10 +61,10 @@ def get_all_business_reviews(businessid):
         response = jsonify({"Message" :"Invalid business Id, kindly use an integer for business ID"}), 400
 
     elif not Business.query.filter_by(businessid=businessid).first():
-        response = jsonify({'message':'No business with the given id'}), 404
+        response = jsonify({'message':'No business with the given id', 'status_code': 204})
 
     elif reviews.count() == 0:
-        response = jsonify({'message':'No reviews found'}), 404
+        response = jsonify({'message':'No reviews found', 'status_code': 204})
 
     else:
         for review in reviews:

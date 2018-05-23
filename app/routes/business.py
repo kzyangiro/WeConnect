@@ -6,10 +6,9 @@ from sqlalchemy import func # Change variable case
 
 @bs.route('/')
 def homepage():
-    """This is the home endpoint"""
-    responce = make_response(jsonify({'message':'Welcome to Weconnect'}))
-                
-    return responce
+    """Home endpoint"""
+          
+    return jsonify({'message':'Welcome to Weconnect'})
 
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
@@ -80,146 +79,77 @@ def register_business():
        
 @bs.route('/api/v1/businesses', methods=['GET'])
 def get_all_business():
+    """Retrieve all businesses. Filter businesses by name, location, category and pagination"""
 
     q = request.args.get('q')
     location = request.args.get('location')
     category = request.args.get('category')
-    limit = request.args.get('limit')
-    offset = request.args.get('offset')
-    
-    """Retrieve all businesses"""
-
+    page = request.args.get('page', 1)
+    limit = request.args.get('limit', Business.query.count())
+ 
     businesses = Business.get_all()
-    results = []
-
+ 
     business_by_name = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
     business_by_location = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
     business_by_category = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
 
     if not businesses:
-        response = jsonify({'Message': "No Businesses Available"}), 404
+        response = jsonify({'Message': "No Businesses Available", 'status_code': 204})
     
     elif q:
+        """Search business by name"""
 
         b = [b for b in business_by_name]
-
         if not b:
-            response = jsonify({"message":"Sorry, No business with that name"}), 404
+            response = jsonify({"message":"Sorry, No business with that name", 'status_code': 204})
         else:
-            for b in business_by_name:
-            
-                """Retrieve a business by the given search name"""
-
-                obj={
-                "Business id":b.businessid,
-                "Business Name":b.business_name,
-                "Category":b.category,
-                "Business location":b.location
-
-                }
-                results.append(obj)
-
-
-            response=jsonify(results)
-            response.status_code = 200
+            response = jsonify(business=[business.serialize for business in business_by_name]), 200
 
     elif location:
+        """Retrieve businesses in a given location """
 
         b = [b for b in business_by_location]
-
         if not b:
-            response = jsonify({"message":"Sorry, No business in that location"}), 404
+            response = jsonify({"message":"Sorry, No business in that location", 'status_code': 204})
         else:
-            for b in business_by_location:
-            
-                """Retrieve a business in a given location """
+            response = jsonify(business=[business.serialize for business in business_by_location]), 200
 
-                obj={
-                "Business id":b.businessid,
-                "Business Name":b.business_name,
-                "Category":b.category,
-                "Business location":b.location
-
-                }
-                results.append(obj)
-
-
-            response=jsonify(results)
-            response.status_code = 200
 
     elif category:
+        """Retrieve businesses in a given category """
 
         b = [b for b in business_by_category]
-
         if not b:
-            response = jsonify({"message":"Sorry, No business in that category"}), 404
+            response = jsonify({"message":"Sorry, No business in that category", 'status_code': 204})
         else:
-            for b in business_by_category:
-            
-                """Retrieve a business in a given location """
-
-                obj={
-                "Business id":b.businessid,
-                "Business Name":b.business_name,
-                "Category":b.category,
-                "Business location":b.location
-
-                }
-                results.append(obj)
+            response = jsonify(business=[business.serialize for business in business_by_category]), 200
+    
+    # elif page.isdigitor limit and limit.isalpha():
+    #     response = jsonify({"Message" :"Invalid Limit or page, kindly use an integer"}), 400   
 
 
-            response=jsonify(results)
-            response.status_code = 200
 
-    elif offset and offset.isalpha() or limit and limit.isalpha():
-        response = jsonify({"Message" :"Invalid Limit or offset, kindly use an integer"}), 400   
+    # elif page and page.isalpha():
+    #     response = jsonify({"Message" :"Invalid Limit or page number, kindly use an integer"}), 400   
 
-    elif limit and not offset:
-        response = jsonify({"Message" :"Indicate the offset"}), 200
 
-    elif offset and not limit:
-        response = jsonify({"Message" :"Indicate the limit"}), 200
-
-    elif limit and offset:
-        business_limit = Business.businesses_pagination(offset,limit)
+    elif limit and page:
+        """ Retrieve businesses of a given limit from a particular starting point"""
         
-        b = [b for b in business_limit]
+        business_limit = Business.query.paginate(int(page), int(limit), False)
+
+
+        
+        b = [b for b in business_limit.items]
 
         if not b:
-            response = jsonify({"Message" :"Sorry, No business found"}), 404
+            response = jsonify({"Message" :"Sorry, No business found", 'status_code': 204})
         else:
-            for b in business_limit:
-            
-                """Retrieve a business in a given location """
-
-                obj={
-                "Business id":b.businessid,
-                "Business Name":b.business_name,
-                "Category":b.category,
-                "Business location":b.location
-
-                }
-                results.append(obj)
-
-
-            response=jsonify(results)
-            response.status_code = 200
+            response = jsonify(business=[business.serialize for business in business_limit.items]), 200
 
 
     else:
-        for business in businesses:
-
-            obj={
-                "Business id":business.businessid,
-                "Business Name":business.business_name,
-                "Category":business.category,
-                "Business location":business.location
-
-            }
-            results.append(obj)
-
-            response =jsonify(results)
-            response.status_code = 200
+        response = jsonify(business=[business.serialize for business in businesses]), 200
         
     return response
 
@@ -229,29 +159,15 @@ def get_my_business():
     """Display all businesses of the loggedin user"""
     token = User.validate_token()
     businesses = Business.query.filter_by(created_by=token['user_id'])
-    results = []
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
         response = jsonify({'message': 'Invalid token, Login to obtain a new token'}), 401
         
     elif businesses.count() == 0:
         """ Checking if there is no business"""
-        response = make_response(jsonify({'Message': "You have registered no businesses"}), 404)
+        response = jsonify({'Message': "You have registered no businesses", 'status_code': 204})
     else:
-        for business in businesses:
-            obj={
-                "Business Id":business.businessid,
-                "Business Name":business.business_name,
-                "Category":business.category,
-                "Business location":business.location,
-                "Date created":business.date_created,
-                "Date modified":business.date_modified
-
-            }
-            results.append(obj)
-
-        response=jsonify(results)
-        response.status_code = 200
+        response = jsonify(business=[business.serialize for business in businesses]), 200
     return response
 
 
@@ -265,7 +181,7 @@ def get_businesses_by_id(businessid):
         response = jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400
 
     elif business.count() == 0:
-        response=jsonify({"Error":"No Business with that ID"}), 404
+        response=jsonify({"Error":"No Business with that ID", 'status_code': 204})
 
     else:
         business = business[0]
@@ -286,7 +202,7 @@ def get_businesses_by_id(businessid):
 
 @bs.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 def delete_businesses(businessid):
-    """This method deletes a business, but only by the owner while logged in"""
+    """Delete a business by the owner while logged in"""
     token = User.validate_token()
     business = Business.query.filter_by(created_by=token['user_id'], businessid=businessid)
     reviews = Review.get_all(businessid)
@@ -298,7 +214,7 @@ def delete_businesses(businessid):
         response = jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400
 
     elif business.count() == 0:
-        response = jsonify({"Error":"You have no business with that ID"}), 404
+        response = jsonify({"Error":"You have no business with that ID", 'status_code': 204})
     else:
         business[0].delete()
                     
@@ -312,7 +228,7 @@ def delete_businesses(businessid):
 @bs.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 
 def update_businesses(businessid):
-    """This method uses input data to update the content of a business of the ID indicated in the URL"""
+    """Update a business of the ID indicated in the URL"""
 
     business_name1 = request.data.get('business_name')
     about1 = request.data.get('about')
@@ -345,8 +261,8 @@ def update_businesses(businessid):
     elif not businessid.isdigit():
         response = jsonify({"Message" :"Invalid business Id, kindly use an integer"}), 400
 
-    elif not business:
-        response = jsonify({"Error":"You have no business with that ID"}), 404
+    elif not Business.query.filter_by(businessid=businessid, created_by=token['user_id']).first():
+        response = jsonify({"message":"You have no business with that ID", 'status_code': 204})
         
     elif not all_input:
         response = jsonify({'message': "Invalid input, kindly fill in all required input"}), 400

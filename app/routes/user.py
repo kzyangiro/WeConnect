@@ -99,7 +99,7 @@ def user_login():
         response = jsonify({'message': "Fill in the empty fields"}), 400
 
     elif not user:
-        response = jsonify({'message': "Invalid username"}), 404
+        response = jsonify({'message': "Invalid username", 'status_code': 204})
 
     elif user and not correct_pwd:
         response = jsonify({'message': "Wrong password entered"}), 401
@@ -131,7 +131,7 @@ def user_logout():
 
 @auth.route('/api/v1/auth/update_password', methods=['PUT'])
 def update_password():
-    """ Logged in user can change password """
+    """ change password by a logged in user """
 
     email1 = request.data.get('email')
     current_password1 = request.data.get('current_password')
@@ -169,7 +169,7 @@ def update_password():
         response = jsonify({'error': 'Input Empty Fields'}), 400
 
     elif not user:
-        response = jsonify({'error': "Invalid Email"}), 404
+        response = jsonify({'error': "Invalid Email", 'status_code': 204})
 
     elif not valid_user:
         response = jsonify({'error': "Wrong password"}), 400
@@ -220,10 +220,10 @@ def reset_password():
         response = jsonify({'error': 'Input Empty Fields'}), 400
 
     elif not reg_email:
-        response = jsonify({'error': "Email error, kindly ensure the indicated email is correct"}), 404
+        response = jsonify({'error': "Email error, kindly ensure the indicated email is correct", 'status_code': 204})
 
     elif not reg_username:
-        response = jsonify({'error': "Username error, kindly ensure the indicated username is correct"}), 404
+        response = jsonify({'error': "Username error, kindly ensure the indicated username is correct", 'status_code': 204})
 
     elif new_password != confirm_password:
         response = jsonify({'message': "Passwords not matching"}), 400
