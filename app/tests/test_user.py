@@ -122,15 +122,13 @@ class TestUser(unittest.TestCase):
         self.assertEqual(res_msg['message'], 'Password updated successfully')
 
     def test_reset_password(self):
-        """Test if api can reset password for a registered user when correct email and username are filled in"""
+        """Test if api can reset password for a registered user when correct email is filled in"""
 
-        self.client.post(TestUser.register, data=self.register_data)
-        """Tests if an authenticated user can reset password"""       
-        res = self.client.put(TestUser.reset_pwd, data={'username':'kezzy', 'email':'user@email.com','new_password':'pwd','confirm_password':'pwd'})
+        res = self.client.put(TestUser.reset_pwd, data={'email':'user@email.com'})
 
         self.assertEqual(res.status_code, 200)
         res_msg = json.loads(res.data.decode("UTF-8"))
-        self.assertEqual(res_msg['message'], 'Password reset successfully')
+        self.assertEqual(res_msg['message'], 'Password reset successfully, check your email for your new password')
 
     
     def tearDown(self):
