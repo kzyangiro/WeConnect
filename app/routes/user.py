@@ -189,50 +189,58 @@ def update_password():
 
 @auth.route('/api/v1/auth/reset_password', methods=['PUT'])
 def reset_password():
-    """ Reset password using username and email"""
+    """ Reset password using email"""
 
     email1 = request.data.get('email')
-    username1 = request.data.get('username')
-    new_password1 = request.data.get('new_password')
-    confirm_password1 = request.data.get('confirm_password')
 
-    all_input = email1 and username1 and new_password1 and confirm_password1
-
-    if isinstance(username1, int) or isinstance(email1, int) or isinstance(new_password1, int) or isinstance(confirm_password1, int):
+    if isinstance(email1, int):
         return jsonify({'message': "Invalid input, kindly use valid strings"}), 400
 
-    if all_input:
+    if email1:
 
         email = str(email1.strip(' '))
-        username = str(username1.strip(' '))
-        new_password = str(new_password1.strip(' '))
-        confirm_password = str(confirm_password1.strip(' '))
 
         reg_email = User.query.filter_by(email=email).first()
-        reg_username = User.query.filter_by(username=username).first()
 
-        all_stripped_input = email and username and new_password and confirm_password
-
-    if not all_input:
+    if not email1:
         response = jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
 
-    elif not all_stripped_input:
+    elif not email:
         response = jsonify({'error': 'Input Empty Fields'}), 400
 
     elif not reg_email:
         response = jsonify({'error': "Email error, kindly ensure the indicated email is correct", 'status_code': 204})
 
-    elif not reg_username:
-        response = jsonify({'error': "Username error, kindly ensure the indicated username is correct", 'status_code': 204})
-
-    elif new_password != confirm_password:
-        response = jsonify({'message': "Passwords not matching"}), 400
-
     else:
-        new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
-        reg_username.password = new_hashed_password
 
-        reg_username.save()
-        response = jsonify({'message': "Password reset successfully"}), 200
+        import smtplib
+        import uuid
+
+        gmail_user = "kezzyangiro@gmail.com"
+        gmail_pwd = "k0717658539h"
+        TO = 'kzynjokerio@gmail.com'
+        SUBJECT = "WeConnect Password Reset"
+
+        
+        new_pwd = uuid.uuid4()
+        TEXT = f"Hello, you have successfully reset your Weconnect password. Your new password is:   {str(new_pwd)}   You can login using this new password, click on and use change password functionality to update to a new password of your choice."
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.ehlo()
+        
+        server.login(gmail_user, gmail_pwd)
+        BODY = '\r\n'.join(['To: %s' % TO,
+                'From: %s' % gmail_user,
+                'Subject: %s' % SUBJECT,
+                '', TEXT])
+
+        server.sendmail(gmail_user, [TO], BODY)
+        
+
+        new_hashed_password = Bcrypt().generate_password_hash(str(new_pwd)).decode('utf-8')
+        reg_email.password = new_hashed_password
+
+        reg_email.save()
+        response = jsonify({'message': "Password reset successfully, check your email for your new password"}), 200
 
     return response
