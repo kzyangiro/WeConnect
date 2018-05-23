@@ -218,10 +218,9 @@ def reset_password():
 
         gmail_user = "kezzyangiro@gmail.com"
         gmail_pwd = "k0717658539h"
-        TO = 'kzynjokerio@gmail.com'
+        TO = email
         SUBJECT = "WeConnect Password Reset"
 
-        
         new_pwd = uuid.uuid4()
         TEXT = f"Hello, you have successfully reset your Weconnect password. Your new password is:   {str(new_pwd)}   You can login using this new password, click on and use change password functionality to update to a new password of your choice."
         server = smtplib.SMTP('smtp.gmail.com', 587)
