@@ -34,7 +34,7 @@ class TestReview(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("No business with the given id", response_msg["message"])
-    
+
     def test_creating_a_review_using_an_invalid_token(self):
         """Test if review is not created if token used is invalid"""
         response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + '12345'), data = {'content':'my reviews content'})
@@ -42,12 +42,19 @@ class TestReview(unittest.TestCase):
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("Invalid token, Login to obtain a new token", response_msg["message"])  
 
-    def test_creating_a_review_using_numbers_only(self):
-        """Test if review is not created if only digits are filled in"""
-        response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'12345'})
+    def test_creating_a_review_with_less_that_4_characters(self):
+        """Test if review is not created if its content less that 4 characters"""
+        response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'r'})
         self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Invalid input, kindly use alphabets also for input", response_msg["message"]) 
+        self.assertEqual("Kindly add review of at least 4 characters", response_msg["message"]) 
+
+    def test_creating_a_review_using_numbers_only(self):
+        """Test if review is not created if only digits are filled in"""
+        response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'12345'})
+        self.assertEqual(response.status_code, 400)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("Invalid input, kindly use alphabets also for input ", response_msg["message"]) 
 
     def test_create_review_with_incomplete_information(self):
         """Test if review is not created with incomplete information"""
@@ -65,7 +72,6 @@ class TestReview(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("Review added successfully", response_msg["Message"])
-
 
     def test_view_reviews(self):
         """Test if api can retrieve reviews"""
