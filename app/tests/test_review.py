@@ -16,9 +16,12 @@ class TestReview(unittest.TestCase):
         """ Initial Input"""
         self.client.post(TestReview.register, data={'username':'kezzy', 'email':'user@email.com', 'password':'user_password', 'confirm_password':'user_password'})
         result = self.client.post(TestReview.login, data={ 'username':'kezzy','password':'user_password'})
-        self.token = json.loads(result.data.decode())['access_token']
-        self.client.post(TestReview.business, headers=dict(Authorization="Bearer " + self.token), data={'business_name':'my business', 'about':'about', 'location':'location', 'category':'category'})
+        self.token1 = json.loads(result.data.decode())['access_token']
+        self.client.post(TestReview.business, headers=dict(Authorization="Bearer " + self.token1), data={'business_name':'my business', 'about':'about', 'location':'location', 'category':'category'})
 
+        self.client.post(TestReview.register, data={'username':'Ann', 'email':'ann@email.com', 'password':'ann', 'confirm_password':'ann'})
+        result = self.client.post(TestReview.login, data={ 'username':'Ann','password':'ann'})
+        self.token = json.loads(result.data.decode())['access_token']
         self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'my reviews content'})
 
     """ Endpoints to test """
