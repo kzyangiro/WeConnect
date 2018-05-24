@@ -27,6 +27,9 @@ def create_a_business_review(businessid):
     elif not business:
         response = jsonify({'message':'No business with the given id', 'status_code': 204})
 
+    elif business.created_by== token['user_id']:
+        response = jsonify({'message':'Sorry, You should not review your own business'}), 400
+
     elif not content1:
         response = jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
     
@@ -54,13 +57,14 @@ def create_a_business_review(businessid):
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
     """Retrieve all reviews for a business using business id"""
+
+    business = Business.query.filter_by(businessid=businessid).first()
     reviews = Review.get_all(businessid)
     results = []
 
     if not businessid.isdigit():
         response = jsonify({"Message" :"Invalid business Id, kindly use an integer for business ID"}), 400
-
-    elif not Business.query.filter_by(businessid=businessid).first():
+    elif not business:
         response = jsonify({'message':'No business with the given id', 'status_code': 204})
 
     elif reviews.count() == 0:
@@ -72,7 +76,8 @@ def get_all_business_reviews(businessid):
             obj={
                 "Review":review.content,
                 "created by":review.created_by,
-                "creation date":review.date_created
+                "creation date":review.date_created,
+                "business_owner":business.created_by
             }
 
             results.append(obj)
