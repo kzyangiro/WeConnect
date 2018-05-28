@@ -1,7 +1,9 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from config.config import app_config
-from flask import jsonify
+from flask import jsonify,Flask, render_template
+import logging
+import sys
 # from app.models import Business
 
 
@@ -10,6 +12,10 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     app = FlaskAPI(__name__, instance_relative_config=True) 
+
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.ERROR)
+
     app.secret_key='my-key'
     app.config.from_object(app_config[config_name])
 
