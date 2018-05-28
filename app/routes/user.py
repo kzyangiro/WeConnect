@@ -47,16 +47,16 @@ def create_user_account():
         response = jsonify(
             {'message': "Kindly set a username of more than 3 letters"}), 400
 
-    elif len(password) < 3:
+    elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", password):
         response = jsonify(
-            {'message': "Kindly set a password of more than 3 characters"}), 400
+            {'message': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
 
     elif password != confirm_password:
         response = jsonify({'message': "Unmatched passwords"}), 400
 
     elif not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
         response = jsonify({'message': "Invalid email address"}), 400
-
+        
     elif existing_username:
         response = jsonify(
             {'message': "The username is already registered, kindly chose a different one"}), 409
