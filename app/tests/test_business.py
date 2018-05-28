@@ -16,8 +16,8 @@ class TestBusiness(unittest.TestCase):
             db.create_all()
 
         """ Initial Input"""
-        self.client.post(TestBusiness.register, data={'username':'kezzy', 'email':'user@email.com', 'password':'user_password', 'confirm_password':'user_password'})
-        result = self.client.post(TestBusiness.login, data={ 'username':'kezzy','password':'user_password'})
+        self.client.post(TestBusiness.register, data={'username':'kezzy', 'email':'user@email.com', 'password':'@kzy12', 'confirm_password':'@kzy12'})
+        result = self.client.post(TestBusiness.login, data={ 'username':'kezzy','password':'@kzy12'})
         self.token = json.loads(result.data.decode())['access_token']
 
         self.client.post(TestBusiness.business, headers=dict(Authorization="Bearer " + self.token), data=self.business)
