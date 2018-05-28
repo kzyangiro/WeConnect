@@ -4,10 +4,7 @@ from config.config import app_config
 from flask import jsonify,Flask, render_template
 import logging
 import sys
-# from app.models import Business
 
-
-#Initialize SQLAlchemy
 db = SQLAlchemy()
 
 def create_app(config_name):
