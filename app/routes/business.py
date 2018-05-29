@@ -2,7 +2,7 @@ from flask import request, make_response, jsonify
 from . import bs
 from .. models import Business, User, Review, BlacklistToken
 import re
-from sqlalchemy import func # Change variable case
+from sqlalchemy import func 
 
 @bs.route('/')
 def homepage():
@@ -12,7 +12,7 @@ def homepage():
 
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
-    """Creates a new business"""
+    """Create a new business"""
 
     business_name1 = request.data.get('business_name')
     about1 = request.data.get('about')
@@ -74,8 +74,6 @@ def register_business():
         response.status_code = 201
     return response
 
-
-
        
 @bs.route('/api/v1/businesses', methods=['GET'])
 def get_all_business():
@@ -125,7 +123,7 @@ def get_all_business():
             response = jsonify(business=[business.serialize for business in business_by_category]), 200
 
     elif limit and page:
-        """ Retrieve businesses of a given limit from a particular starting point"""
+        """ Retrieve businesses of the indicated page with the indicated limit"""
         
         business_limit = Business.query.paginate(int(page), int(limit), False)
 
