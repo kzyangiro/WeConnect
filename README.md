@@ -7,6 +7,7 @@
 
 WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. An authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses.<br><br>
 Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br><br>
+Link to Heroku: https://weconnectapi-v2.herokuapp.com/<br><br>
 Link to WeConnect API documentation: https://app.swaggerhub.com/apis/Andela19/Weconnect-v2/1.0.0<br> 
 
 <h4>Technology used</h4>
