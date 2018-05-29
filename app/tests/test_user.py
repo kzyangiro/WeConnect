@@ -11,18 +11,15 @@ class TestUser(unittest.TestCase):
         self.app = create_app(config_name='testing')
         self.client = self.app.test_client()
 
-        self.register_data = { 'username':'Milly', 'email':'milly@email.com', 'password':'@kzy12', 'confirm_password':'@kzy12'}
-        self.login = { 'username':'kezzy','password':'@kzy12'}
+        self.register_data = { 'username':'kezzy', 'email':'kzynjokerio@gmail.com', 'password':'@kzy12', 'confirm_password':'@kzy12'}
 
         """bind app to the current context"""
         with self.app.app_context():
-            """create test tables"""
-
             db.create_all()
 
         """ Initial input """
-        self.client.post(TestUser.register, data={ 'username':'kezzy', 'email':'kzynjokerio@gmail.com', 'password':'@kzy12', 'confirm_password':'@kzy12'})
-        self.client.post(TestUser.login, data={ 'username':'kezzy','password':'@kzy12'})
+        self.client.post(TestUser.register, data=self.register_data)
+        self.token = json.loads(self.client.post(TestUser.login, data={ 'username':'kezzy','password':'@kzy12'}).data.decode())['access_token']
 
     """ Endpoints to test """
     register = '/api/v1/auth/register'
@@ -33,7 +30,7 @@ class TestUser(unittest.TestCase):
     def test_new_user_registration(self):
         """ Test if api can register a new user"""
 
-        res = self.client.post(TestUser.register, data=self.register_data)
+        res = self.client.post(TestUser.register, data={ 'username':'Milly', 'email':'milly@gmail.com', 'password':'@mkzy12', 'confirm_password':'@mkzy12'})
         self.assertEqual(res.status_code, 201)
         result = json.loads(res.data.decode('UTF-8'))
         self.assertEqual(result['message'], 'User Registered successfully')
@@ -82,7 +79,6 @@ class TestUser(unittest.TestCase):
 
     def test_new_user_registration_with_already_registered_username(self):
         """ Test if api can't register user with an already registered username """
-        self.client.post(TestUser.register, data=self.register_data)
         res1 = self.client.post(TestUser.register, data=self.register_data)
         self.assertEqual(res1.status_code, 409)
 
@@ -105,9 +101,6 @@ class TestUser(unittest.TestCase):
 
         result = json.loads(res_login.data.decode('UTF-8'))
         self.assertEqual(result['Message'], 'Successfully Logged in')
-
-        self.assertTrue(result['access_token'])
-        
 
     def test_login_unregistered_user(self):
         """ Test if api can't login an unregistered user"""
@@ -137,8 +130,7 @@ class TestUser(unittest.TestCase):
     def test_logout(self):
         """Test if api can log out a logged in user"""
 
-        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
-        res = self.client.post(TestUser.logout, headers=dict(Authorization="Bearer " + access_token))
+        res = self.client.post(TestUser.logout, headers=dict(Authorization="Bearer " + self.token))
 
         self.assertEqual(res.status_code, 200)
         res_msg = json.loads(res.data.decode("UTF-8"))
@@ -157,8 +149,7 @@ class TestUser(unittest.TestCase):
     def test_change_password(self):
         """Test if api can change password for a logged in user"""
 
-        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
-        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + access_token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
+        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + self.token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
 
         self.assertEqual(res.status_code, 200)
         res_msg = json.loads(res.data.decode("UTF-8"))
@@ -176,8 +167,7 @@ class TestUser(unittest.TestCase):
     def test_change_password_with_incomplete_information(self):
         """Test if api cannot change password if not all input fields are filled in"""
 
-        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
-        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + access_token), data={'current_password':'user_password', 'new_password':'@kzy12','confirm_password':'@kzy12'})
+        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + self.token), data={'current_password':'user_password', 'new_password':'@kzy12','confirm_password':'@kzy12'})
 
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
@@ -186,8 +176,7 @@ class TestUser(unittest.TestCase):
     def test_change_password_with_invalid_email(self):
         """Test if api cannot change password if email filled in is not registered"""
 
-        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
-        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + access_token), data={'email':'njokerio@gmail.com','current_password':'@kzy12', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
+        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + self.token), data={'email':'njokerio@gmail.com','current_password':'@kzy12', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
 
         self.assertEqual(res.status_code, 200)
         res_msg = json.loads(res.data.decode("UTF-8"))
@@ -197,8 +186,7 @@ class TestUser(unittest.TestCase):
     def test_change_password_with_wrong_password(self):
         """Test if api cannot change password if current password indicated is not correct"""
 
-        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
-        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + access_token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12rrr', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
+        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + self.token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12rrr', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
 
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
@@ -208,8 +196,7 @@ class TestUser(unittest.TestCase):
     def test_change_password_with_non_matching_new_and_confirm_passwords(self):
         """Test if api cannot change password if new and confirm passwords are not matching"""
 
-        access_token = json.loads(self.client.post(TestUser.login, data=self.login).data.decode())['access_token']
-        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + access_token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12', 'new_password':'@kzy121','confirm_password':'@kzy12'})
+        res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + self.token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12', 'new_password':'@kzy121','confirm_password':'@kzy12'})
 
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
