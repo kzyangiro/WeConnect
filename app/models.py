@@ -30,14 +30,12 @@ class User(db.Model):
         self.password = Bcrypt().generate_password_hash(password).decode('utf-8')
 
     def password_is_valid(self, password):
-        """
-        Checks if provided password matches the hashed stored password
-        """
+        """ Checks if provided password matches the hashed stored password """
         return Bcrypt().check_password_hash(self.password, password)
 
         
     def save(self):
-        """Add the created users details into the users table"""
+        """Adds the created users details into the users table"""
 
         db.session.add(self)
         db.session.commit()
@@ -47,7 +45,7 @@ class User(db.Model):
         return User.query.all()
 
     def generate_token(self, user_id):
-        """ This method generates the token to be used for authentification"""
+        """ generates the token to be used for authentification"""
 
         try:
             """set payload, and indicate expiry duration of the token"""
@@ -82,7 +80,7 @@ class User(db.Model):
 
     @staticmethod
     def validate_token():
-        """ Check if token used is valid"""
+        """ Checks if token used is valid"""
 
         access_token = User.get_token()
         user_id = User.decode_token(access_token)
@@ -111,8 +109,6 @@ class User(db.Model):
             return "Please register or login, Token is Invalid"
 
 class BlacklistToken(db.Model):
-    """User class creates an instance of a user"""
- 
     __tablename__ = 'blacklist'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -124,7 +120,7 @@ class BlacklistToken(db.Model):
         self.token = token
         
     def save(self):
-        """Add the token details into the blacklists table"""
+        """Adds the token details into the blacklists table"""
 
         db.session.add(self)
         db.session.commit()
@@ -189,7 +185,6 @@ class Business(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        #method represents the object instance of the model whenever it is queries.
         return "<Business: {}>".format(self.business_name)
 
 
@@ -215,8 +210,6 @@ class Review(db.Model):
     content=db.Column(db.String(255))
     
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
-
-    #store modification timestamps
     
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
