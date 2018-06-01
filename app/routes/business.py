@@ -192,7 +192,7 @@ def delete_businesses(businessid):
     business = Business.query.filter_by(created_by=token['user_id'], businessid=businessid)
 
     if business.count() == 0:
-        response = jsonify({"message":"You have no business with that ID", 'status_code': 204})
+        response = jsonify({"Error":"You have no business with that ID", 'status_code': 204})
     else:
         reviews = Review.get_all(businessid)
         if reviews:
@@ -227,7 +227,7 @@ def update_businesses(businessid):
     business = Business.query.filter_by(businessid=businessid, created_by=token['user_id'])  
 
     if business.count() == 0:
-        return jsonify({"message":"You have no business with that ID", 'status_code': 204})
+        return jsonify({"Error":"You have no business with that ID", 'status_code': 204})
 
     if int_input or not all_input:
         return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400

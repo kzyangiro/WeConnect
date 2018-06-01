@@ -186,7 +186,7 @@ class TestBusiness(unittest.TestCase):
         result = self.client.delete(TestBusiness.business+'/100', headers=dict(Authorization="Bearer " + self.token))
         self.assertEqual(result.status_code, 200)
         result_msg = json.loads(result.data.decode("UTF-8"))
-        self.assertEqual("You have no business with that ID", result_msg["message"])
+        self.assertEqual("You have no business with that ID", result_msg["Error"])
 
     def test_delete_a_business_by_none_integer_id(self): 
         """ Test if api can't delete business if the given ID is not an integer """        
@@ -221,7 +221,7 @@ class TestBusiness(unittest.TestCase):
         response = self.client.put(TestBusiness.business+'/10',headers=dict(Authorization="Bearer " + self.token), data={'business_name':'Jumia', 'about':'Software Development', 'location':'TRM', 'category':'Technology'})
         self.assertEqual(response.status_code, 200)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual('You have no business with that ID', response_msg['message'])
+        self.assertEqual('You have no business with that ID', response_msg['Error'])
 
     def test_update_business_with_incomplete_information(self):
         """ Test if api cannot update a business when some input fields are not filled """
