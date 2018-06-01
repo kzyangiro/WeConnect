@@ -51,7 +51,7 @@ class User(db.Model):
             """set payload, and indicate expiry duration of the token"""
             payload = {
                 
-                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'exp': datetime.utcnow() + timedelta(minutes=15),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
