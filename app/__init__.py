@@ -28,11 +28,11 @@ def create_app(config_name):
 
     @app.errorhandler(405)
     def error(error:None):
-        return jsonify({"Error":"Wrong access method"})
+        return jsonify({"Error":"Wrong access method"}),405
         
     @app.errorhandler(404)
     def error1(error:None):
-        return jsonify({"Error":"Invalid access Url or access method"})
+        return jsonify({"Error":"Invalid access Url or access method"}),404
 
     return app
 
