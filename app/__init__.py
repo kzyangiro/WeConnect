@@ -32,7 +32,7 @@ def create_app(config_name):
         
     @app.errorhandler(404)
     def error1(error:None):
-        return jsonify({"Error":"Invalid access Url or access method"}),404
+        return jsonify({"Error":"Invalid access URL"}),404
 
     return app
 
