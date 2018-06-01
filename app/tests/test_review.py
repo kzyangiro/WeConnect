@@ -30,34 +30,40 @@ class TestReview(unittest.TestCase):
     login = '/api/v1/auth/login'
     business = '/api/v1/businesses'
 
+    def test_creating_a_review_using_an_invalid_token(self):
+        """Test if review is not created if token used is invalid"""
+        response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + '12345'), data = {'content':'my reviews content'})
+        self.assertEqual(response.status_code, 401)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("Invalid token, Login to obtain a new token", response_msg["Error"])
+
+    def test_creating_a_review_with_non_numeric_id(self):
+        """Test if review is not created if a non integer id is used"""
+        response=self.client.post(TestReview.business+'/one/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'my reviews content'})
+        self.assertEqual(response.status_code, 400)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("Invalid business Id, kindly use an integer for business ID", response_msg["Error"])
 
     def test_creating_a_review_when_the_business_indicated_does_not_exist(self):
         """Test if review is not created if business indicated is not available"""
         response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'my reviews content'})
         self.assertEqual(response.status_code, 200)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("No business with the given id", response_msg["message"])
+        self.assertEqual("No business with the given id", response_msg["Error"])
 
-    def test_creating_a_review_using_an_invalid_token(self):
-        """Test if review is not created if token used is invalid"""
-        response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + '12345'), data = {'content':'my reviews content'})
-        self.assertEqual(response.status_code, 401)
+    def test_creating_a_review_by_owner(self):
+        """Test if review cannot be created by the owner"""
+        response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token1), data = {'content':'my reviews content'})
+        self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Invalid token, Login to obtain a new token", response_msg["message"])  
+        self.assertEqual("Sorry, You should not review your own business", response_msg["Error"])
 
     def test_creating_a_review_with_less_that_4_characters(self):
         """Test if review is not created if its content less that 4 characters"""
         response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'r'})
         self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Kindly add review of at least 4 characters", response_msg["message"]) 
-
-    def test_creating_a_review_using_numbers_only(self):
-        """Test if review is not created if only digits are filled in"""
-        response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'12345'})
-        self.assertEqual(response.status_code, 400)
-        response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Invalid input, kindly use alphabets also for input ", response_msg["message"]) 
+        self.assertEqual("Kindly add a valid review and use at least 4 characters", response_msg["Error"]) 
 
     def test_create_review_with_incomplete_information(self):
         """Test if review is not created with incomplete information"""
@@ -65,8 +71,7 @@ class TestReview(unittest.TestCase):
         response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':''})
         self.assertEqual(response.status_code, 400)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Invalid input, kindly fill in all required input", response_msg["message"])
-
+        self.assertEqual("Invalid input, fill in all required input and kindly use a valid string", response_msg["Error"])
 
     def test_create_a_review(self):
         """Test if api can create a review"""
@@ -74,13 +79,20 @@ class TestReview(unittest.TestCase):
         
         self.assertEqual(response.status_code, 201)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Review added successfully", response_msg["Message"])
+        self.assertEqual("Review added successfully", response_msg["Success"])
 
     def test_view_reviews(self):
         """Test if api can retrieve reviews"""
         
         response=self.client.get(TestReview.business+'/1/review')
         self.assertEqual(response.status_code, 200)
+
+    def view_reviews_by_non_numeric_id(self):
+        """Test if api cannot retrieve reviews when id given is not a number"""
+        response=self.client.get(TestReview.business+'/one/review')
+        self.assertEqual(response.status_code, 200)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual("Invalid business Id, kindly use an integer for business ID", response_msg["Error"])
 
     def test_view_reviews_but_no_reviews_available_for_that_business(self):
         """Test if api cannot  retrieve reviews when none exists"""

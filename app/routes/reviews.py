@@ -8,43 +8,34 @@ def create_a_business_review(businessid):
     """Create a business review, only a logged in user can add a review"""
 
     content1 = request.data.get('content')
-    business = Business.query.filter_by(businessid=businessid).first()
     token = User.validate_token()
 
-    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'message': 'Invalid token, Login to obtain a new token'}), 401
-
-    if isinstance(content1, int):
-        return jsonify({'message': "Invalid input, kindly input a valid review"}), 400
-        
-    if content1:
-        content = str(content1.strip(' '))
+        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
 
     if not businessid.isdigit():
-        response = jsonify({"message" :"Invalid business Id, kindly use an integer for business ID"}), 400
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer for business ID"}), 400
+    business = Business.query.filter_by(businessid=businessid).first()
 
-    elif not business:
-        response = jsonify({'message':'No business with the given id', 'status_code': 204})
+    if not business:
+        return jsonify({'Error':'No business with the given id', 'status_code': 204})
 
-    elif business.created_by== token['user_id']:
-        response = jsonify({'message':'Sorry, You should not review your own business'}), 400
+    if business.created_by== token['user_id']:
+        return jsonify({'Error':'Sorry, You should not review your own business'}), 400
 
-    elif not content1:
-        response = jsonify({'message': "Invalid input, kindly fill in all required input"}), 400
-    
-    elif not re.match(valid, content1):
-        response = jsonify({'message': "Invalid input, kindly use alphabets also for input "}), 400
+    if isinstance(content1, int) or not content1:
+        return jsonify({'Error': "Invalid input, fill in all required input and kindly use a valid string"}), 400
 
+    content = str(content1.strip(' '))
 
-    elif len(content1) < 4:
-        response = jsonify({'message': "Kindly add review of at least 4 characters"}), 400
+    if len(content) < 4 or content.isnumeric() or not content:
+        response = jsonify({'Error': "Kindly add a valid review and use at least 4 characters"}), 400
     
     else:
         review = Review(content=content, created_by=token['user_id'], businessid=businessid)
         review.save()
         response = jsonify({
-            'Message':'Review added successfully',
+            'Success':'Review added successfully',
             'content': review.content,
             "created By":token['user_id'],
             "creation date":review.date_created
@@ -58,16 +49,16 @@ def create_a_business_review(businessid):
 def get_all_business_reviews(businessid):
     """Retrieve all reviews for a business using business id"""
 
-    business = Business.query.filter_by(businessid=businessid).first()
-    reviews = Review.get_all(businessid)
     results = []
 
     if not businessid.isdigit():
-        response = jsonify({"Message" :"Invalid business Id, kindly use an integer for business ID"}), 400
-    elif not business:
-        response = jsonify({'message':'No business with the given id', 'status_code': 204})
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer for business ID"}), 400
 
-    elif reviews.count() == 0:
+    if not Business.query.filter_by(businessid=businessid).first():
+        return jsonify({'Error':'No business with the given id', 'status_code': 204})
+    reviews = Review.get_all(businessid)
+
+    if reviews.count() == 0:
         response = jsonify({'message':'No reviews found', 'status_code': 204})
 
     else:
@@ -76,8 +67,7 @@ def get_all_business_reviews(businessid):
             obj={
                 "Review":review.content,
                 "created by":review.created_by,
-                "creation date":review.date_created,
-                "business_owner":business.created_by
+                "creation date":review.date_created
             }
 
             results.append(obj)
