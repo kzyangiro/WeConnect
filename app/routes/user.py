@@ -171,54 +171,88 @@ def update_password():
     return response
 
 
-@auth.route('/api/v1/auth/reset_password', methods=['PUT'])
+@auth.route('/api/v1/auth/reset_password', methods=['PUT', 'POST'])
 def reset_password():
-    """ Reset password using email"""
 
-    email1 = request.data.get('email')
+    if request.method == "POST":
+        """ With a valid email, send a token to be used for password reset"""
 
-    if not email1 or isinstance(email1, int):
-        return jsonify({'Error': "Kindly fill in a string input"}), 400
+        email1 = request.data.get('email')
 
-    email = str(email1.strip(' '))
+        if not email1 or isinstance(email1, int):
+            return jsonify({'Error': "Kindly fill in an email in a string format"}), 400
 
-    if not email or not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
-        return jsonify({'Error': 'Fill in a valid email address and kindly use the right email format i.e abc@def.com'}), 400
+        email = str(email1.strip(' '))
 
-    reg_email = User.query.filter_by(email=email).first()
+        if not email or not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+            return jsonify({'Error': 'Fill in a valid email address and kindly use the right email format i.e abc@def.com'}), 400
 
-    if not reg_email:
-        response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
+        reg_email = User.query.filter_by(email=email).first()
+
+        if not reg_email:
+            response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
+
+        else:
+
+            import smtplib
+
+            gmail_user = "kezzyangiro@gmail.com"
+            gmail_pwd = "k0717658539h"
+            TO = email
+            SUBJECT = "WeConnect Password Reset"
+
+            reset_token = reg_email.generate_token(reg_email.id)
+
+            TEXT = f"Hello, kindly use the below token to reset your password {reset_token.decode()}   Copy it and paste it on your authorization header and fill in your new password. Kindly note that the token will expire in the next 15 minutes from the moment you receive this mail. If it does expire, resend a reset request and use the new token"
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.ehlo()
+            
+            server.login(gmail_user, gmail_pwd)
+            BODY = '\r\n'.join(['To: %s' % TO,
+                    'From: %s' % gmail_user,
+                    'Subject: %s' % SUBJECT,
+                    '', TEXT])
+
+            server.sendmail(gmail_user, [TO], BODY)
+            response = jsonify({'Success': "Kindly check your email for a token to reset your password"}), 200
+
+        return response
 
     else:
-
-        import smtplib
-        import uuid
-
-        gmail_user = "kezzyangiro@gmail.com"
-        gmail_pwd = "k0717658539h"
-        TO = email
-        SUBJECT = "WeConnect Password Reset"
-
-        new_pwd = uuid.uuid4()
-        TEXT = f"Hello, you have successfully reset your Weconnect password. Your new password is:   {str(new_pwd)}   You can login using this new password, click on and use change password functionality to update to a new password of your choice."
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.ehlo()
+        """ Reset password using token received on email """
         
-        server.login(gmail_user, gmail_pwd)
-        BODY = '\r\n'.join(['To: %s' % TO,
-                'From: %s' % gmail_user,
-                'Subject: %s' % SUBJECT,
-                '', TEXT])
+        token = User.validate_token()
 
-        server.sendmail(gmail_user, [TO], BODY)
+        if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+            return jsonify({'Error': 'Invalid token, kindly use the right token sent to your email for password reset'}), 401
+          
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if not new_password or not confirm_password or isinstance(new_password, int) or isinstance(confirm_password, int):
+            return jsonify({'Error': "Kindly fill in all required information (new_password and confirm_password)"}), 400
+
+        new_pwd = new_password
+        confirm_pwd = confirm_password
+
+        if not new_pwd or not confirm_pwd:
+            response = jsonify({'Error':"Kindly fill in a valid input, avoid using empty spaces as input"})
+
+        elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", new_pwd):
+            response = jsonify({'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
+
+        elif new_pwd != confirm_pwd:
+            response = jsonify({'Error': "Unmatched passwords"}), 400
+
+        else:
+            user = User.query.filter_by(id=token['user_id']).first()
+            new_hashed_password = Bcrypt().generate_password_hash(str(new_pwd)).decode('utf-8')
+            user.password = new_hashed_password
+
+            user.save()
+            response = jsonify({'Success': "Password reset successfully"}), 200
         
+        return response
 
-        new_hashed_password = Bcrypt().generate_password_hash(str(new_pwd)).decode('utf-8')
-        reg_email.password = new_hashed_password
-
-        reg_email.save()
-        response = jsonify({'message': "Password reset successfully, check your email for your new password"}), 200
-
-    return response
+            
