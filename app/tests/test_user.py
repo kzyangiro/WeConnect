@@ -250,16 +250,16 @@ class TestUser(unittest.TestCase):
     def test_reset_password_with_empty_input(self):
         """Test if api can't reset password with empty email input """
 
-        res = self.client.put(TestUser.reset_pwd, data={'email':''})
+        res = self.client.post(TestUser.reset_pwd, data={'email':''})
 
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
-        self.assertEqual(res_msg['Error'], 'Kindly fill in a string input')
+        self.assertEqual(res_msg['Error'], 'Kindly fill in an email in a string format')
 
-    def test_reset_password_with_invalid_email_iformat_nput(self):
+    def test_reset_password_with_invalid_email_format_input(self):
         """Test if api can't reset password for an invalid email format"""
 
-        res = self.client.put(TestUser.reset_pwd, data={'email':'kzy.com'})
+        res = self.client.post(TestUser.reset_pwd, data={'email':'kzy.com'})
 
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
