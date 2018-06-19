@@ -84,8 +84,8 @@ class User(db.Model):
 
         access_token = User.get_token()
         user_id = User.decode_token(access_token)
-        blacklisttoken = BlacklistToken.query.filter_by(
-                token=access_token).first()
+        blacklisttoken = Tokens.query.filter_by(
+                token=access_token, status='blacklisted').first()
 
         res = {'access_token':User.get_token(),
             'user_id': User.decode_token(access_token),
@@ -108,16 +108,18 @@ class User(db.Model):
         except jwt.InvalidTokenError:
             return "Please register or login, Token is Invalid"
 
-class BlacklistToken(db.Model):
+class Tokens(db.Model):
     __tablename__ = 'blacklist'
 
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(), nullable=False)
-
-
-    def __init__(self,token):
+    status = db.Column(db.String(), nullable=False) #active, blacklisted
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    def __init__(self, token, status):
          
         self.token = token
+        self.status = status
         
     def save(self):
         """Adds the token details into the blacklists table"""
@@ -127,7 +129,7 @@ class BlacklistToken(db.Model):
 
     @staticmethod
     def get_all():
-        return BlacklistToken.query.all()
+        return Tokens.query.all()
 
 
 
@@ -149,6 +151,8 @@ class Business(db.Model):
     onupdate = db.func.current_timestamp())
 
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
+    reviews = db.relationship(
+        'Review', order_by='Review.id', cascade="all, delete-orphan")
 
     
     def __init__(self,business_name, about, location, category, created_by):
@@ -183,9 +187,6 @@ class Business(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
-    def __repr__(self):
-        return "<Business: {}>".format(self.business_name)
 
 
     @property

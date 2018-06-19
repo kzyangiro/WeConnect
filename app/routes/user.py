@@ -1,6 +1,7 @@
 from flask import request, make_response, jsonify
 from . import auth
-from .. models import User, BlacklistToken
+from .. models import User, Tokens
+from datetime import datetime, timedelta
 import re
 from flask_bcrypt import Bcrypt
 
@@ -93,6 +94,16 @@ def user_login():
         response = jsonify({'Error': "Wrong password entered"}), 401
 
     else:
+        tokens = Tokens.query.filter_by(status='active')
+        tok = [t for t in tokens if user.id == User.decode_token(t.token) and datetime.utcnow() - t.date_created < timedelta(minutes=15)]
+        if tok:
+            tok[0].status = 'blacklisted'
+            tok[0].save()
+        else:
+            pass
+        
+        token = Tokens(token=access_token.decode(), status='active')
+        token.save()
         response = make_response(jsonify({
             'Success': 'Successfully Logged in',
             'access_token': access_token.decode()}), 200)
@@ -109,7 +120,8 @@ def user_logout():
         response = jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
 
     else:
-        token = BlacklistToken(token=token['access_token'])
+        token = Tokens.query.filter_by(token=token['access_token'], status='active').first()
+        token.status = 'blacklisted'
         token.save()
         response = jsonify({'Success': 'Successfully Logged Out'}), 200
 
@@ -155,6 +167,9 @@ def update_password():
     elif not user.password_is_valid(request.data['current_password']):
         response = jsonify({'Error': "Wrong current password"}), 400
 
+    elif current_password == new_password:
+        response = jsonify({'Error': "New password should not be the same as your previous password"}), 400
+
     elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", new_password):
         response = jsonify({'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
 
@@ -193,30 +208,32 @@ def reset_password():
             response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
 
         else:
+            try:
+                import smtplib
 
-            import smtplib
+                gmail_user = "kezzyangiro@gmail.com"
+                gmail_pwd = "k0717658539h"
+                TO = email
+                SUBJECT = "WeConnect Password Reset"
 
-            gmail_user = "kezzyangiro@gmail.com"
-            gmail_pwd = "k0717658539h"
-            TO = email
-            SUBJECT = "WeConnect Password Reset"
+                reset_token = reg_email.generate_token(reg_email.id)
+                TEXT = f"Hello {reg_email.username}, \n\nIndicated below is a token to reset your password, copy it and paste it on your authorization header and fill in your new password. Kindly note that the token will expire in the next 15 minutes from the moment you receive this mail If it does expire, resend a reset request and use the new token.\n\n\nToken:\n\n{reset_token.decode()}\n\n\n\nRegards, Weconnect Team. "
+                
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.ehlo()
+                
+                server.login(gmail_user, gmail_pwd)
+                BODY = '\r\n'.join(['To: %s' % TO,
+                        'From: %s' % gmail_user,
+                        'Subject: %s' % SUBJECT,
+                        '', TEXT])
 
-            reset_token = reg_email.generate_token(reg_email.id)
-
-            TEXT = f"Hello, kindly use the below token to reset your password {reset_token.decode()}   Copy it and paste it on your authorization header and fill in your new password. Kindly note that the token will expire in the next 15 minutes from the moment you receive this mail. If it does expire, resend a reset request and use the new token"
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.ehlo()
-            
-            server.login(gmail_user, gmail_pwd)
-            BODY = '\r\n'.join(['To: %s' % TO,
-                    'From: %s' % gmail_user,
-                    'Subject: %s' % SUBJECT,
-                    '', TEXT])
-
-            server.sendmail(gmail_user, [TO], BODY)
-            response = jsonify({'Success': "Kindly check your email for a token to reset your password"}), 200
-
+                server.sendmail(gmail_user, [TO], BODY)
+                response = jsonify({'Success': "Kindly check your email for a token to reset your password"}), 200
+                
+            except Exception:
+                response = jsonify({'Error': 'No internet connection, kindly reconnect and try again'}), 500
         return response
 
     else:
@@ -237,7 +254,13 @@ def reset_password():
         confirm_pwd = confirm_password
 
         if not new_pwd or not confirm_pwd:
-            response = jsonify({'Error':"Kindly fill in a valid input, avoid using empty spaces as input"})
+            return jsonify({'Error':"Kindly fill in a valid input, avoid using empty spaces as input"})
+        
+        user = User.query.filter_by(id=token['user_id']).first()
+        new_hashed_password = Bcrypt().generate_password_hash(str(new_pwd)).decode('utf-8')
+        
+        if user.password_is_valid(new_pwd) == True:
+            response = jsonify({'Error':"kindly edit this password, set a password different from your previous password"}), 400
 
         elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", new_pwd):
             response = jsonify({'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
@@ -247,10 +270,13 @@ def reset_password():
 
         else:
             user = User.query.filter_by(id=token['user_id']).first()
-            new_hashed_password = Bcrypt().generate_password_hash(str(new_pwd)).decode('utf-8')
             user.password = new_hashed_password
 
             user.save()
+            
+            token = Tokens(token=token['access_token'], status='blacklisted')
+            token.save()
+            
             response = jsonify({'Success': "Password reset successfully"}), 200
         
         return response
