@@ -197,7 +197,7 @@ class TestBusiness(unittest.TestCase):
 
     def test_update_business(self):
         """ Test if api can update a business """
-        response = self.client.put(TestBusiness.business+'/1', headers=dict(Authorization="Bearer " + self.token), data=self.business)
+        response = self.client.put(TestBusiness.business+'/1', headers=dict(Authorization="Bearer " + self.token), data={'business_name':'Classic Devs', 'about':'Software Dev', 'location':'TRM', 'category':'Technology'})
         self.assertEqual(response.status_code, 200)
 
     def test_update_business_with_invalid_token(self):
