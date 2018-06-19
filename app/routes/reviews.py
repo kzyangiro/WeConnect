@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from . import bs
 import re
-from .. models import Business, Review, User, BlacklistToken
+from .. models import Business, Review, User,   Tokens
 
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):

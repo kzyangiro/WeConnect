@@ -1,6 +1,6 @@
 from flask import request, make_response, jsonify
 from . import bs
-from .. models import Business, User, Review, BlacklistToken
+from .. models import Business, User, Review, Tokens
 import re
 from sqlalchemy import func 
 
@@ -194,11 +194,7 @@ def delete_businesses(businessid):
     if business.count() == 0:
         response = jsonify({"Error":"You have no business with that ID", 'status_code': 204})
     else:
-        reviews = Review.get_all(businessid)
-        if reviews:
-            reviews.delete()
         business[0].delete()
-
         response = jsonify({"Success":"Business Deleted Successfully"}), 200
     return response
 
@@ -240,7 +236,8 @@ def update_businesses(businessid):
 
     if not all_stripped_input:
         response = jsonify({'Error': "Fill in the Empty fields"}), 400
-    
+    elif business[0].business_name == business_name and business[0].location == location and business[0].category==category and business[0].about==about:
+        response = jsonify({'Error': "No changes made, kindly make changes to effect a valid update"}), 400
     elif not re.match(valid, business_name) or  not re.match(valid, about) or not re.match(valid, location) or not re.match(valid, category):
         response = jsonify({'Error': "Input should not be only digits, kindly use letters as well"}), 400         
 
