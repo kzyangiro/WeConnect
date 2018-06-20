@@ -72,10 +72,56 @@ def register_business():
 def get_all_business():
     """Retrieve all businesses. Filter businesses by name, location, category and pagination"""
 
+    q = request.args.get('q')
+    location = request.args.get('location')
+    category = request.args.get('category')
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 20, type=int)
     businesses = Business.get_all()
 
     if not businesses:
         response = jsonify({'message': "No Businesses Available", 'status_code': 204})
+    
+    elif q:
+        """Search business by name"""
+
+        business_by_name = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
+        b = [b for b in business_by_name]
+        if not b:
+            response = jsonify({"message":"Sorry, No business with that name", 'status_code': 204})
+        else:
+            response = jsonify(business=[business.serialize for business in business_by_name]), 200
+
+    elif location:
+        """Retrieve businesses in a given location """
+
+        business_by_location = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
+        b = [b for b in business_by_location]
+        if not b:
+            response = jsonify({"message":"Sorry, No business in that location", 'status_code': 204})
+        else:
+            response = jsonify(business=[business.serialize for business in business_by_location]), 200
+
+
+    elif category:
+        """Retrieve businesses in a given category """
+
+        business_by_category = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
+        b = [b for b in business_by_category]
+        if not b:
+            response = jsonify({"message":"Sorry, No business in that category", 'status_code': 204})
+        else:
+            response = jsonify(business=[business.serialize for business in business_by_category]), 200
+
+    elif limit and page:
+        """ Retrieve businesses of the indicated page with the indicated limit"""
+        
+        business_limit = Business.query.paginate(int(page), int(limit), False)
+        b = [b for b in business_limit.items]
+        if not b:
+            response = jsonify({"message" :"Sorry, No business found", 'status_code': 204})
+        else:
+            response = jsonify(business=[business.serialize for business in business_limit.items]), 200
 
     else:
         response = jsonify(business=[business.serialize for business in businesses]), 200
@@ -165,7 +211,7 @@ def update_businesses(businessid):
 
     token = User.validate_token()
     all_input = business_name1 and about1 and location1 and category1
- 
+
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
         return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
     
