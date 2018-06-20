@@ -72,56 +72,10 @@ def register_business():
 def get_all_business():
     """Retrieve all businesses. Filter businesses by name, location, category and pagination"""
 
-    q = request.args.get('q')
-    location = request.args.get('location')
-    category = request.args.get('category')
-    page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', 20, type=int)
     businesses = Business.get_all()
 
     if not businesses:
         response = jsonify({'message': "No Businesses Available", 'status_code': 204})
-    
-    elif q:
-        """Search business by name"""
-
-        business_by_name = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
-        b = [b for b in business_by_name]
-        if not b:
-            response = jsonify({"message":"Sorry, No business with that name", 'status_code': 204})
-        else:
-            response = jsonify(business=[business.serialize for business in business_by_name]), 200
-
-    elif location:
-        """Retrieve businesses in a given location """
-
-        business_by_location = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
-        b = [b for b in business_by_location]
-        if not b:
-            response = jsonify({"message":"Sorry, No business in that location", 'status_code': 204})
-        else:
-            response = jsonify(business=[business.serialize for business in business_by_location]), 200
-
-
-    elif category:
-        """Retrieve businesses in a given category """
-
-        business_by_category = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
-        b = [b for b in business_by_category]
-        if not b:
-            response = jsonify({"message":"Sorry, No business in that category", 'status_code': 204})
-        else:
-            response = jsonify(business=[business.serialize for business in business_by_category]), 200
-
-    elif limit and page:
-        """ Retrieve businesses of the indicated page with the indicated limit"""
-        
-        business_limit = Business.query.paginate(int(page), int(limit), False)
-        b = [b for b in business_limit.items]
-        if not b:
-            response = jsonify({"message" :"Sorry, No business found", 'status_code': 204})
-        else:
-            response = jsonify(business=[business.serialize for business in business_limit.items]), 200
 
     else:
         response = jsonify(business=[business.serialize for business in businesses]), 200
@@ -211,9 +165,7 @@ def update_businesses(businessid):
 
     token = User.validate_token()
     all_input = business_name1 and about1 and location1 and category1
-    int_input = isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int)
-    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
-
+ 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
         return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
     
@@ -225,7 +177,7 @@ def update_businesses(businessid):
     if business.count() == 0:
         return jsonify({"Error":"You have no business with that ID", 'status_code': 204})
 
-    if int_input or not all_input:
+    if not all_input:
         return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400
 
     business_name = str(business_name1.strip(' '))
@@ -238,11 +190,6 @@ def update_businesses(businessid):
         response = jsonify({'Error': "Fill in the Empty fields"}), 400
     elif business[0].business_name == business_name and business[0].location == location and business[0].category==category and business[0].about==about:
         response = jsonify({'Error': "No changes made, kindly make changes to effect a valid update"}), 400
-    elif not re.match(valid, business_name) or  not re.match(valid, about) or not re.match(valid, location) or not re.match(valid, category):
-        response = jsonify({'Error': "Input should not be only digits, kindly use letters as well"}), 400         
-
-    elif len(business_name) < 3 or len(about) < 3 or len(location) < 3 or len(category) < 3:
-        response = jsonify({'Error': "Kindly use input of at least 3 characters"}), 400
 
     elif [bus1 for bus1 in Business.get_all() if bus1.business_name.lower() == business_name.lower() and bus1.businessid != int(businessid)]:
         response = jsonify({"Error":"Business Already Exists, use a different business name"}), 409
