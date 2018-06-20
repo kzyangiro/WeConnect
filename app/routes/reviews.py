@@ -38,9 +38,7 @@ def create_a_business_review(businessid):
             'Success':'Review added successfully',
             'content': review.content,
             "created By":token['user_id'],
-            "creation date":review.date_created
-            
-            }), 201
+            "creation date":review.date_created }), 201
 
     return response
 
