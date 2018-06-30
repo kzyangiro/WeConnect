@@ -237,6 +237,20 @@ class TestBusiness(unittest.TestCase):
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual('Fill in the Empty fields', response_msg['Error'])
 
+    def test_update_business_with_only_number_inputs(self):
+        """ Test if api cannot update a business when some inputs are only numbers """
+        response = self.client.put(TestBusiness.business+'/1',headers=dict(Authorization="Bearer " + self.token), data={'business_name':'88888', 'about':'Software Development', 'location':'TRM', 'category':'Technology'})
+        self.assertEqual(response.status_code, 400)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual('Input should not be only digits, kindly use letters as well', response_msg['Error'])
+        
+
+    def test_update_business_with_input_length_of_less_than_three(self):
+        """ Test if api cannot update a business when some inputs are of length less than three """
+        response = self.client.put(TestBusiness.business+'/1',headers=dict(Authorization="Bearer " + self.token), data={'business_name':'A', 'about':'Software Development', 'location':'TRM', 'category':'Technology'})
+        self.assertEqual(response.status_code, 400)
+        response_msg = json.loads(response.data.decode("UTF-8"))
+        self.assertEqual('Kindly use input of at least 3 characters', response_msg['Error'])
 
     def test_update_business_with_a_duplicate_name_of_another_business(self):
         """ Test if api cannot update a business with a duplicate name """

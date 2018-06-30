@@ -3,7 +3,6 @@ from unittest import TestCase
 import json
 from app import create_app, db
 
-
 class BaseTestCase(TestCase):
 
     def setUp(self):
@@ -27,6 +26,3 @@ class BaseTestCase(TestCase):
     logout = '/api/v1/auth/logout'
     change_pwd = '/api/v1/auth/update_password'
     reset_pwd = '/api/v1/auth/reset_password'
-
-
-    
