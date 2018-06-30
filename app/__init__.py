@@ -4,11 +4,13 @@ from config.config import app_config
 from flask import jsonify,Flask, render_template
 import logging
 import sys
+from flask_cors import CORS
 
 db = SQLAlchemy()
 
 def create_app(config_name):
     app = FlaskAPI(__name__, instance_relative_config=True) 
+    CORS(app)
 
     app.logger.addHandler(logging.StreamHandler(sys.stdout))
     app.logger.setLevel(logging.ERROR)
