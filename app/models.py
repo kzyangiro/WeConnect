@@ -193,10 +193,10 @@ class Business(db.Model):
     def serialize(self):
         """Serialize."""
         obj = {
-            "Business id":self.businessid,
-            "Business Name":self.business_name,
-            "Category":self.category,
-            "Business location":self.location
+            "id":self.businessid,
+            "name":self.business_name,
+            "category":self.category,
+            "location":self.location
         }
 
         return obj
