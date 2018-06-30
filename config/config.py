@@ -7,6 +7,8 @@ class Config(object):
 
     SECRET= 'my-incredible-secret'
     APP_SETTINGS= 'development'
+    SECRET = os.getenv('SECRET')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/flask_api'
 
 class DevelopmentConfig(Config):

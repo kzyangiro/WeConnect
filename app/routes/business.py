@@ -90,7 +90,7 @@ def get_all_business():
         if not b:
             response = jsonify({"message":"Sorry, No business with that name", 'status_code': 204})
         else:
-            response = jsonify(business=[business.serialize for business in business_by_name]), 200
+            response = jsonify([business.serialize for business in business_by_name]), 200
 
     elif location:
         """Retrieve businesses in a given location """
@@ -100,7 +100,7 @@ def get_all_business():
         if not b:
             response = jsonify({"message":"Sorry, No business in that location", 'status_code': 204})
         else:
-            response = jsonify(business=[business.serialize for business in business_by_location]), 200
+            response = jsonify([business.serialize for business in business_by_location]), 200
 
 
     elif category:
@@ -111,7 +111,7 @@ def get_all_business():
         if not b:
             response = jsonify({"message":"Sorry, No business in that category", 'status_code': 204})
         else:
-            response = jsonify(business=[business.serialize for business in business_by_category]), 200
+            response = jsonify([business.serialize for business in business_by_category]), 200
 
     elif limit and page:
         """ Retrieve businesses of the indicated page with the indicated limit"""
@@ -121,10 +121,10 @@ def get_all_business():
         if not b:
             response = jsonify({"message" :"Sorry, No business found", 'status_code': 204})
         else:
-            response = jsonify(business=[business.serialize for business in business_limit.items]), 200
+            response = jsonify([business.serialize for business in business_limit.items]), 200
 
     else:
-        response = jsonify(business=[business.serialize for business in businesses]), 200
+        response = jsonify([business.serialize for business in businesses]), 200
         
     return response
 
