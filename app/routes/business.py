@@ -88,7 +88,7 @@ def get_all_business():
         business_by_name = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
         b = [b for b in business_by_name]
         if not b:
-            response = jsonify({"message":"Sorry, No business with that name"), 404
+            response = jsonify({"message":"Sorry, No business with that name"}), 404
         else:
             response = jsonify([business.serialize for business in business_by_name]), 200
 
