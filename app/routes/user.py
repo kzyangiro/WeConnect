@@ -85,7 +85,7 @@ def user_login():
     user = User.query.filter_by(username=request.data['username']).first()
 
     if not user:
-        return jsonify({'Error': "User not found, kindly use correct username", 'status_code': 204})
+        return jsonify({'Error': "User not found, kindly use correct username"}), 404
 
     correct_pwd = user.password_is_valid(request.data['password'])
     access_token = user.generate_token(user.id)
