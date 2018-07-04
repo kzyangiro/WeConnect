@@ -27,7 +27,7 @@ def register_business():
     valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        return jsonify({'Error': 'Kindly login first to register a business'}), 401
 
     if int_input or not all_input:
         return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400
@@ -135,7 +135,7 @@ def get_my_business():
     token = User.validate_token()
     
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        return jsonify({'Error': 'Kindly login first to view your dashboard'}), 401
 
     businesses = Business.query.filter_by(created_by=token['user_id'])
 
@@ -143,7 +143,7 @@ def get_my_business():
         """ Checking if there is no business"""
         response = jsonify({'message': "You have registered no businesses"}), 404
     else:
-        response = jsonify(business=[business.serialize for business in businesses]), 200
+        response = jsonify([business.serialize for business in businesses]), 200
     return response
 
 
@@ -163,11 +163,11 @@ def get_businesses_by_id(businessid):
     else:
         business = business[0]
         response=jsonify({
-                    "Business Id":business.businessid,
-                    "Business Name":business.business_name,
-                    "Category":business.category,
-                    "Business location":business.location,
-                    "Description":business.about,
+                    "Id":business.businessid,
+                    "Name":business.business_name,
+                    "category":business.category,
+                    "Location":business.location,
+                    "description":business.about,
                     "date created":business.date_created,
                     "date modified":business.date_modified,
                     "created_by":business.created_by
@@ -184,7 +184,7 @@ def delete_businesses(businessid):
     
     
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        return jsonify({'Error': 'Kindly login first to delete a business'}), 401
     
     if not businessid.isdigit():
         return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
@@ -213,7 +213,7 @@ def update_businesses(businessid):
     all_input = business_name1 and about1 and location1 and category1
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        return jsonify({'Error': 'Kindly login first to update a business'}), 401
     
     if not businessid.isdigit():
         return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
@@ -251,7 +251,7 @@ def update_businesses(businessid):
         business.save()
         response = jsonify({
             "Success":"Business updated successfully",
-            "business Name":business.business_name,
+            "Name":business.business_name,
             "category":business.category,
             "location":business.location,
             "description":business.about,

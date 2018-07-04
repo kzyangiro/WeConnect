@@ -117,7 +117,7 @@ def user_logout():
     token = User.validate_token()
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        response = jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        response = jsonify({'Error': 'You are not logged in!'}), 401
 
     else:
         token = Tokens.query.filter_by(token=token['access_token'], status='active').first()
@@ -143,7 +143,7 @@ def update_password():
     token = User.validate_token()
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        return jsonify({'Error': 'Kindly login first to update password}), 401
 
     if int_input or not all_input:
         return jsonify(

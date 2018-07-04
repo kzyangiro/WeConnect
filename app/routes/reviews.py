@@ -11,7 +11,7 @@ def create_a_business_review(businessid):
     token = User.validate_token()
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Invalid token, Login to obtain a new token'}), 401
+        return jsonify({'Error': 'Kindly login first to post a review'}), 401
 
     if not businessid.isdigit():
         return jsonify({"Error" :"Invalid business Id, kindly use an integer for business ID"}), 400
