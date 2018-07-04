@@ -176,6 +176,40 @@ def get_businesses_by_id(businessid):
         
     return response
 
+
+@bs.route('/api/v1/mybusinesses/<businessid>', methods=['GET'])
+def get_mybusinesses_by_id(businessid):
+    """Display business of the loggedin user"""
+    token = User.validate_token()
+    
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to view your dashboard'}), 401
+
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
+
+    business = Business.query.filter_by(businessid=businessid, created_by=token['user_id'])
+
+    if business.count() == 0:
+        response=jsonify({"message":"No Business with that ID"}), 404
+
+    else:
+        business = business[0]
+        response=jsonify({
+                    "Id":business.businessid,
+                    "Name":business.business_name,
+                    "category":business.category,
+                    "Location":business.location,
+                    "description":business.about,
+                    "datecreated":business.date_created,
+                    "datemodified":business.date_modified,
+                    "created_by":business.created_by
+
+            }),200
+        
+    return response
+
+
 @bs.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 def delete_businesses(businessid):
     """Delete a business by the owner while logged in"""
