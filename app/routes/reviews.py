@@ -64,8 +64,8 @@ def get_all_business_reviews(businessid):
             
             obj={
                 "Review":review.content,
-                "created by":review.created_by,
-                "creation date":review.date_created
+                "createdBy":review.created_by,
+                "creationDate":review.date_created
             }
 
             results.append(obj)
