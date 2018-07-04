@@ -143,7 +143,7 @@ def update_password():
     token = User.validate_token()
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Kindly login first to update password}), 401
+        return jsonify({'Error': 'Kindly login first to update password'}), 401
 
     if int_input or not all_input:
         return jsonify(
