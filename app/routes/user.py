@@ -106,9 +106,10 @@ def user_login():
         token.save()
         response = make_response(jsonify({
             'Success': 'Successfully Logged in',
+            'username': username,
+            'email': user.email,
             'access_token': access_token.decode()}), 200)
     return response
-
 
 @auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
