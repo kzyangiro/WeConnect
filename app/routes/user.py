@@ -206,7 +206,7 @@ def reset_password():
         reg_email = User.query.filter_by(email=email).first()
 
         if not reg_email:
-            response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
+            response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with"}), 404
 
         else:
             try:
