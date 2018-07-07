@@ -61,11 +61,12 @@ def get_all_business_reviews(businessid):
 
     else:
         for review in reviews:
+            user = User.query.filter_by(id=review.created_by).first()
             
             obj={
                 "Id":review.id,
                 "Review":review.content,
-                "createdBy":review.created_by,
+                "createdBy":user.username,
                 "creationDate":review.date_created
             }
 
