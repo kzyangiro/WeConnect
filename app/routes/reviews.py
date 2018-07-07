@@ -18,7 +18,7 @@ def create_a_business_review(businessid):
     business = Business.query.filter_by(businessid=businessid).first()
 
     if not business:
-        return jsonify({'Error':'No business with the given id', 'status_code': 204})
+        return jsonify({'Error':'No business with the given id'}), 404
 
     if business.created_by== token['user_id']:
         return jsonify({'Error':'Sorry, You should not review your own business'}), 400
@@ -37,8 +37,8 @@ def create_a_business_review(businessid):
         response = jsonify({
             'Success':'Review added successfully',
             'content': review.content,
-            "created By":token['user_id'],
-            "creation date":review.date_created }), 201
+            "createdBy":token['user_id'],
+            "creationDate":review.date_created }), 201
 
     return response
 
@@ -53,11 +53,11 @@ def get_all_business_reviews(businessid):
         return jsonify({"Error" :"Invalid business Id, kindly use an integer for business ID"}), 400
 
     if not Business.query.filter_by(businessid=businessid).first():
-        return jsonify({'Error':'No business with the given id', 'status_code': 204})
+        return jsonify({'Error':'No business with the given id'}), 404
     reviews = Review.get_all(businessid)
 
     if reviews.count() == 0:
-        response = jsonify({'message':'No reviews found', 'status_code': 204})
+        response = jsonify({'message':'No reviews found'}), 404
 
     else:
         for review in reviews:
