@@ -92,7 +92,7 @@ def get_all_business():
         else:
             response = jsonify([business.serialize for business in business_by_name]), 200
 
-    elif location:
+    elif location and category == '':
         """Retrieve businesses in a given location """
 
         business_by_location = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
@@ -103,7 +103,7 @@ def get_all_business():
             response = jsonify([business.serialize for business in business_by_location]), 200
 
 
-    elif category:
+    elif category and location == '':
         """Retrieve businesses in a given category """
 
         business_by_category = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
@@ -112,6 +112,15 @@ def get_all_business():
             response = jsonify({"message":"Sorry, No business in that category"}), 404
         else:
             response = jsonify([business.serialize for business in business_by_category]), 200
+
+    elif category and location:
+        """Retrieve businesses in a given category """
+
+        b = [b for b in businesses if b.category.lower() == category.lower() and b.location.lower() == location.lower()]
+        if not b:
+            response = jsonify({"message":"Sorry, No business in that category and location"}), 404
+        else:
+            response = jsonify([business.serialize for business in b]), 200
 
     elif limit and page:
         """ Retrieve businesses of the indicated page with the indicated limit"""
