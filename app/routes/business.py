@@ -88,7 +88,7 @@ def get_all_business():
         business_by_name = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
         b = [b for b in business_by_name]
         if not b:
-            response = jsonify({"message":"Sorry, No business with that name"}), 404
+            response = jsonify({"message":"Sorry, No business with that name", "status_code":204})
         else:
             response = jsonify([business.serialize for business in business_by_name]), 200
 
@@ -98,7 +98,7 @@ def get_all_business():
         business_by_location = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
         b = [b for b in business_by_location]
         if not b:
-            response = jsonify({"message":"Sorry, No business in that location"}), 404
+            response = jsonify({"message":"Sorry, No business in that location", "status_code":204})
         else:
             response = jsonify([business.serialize for business in business_by_location]), 200
 
@@ -109,16 +109,18 @@ def get_all_business():
         business_by_category = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
         b = [b for b in business_by_category]
         if not b:
-            response = jsonify({"message":"Sorry, No business in that category"}), 404
+            response = jsonify({"message":"Sorry, No business in that category", "status_code":204})
         else:
             response = jsonify([business.serialize for business in business_by_category]), 200
 
     elif category and location:
         """Retrieve businesses in a given category """
 
-        b = [b for b in businesses if b.category.lower() == category.lower() and b.location.lower() == location.lower()]
+        fitlered_businesses = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
+
+        b = [b for b in fitlered_businesses if b.category.lower() == category.lower()]
         if not b:
-            response = jsonify({"message":"Sorry, No business in that category and location"}), 404
+            response = jsonify({"message":"Sorry, No business in that category and location", "status_code":204})
         else:
             response = jsonify([business.serialize for business in b]), 200
 
@@ -128,7 +130,7 @@ def get_all_business():
         business_limit = Business.query.paginate(int(page), int(limit), False)
         b = [b for b in business_limit.items]
         if not b:
-            response = jsonify({"message" :"Sorry, No business found"}), 404
+            response = jsonify({"message" :"Sorry, No business found", "status_code":204})
         else:
             response = jsonify([business.serialize for business in business_limit.items]), 200
 
@@ -150,7 +152,7 @@ def get_my_business():
 
     if businesses.count() == 0:
         """ Checking if there is no business"""
-        response = jsonify({'message': "You have registered no businesses"}), 404
+        response = jsonify({'message': "You have registered no businesses", "status_code":204})
     else:
         response = jsonify([business.serialize for business in businesses]), 200
     return response
@@ -167,7 +169,7 @@ def get_businesses_by_id(businessid):
     business = Business.query.filter_by(businessid=businessid)
 
     if business.count() == 0:
-        response=jsonify({"message":"No Business with that ID"}), 404
+        response=jsonify({"message":"No Business with that ID", "status_code":204})
 
     else:
         business = business[0]
@@ -200,7 +202,7 @@ def get_mybusinesses_by_id(businessid):
     business = Business.query.filter_by(businessid=businessid, created_by=token['user_id'])
 
     if business.count() == 0:
-        response=jsonify({"message":"No Business with that ID"}), 404
+        response=jsonify({"message":"No Business with that ID", "status_code":204})
 
     else:
         business = business[0]
@@ -235,7 +237,7 @@ def delete_businesses(businessid):
     business = Business.query.filter_by(created_by=token['user_id'], businessid=businessid)
 
     if business.count() == 0:
-        response = jsonify({"Error":"You have no business with that ID"}), 404
+        response = jsonify({"Error":"You have no business with that ID", "status_code":204})
     else:
         business[0].delete()
         response = jsonify({"Success":"Business Deleted Successfully"}), 200
@@ -264,7 +266,7 @@ def update_businesses(businessid):
     business = Business.query.filter_by(businessid=businessid, created_by=token['user_id'])  
 
     if business.count() == 0:
-        return jsonify({"Error":"You have no business with that ID"}), 404
+        return jsonify({"Error":"You have no business with that ID", "status_code":204})
 
     if not all_input:
         return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400

@@ -85,7 +85,7 @@ def user_login():
     user = User.query.filter_by(username=request.data['username']).first()
 
     if not user:
-        return jsonify({'Error': "User not found, kindly use correct username"}), 404
+        return jsonify({'Error': "User not found, kindly use correct username", "status_code":204})
 
     correct_pwd = user.password_is_valid(request.data['password'])
     access_token = user.generate_token(user.id)
@@ -206,7 +206,7 @@ def reset_password():
         reg_email = User.query.filter_by(email=email).first()
 
         if not reg_email:
-            response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with"}), 404
+            response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", "status_code":204})
 
         else:
             try:
