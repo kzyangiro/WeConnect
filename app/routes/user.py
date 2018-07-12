@@ -218,7 +218,7 @@ def reset_password():
                 SUBJECT = "WeConnect Password Reset"
 
                 reset_token = reg_email.generate_token(reg_email.id)
-                TEXT = f"Hello {reg_email.username}, \n\nIndicated below is a token to reset your password, copy it and paste it on your authorization header and fill in your new password. Kindly note that the token will expire in the next 15 minutes from the moment you receive this mail If it does expire, resend a reset request and use the new token.\n\n\nToken:\n\n{reset_token.decode()}\n\n\n\nRegards, Weconnect Team. "
+                TEXT = f"Hello {reg_email.username}, \n\nIndicated below is a token to reset your password, copy it and paste it on your authorization header and fill in your new password. Kindly note that the token will expire in the next 15 minutes from the moment you receive this mail If it does expire, resend a reset request and use the new token.\n\n\nToken:\n\n http://localhost:3000/resetPwd/{reset_token.decode()}\n\n\n\nRegards, Weconnect Team. "
                 
                 server = smtplib.SMTP('smtp.gmail.com', 587)
                 server.starttls()
