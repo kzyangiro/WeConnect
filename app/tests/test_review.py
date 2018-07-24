@@ -35,7 +35,7 @@ class TestReview(unittest.TestCase):
         response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + '12345'), data = {'content':'my reviews content'})
         self.assertEqual(response.status_code, 401)
         response_msg = json.loads(response.data.decode("UTF-8"))
-        self.assertEqual("Invalid token, Login to obtain a new token", response_msg["Error"])
+        self.assertEqual("Kindly login first to post a review", response_msg["Error"])
 
     def test_creating_a_review_with_non_numeric_id(self):
         """Test if review is not created if a non integer id is used"""
@@ -47,7 +47,7 @@ class TestReview(unittest.TestCase):
     def test_creating_a_review_when_the_business_indicated_does_not_exist(self):
         """Test if review is not created if business indicated is not available"""
         response=self.client.post(TestReview.business+'/2/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'my reviews content'})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("No business with the given id", response_msg["Error"])
 
@@ -100,7 +100,7 @@ class TestReview(unittest.TestCase):
         self.client.post(TestReview.business, headers=dict(Authorization="Bearer " + self.token), data={'business_name':'Andela', 'about':'about', 'location':'location', 'category':'category'})
 
         response=self.client.get(TestReview.business+'/2/review')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("No reviews found", response_msg["message"])
 

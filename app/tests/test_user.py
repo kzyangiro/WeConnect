@@ -168,7 +168,7 @@ class TestUser(unittest.TestCase):
 
         self.assertEqual(res.status_code, 401)
         res_msg = json.loads(res.data.decode("UTF-8"))
-        self.assertEqual(res_msg['Error'], 'Invalid token, Login to obtain a new token')
+        self.assertEqual(res_msg['Error'], 'You are not logged in!')
 
     def test_update_password(self):
         """Test if api can change password for a logged in user"""
@@ -186,7 +186,7 @@ class TestUser(unittest.TestCase):
 
         self.assertEqual(res.status_code, 401)
         res_msg = json.loads(res.data.decode("UTF-8"))
-        self.assertEqual(res_msg['Error'], 'Invalid token, Login to obtain a new token')
+        self.assertEqual(res_msg['Error'], 'Kindly login first to update password')
 
     def test_change_password_with_incomplete_information(self):
         """Test if api cannot change password if not all input fields are filled in"""

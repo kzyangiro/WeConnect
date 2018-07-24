@@ -40,7 +40,7 @@ class TestBusiness(unittest.TestCase):
         res = self.client.post(TestBusiness.business, headers=dict(Authorization="Bearer " + "token"), data={'business_name':'Kilimall', 'about':'Software Dev', 'location':'Mabati', 'category':'Technology'})
         self.assertEqual(res.status_code, 401)
         result = json.loads(res.data.decode('UTF-8'))
-        self.assertEqual(result['Error'], 'Invalid token, Login to obtain a new token')           
+        self.assertEqual(result['Error'], 'Kindly login first to register a business')           
 
     def test_register_business_with_incomplete_information(self):  
         """ Test if api can't register a business when any field has not been filled in """
@@ -94,7 +94,7 @@ class TestBusiness(unittest.TestCase):
         self.client.delete(TestBusiness.business+'/1', headers=dict(Authorization="Bearer " + self.token))
         
         response = self.client.get(TestBusiness.business)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertIn("No Businesses Available", response_msg["message"])
   
@@ -117,19 +117,19 @@ class TestBusiness(unittest.TestCase):
 
     def test_retrieve_businesses_in_a_location_with_no_registered_businesses(self): 
         """Test if api can display error when no business is found in the given search location """ 
-        response = self.client.get(TestBusiness.business+'?location=Classy')
+        response = self.client.get(TestBusiness.business+'?category=&location=classy')
         self.assertEqual(response.status_code, 200)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertIn('Sorry, No business in that location', response_msg["message"])
 
     def test_retrieve_businesses_in_a_specific_category(self): 
         """Test if api can display businesses in a given category """ 
-        response = self.client.get(TestBusiness.business+'?category=Tech')
+        response = self.client.get(TestBusiness.business+'?category=Tech&location=TRM')
         self.assertEqual(response.status_code, 200)
 
     def test_retrieve_businesses_of_a_category_with_no_registered_businesses(self): 
         """Test if api can display error when no business is found in the given category""" 
-        response = self.client.get(TestBusiness.business+'?category=Classy')
+        response = self.client.get(TestBusiness.business+'?category=classy&location=')
         self.assertEqual(response.status_code, 200)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertIn("Sorry, No business in that category", response_msg["message"])
@@ -144,7 +144,7 @@ class TestBusiness(unittest.TestCase):
         res = self.client.get('/api/v1/mybusinesses', headers=dict(Authorization="Bearer " + "token"))
         self.assertEqual(res.status_code, 401)
         result = json.loads(res.data.decode('UTF-8'))
-        self.assertEqual(result['Error'], 'Invalid token, Login to obtain a new token')
+        self.assertEqual(result['Error'], 'Kindly login first to view your dashboard')
 
 
     def test_retrieve_a_business_by_id(self): 
@@ -178,7 +178,7 @@ class TestBusiness(unittest.TestCase):
         result = self.client.delete(TestBusiness.business+'/1', headers=dict(Authorization="Bearer " + "token"))
         self.assertEqual(result.status_code, 401)
         result_msg = json.loads(result.data.decode("UTF-8"))
-        self.assertEqual("Invalid token, Login to obtain a new token", result_msg["Error"])
+        self.assertEqual("Kindly login first to delete a business", result_msg["Error"])
 
     def test_delete_non_existing_business(self):
         """ Test if api cannot delete a non existing business """
@@ -206,7 +206,7 @@ class TestBusiness(unittest.TestCase):
         result = self.client.put(TestBusiness.business+'/1', headers=dict(Authorization="Bearer " + "token"), data=self.business)
         self.assertEqual(result.status_code, 401)
         result_msg = json.loads(result.data.decode("UTF-8"))
-        self.assertEqual("Invalid token, Login to obtain a new token", result_msg["Error"])
+        self.assertEqual("Kindly login first to update a business", result_msg["Error"])
 
     def test_update_a_business_by_none_integer_id(self): 
         """ Test if api can't update business if the given ID is not an integer """        
