@@ -3,8 +3,10 @@ from . import bs
 import re
 from .. models import Business, Review, User,   Tokens
 
+
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
+  
     """Create a business review, only a logged in user can add a review"""
 
     content1 = request.data.get('content')
@@ -45,6 +47,7 @@ def create_a_business_review(businessid):
          
 @bs.route('/api/v1/businesses/<businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
+
     """Retrieve all reviews for a business using business id"""
 
     results = []

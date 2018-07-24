@@ -2,10 +2,12 @@ from flask import request, make_response, jsonify
 from . import auth
 from .. models import User, Tokens
 from datetime import datetime, timedelta
+
 import re
 from flask_bcrypt import Bcrypt
 
 @auth.route('/api/v1/auth/register', methods=['POST'])
+
 def create_user_account():
     """Register a new user"""
 
@@ -89,6 +91,7 @@ def user_login():
 
     correct_pwd = user.password_is_valid(request.data['password'])
     access_token = user.generate_token(user.id)
+
 
     if not correct_pwd:
         response = jsonify({'Error': "Wrong password entered"}), 401
@@ -282,4 +285,3 @@ def reset_password():
         
         return response
 
-            

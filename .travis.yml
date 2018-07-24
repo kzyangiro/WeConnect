@@ -18,6 +18,3 @@ services:
 
 before_script: 
   - psql -c 'CREATE DATABASE test_db;' -U postgres
-
-after_sucess:
-  - "coveralls"

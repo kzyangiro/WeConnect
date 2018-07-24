@@ -6,6 +6,7 @@ from app.models import Review
 from app.models import Business 
  
 class TestReview(unittest.TestCase):
+
     def setUp(self):
         self.app = create_app(config_name='testing')
         self.client = self.app.test_client()
@@ -76,7 +77,6 @@ class TestReview(unittest.TestCase):
     def test_create_a_review(self):
         """Test if api can create a review"""
         response=self.client.post(TestReview.business+'/1/review', headers=dict(Authorization="Bearer " + self.token), data = {'content':'Awesome'})
-        
         self.assertEqual(response.status_code, 201)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("Review added successfully", response_msg["Success"])
@@ -110,6 +110,7 @@ class TestReview(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         response_msg = json.loads(response.data.decode("UTF-8"))
         self.assertEqual("No business with the given id", response_msg["message"])
+
 
     def tearDown(self):
         """clear all test variables."""

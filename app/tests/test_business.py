@@ -4,6 +4,7 @@ import json
 from app import create_app, db
 
 class TestBusiness(unittest.TestCase):
+
     def setUp(self):
         """Initialize our test app with Testing configuration"""
         self.app = create_app(config_name='testing')
@@ -198,6 +199,7 @@ class TestBusiness(unittest.TestCase):
     def test_update_business(self):
         """ Test if api can update a business """
         response = self.client.put(TestBusiness.business+'/1', headers=dict(Authorization="Bearer " + self.token), data={'business_name':'Classic Devs', 'about':'Software Dev', 'location':'TRM', 'category':'Technology'})
+
         self.assertEqual(response.status_code, 200)
 
     def test_update_business_with_invalid_token(self):
