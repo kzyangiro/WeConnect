@@ -1,87 +1,80 @@
-from flask import request, make_response, jsonify
+from flask import request, jsonify
 from . import bs
-from .. models import Review, Business, User, BlacklistToken
+import re
+from .. models import Business, Review, User,   Tokens
 
-@bs.route('/api/v1/businesses/<int:businessid>/review', methods=['POST'])
+
+@bs.route('/api/v1/businesses/<businessid>/review', methods=['POST'])
 def create_a_business_review(businessid):
-    """Endpoint to create a review for a given business"""
-    title1 = request.data.get('title')
-    content1 = request.data.get('content')
-
-    """ Confirm user is authorised """
-    auth_header = request.headers.get('Authorization')
-
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
-    else:
-        access_token = 'Invalid Token'
-
-    if access_token:
-
-        for token in BlacklistToken.blacklist_tokens:
-            "Check if input access token is blacklisted, if yes, prompt new login"
-            if token == access_token:
-                responce = make_response(jsonify({'status':'You are already Logged Out, kindly login first'}),400)
-                return responce 
-          
   
-        """Decode token"""
-        user_id = User.decode_token(access_token)
+    """Create a business review, only a logged in user can add a review"""
 
-        if not isinstance(user_id, str):
-            
-            try:
-                business = [business1 for business1 in Business.business_list if business1.businessid == businessid]
-                
-                if not business:
-                    return jsonify({'message': 'No business with the given id'}), 404
+    content1 = request.data.get('content')
+    token = User.validate_token()
 
-                else:
-                    business = business[0]
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to post a review'}), 401
 
-                    if title1 and content1:
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer for business ID"}), 400
+    business = Business.query.filter_by(businessid=businessid).first()
 
-                        title = str(title1.strip(' '))
-                        content = str(content1.strip(' '))
-                    else:
-                        return jsonify({'message': 'Incomplete Information'}), 400
-                    
-                    if title and content:
-                        review = Review(title, content)
-                        business.reviews.append(review)
+    if not business:
+        return jsonify({'Error':'No business with the given id'}), 404
 
-                        return jsonify({'message': 'Review added successfully'}), 201
-                    
-                    return jsonify({'message': 'Incomplete Information'}), 400   
-                
-                
+    if business.created_by== token['user_id']:
+        return jsonify({'Error':'Sorry, You should not review your own business'}), 400
 
-            except Exception as e:
-                return jsonify({'message': e}), 401
-        return jsonify({'message': 'Invalid token, Login to obtain a new token'}), 401
+    if isinstance(content1, int) or not content1:
+        return jsonify({'Error': "Invalid input, fill in all required input and kindly use a valid string"}), 400
 
+    content = str(content1.strip(' '))
 
-@bs.route('/api/v1/businesses/<int:businessid>/review', methods=['GET'])
+    if len(content) < 4 or content.isnumeric() or not content:
+        response = jsonify({'Error': "Kindly add a valid review and use at least 4 characters"}), 400
+    
+    else:
+        review = Review(content=content, created_by=token['user_id'], businessid=businessid)
+        review.save()
+        response = jsonify({
+            'Success':'Review added successfully',
+            'content': review.content,
+            "createdBy":token['user_id'],
+            "creationDate":review.date_created }), 201
+
+    return response
+
+         
+@bs.route('/api/v1/businesses/<businessid>/review', methods=['GET'])
 def get_all_business_reviews(businessid):
-    """Endpoint to retrieve all reviews for a business"""
 
-    business = [business1 for business1 in Business.business_list if business1.businessid == businessid]
-    if business:
-        business = business[0]
-        
-        business_reviews = []
-        
-        rev = [review for review in business.reviews]
-        if not rev:
-            return jsonify({'message': 'No reviews found'}), 404 
-             
-        for reviews in business.reviews:
+    """Retrieve all reviews for a business using business id"""
 
-            business_review = {}
-            business_review[reviews.title]= reviews.content
-            business_reviews.append(business_review)
-        
-        return jsonify(business_reviews), 200
+    results = []
 
-    return jsonify({'message': 'No business with that id'}), 404 
- 
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer for business ID"}), 400
+
+    if not Business.query.filter_by(businessid=businessid).first():
+        return jsonify({'Error':'No business with the given id'}), 404
+    reviews = Review.get_all(businessid)
+
+    if reviews.count() == 0:
+        response = jsonify({'message':'No reviews found'}), 404
+
+    else:
+        for review in reviews:
+            user = User.query.filter_by(id=review.created_by).first()
+            
+            obj={
+                "Id":review.id,
+                "Review":review.content,
+                "createdBy":user.username,
+                "creationDate":review.date_created
+            }
+
+            results.append(obj)
+            
+        response = jsonify(results),200
+
+    return response
