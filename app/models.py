@@ -134,6 +134,7 @@ class Tokens(db.Model):
 
 
 class Business(db.Model): 
+
     """Business Class Creates an instance of business"""
     __tablename__ = 'businesses'
 
@@ -161,12 +162,12 @@ class Business(db.Model):
         self.location=location
         self.about=about
         self.category=category
+        self.created_by=category
         self.reviews= []
 
         #Save user who has created the business
 
         self.created_by = created_by
-
 
     def save(self):
         """ This method adds the instance of the business created into businesses table"""
@@ -223,6 +224,7 @@ class Review(db.Model):
     def __init__(self, content, created_by, businessid):
 
         self.content = content
+
         self.created_by = created_by
         self.businessid = businessid
 
@@ -231,6 +233,7 @@ class Review(db.Model):
         """ This method adds the instance of the review created into reviews table"""
         db.session.add(self)
         db.session.commit()
+
 
     def delete(self):
         db.session.delete(self)

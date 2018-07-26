@@ -5,12 +5,12 @@ from flask_bcrypt import Bcrypt
 
 
 class TestUser(unittest.TestCase):
+
     """Class for testing user model"""
 
     def setUp(self):
         self.app = create_app(config_name='testing')
         self.client = self.app.test_client()
-
         self.register_data = { 'username':'kezzy', 'email':'kzynjokerio@gmail.com', 'password':'@kzy12', 'confirm_password':'@kzy12'}
 
         """bind app to the current context"""
@@ -220,7 +220,6 @@ class TestUser(unittest.TestCase):
         """Test if api cannot change password if current password indicated is not correct"""
 
         res = self.client.put(TestUser.change_pwd, headers=dict(Authorization="Bearer " + self.token), data={'email':'kzynjokerio@gmail.com','current_password':'@kzy12rrr', 'new_password':'@kzy12kzy','confirm_password':'@kzy12kzy'})
-
         self.assertEqual(res.status_code, 400)
         res_msg = json.loads(res.data.decode("UTF-8"))
 

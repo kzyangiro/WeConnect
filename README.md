@@ -3,12 +3,15 @@
 <a href="https://codeclimate.com/github/kzyGit/WeConnect/maintainability"><img src="https://api.codeclimate.com/v1/badges/5432a05f9a3052993830/maintainability" /></a>
 <!-- <a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a> -->
 
+
 <h3>WeConnect</h3>
 
 WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. An authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses.<br><br>
 Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br><br>
+
 Link to Heroku: https://weconnectapi-v2.herokuapp.com/<br><br>
 Link to WeConnect API documentation: https://app.swaggerhub.com/apis/Andela19/Weconnect-v2/1.0.0<br> 
+
 
 <h4>Technology used</h4>
 <ul>
@@ -24,6 +27,7 @@ Create and activate virtual environment:<br>
  ```sh
 python3 -m venv env
 source ./env/bin/activate 
+
  ```
 Clone or download the api from github. To clone:<br>
 
@@ -88,6 +92,7 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 <tr><td>Delete a Business</td><td>DELETE /api/v1/businesses/businessId</td></tr>
 <tr><td>Add a business review</td><td>POST /api/v1/businesses/businessId/review</td></tr>
 <tr><td>Get reviews of a business</td><td>GET /api/v1/businesses/businessId/review</td></tr>
+
 
 </table>
 

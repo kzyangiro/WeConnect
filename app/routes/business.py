@@ -259,7 +259,7 @@ def update_businesses(businessid):
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
         return jsonify({'Error': 'Kindly login first to update a business'}), 401
-    
+   
     if not businessid.isdigit():
         return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
 
@@ -305,4 +305,3 @@ def update_businesses(businessid):
         })
         response.status_code = 200
     return response
-

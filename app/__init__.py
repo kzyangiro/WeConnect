@@ -15,6 +15,7 @@ def create_app(config_name):
     app.logger.addHandler(logging.StreamHandler(sys.stdout))
     app.logger.setLevel(logging.ERROR)
 
+
     app.secret_key='my-key'
     app.config.from_object(app_config[config_name])
 
