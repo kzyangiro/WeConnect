@@ -209,32 +209,43 @@ def reset_password():
             response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", "status_code":204})
 
         else:
-            try:
-                import smtplib
 
-                gmail_user = "kezzyangiro@gmail.com"
-                gmail_pwd = "k0717658539h"
-                TO = email
-                SUBJECT = "WeConnect Password Reset"
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+            import smtplib
 
-                reset_token = reg_email.generate_token(reg_email.id)
-                TEXT = f"Hello {reg_email.username}, \n\nIndicated below is a token to reset your password, copy it and paste it on your authorization header and fill in your new password. Kindly note that the token will expire in the next 15 minutes from the moment you receive this mail If it does expire, resend a reset request and use the new token.\n\n\nToken:\n\n http://localhost:3000/resetPwd/{reset_token.decode()}\n\n\n\nRegards, Weconnect Team. "
-                
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.ehlo()
-                
-                server.login(gmail_user, gmail_pwd)
-                BODY = '\r\n'.join(['To: %s' % TO,
-                        'From: %s' % gmail_user,
-                        'Subject: %s' % SUBJECT,
-                        '', TEXT])
+            msg = MIMEMultipart()
+            
+            reset_token = reg_email.generate_token(reg_email.id)
+            message = f"""
+            <span style='color:black; font-size: 13px;'>Hello {reg_email.username},</span><br><br>
+            <div style='text-align: center; font-size: 13px; color:black'>
+            Indicated below is a button link to reset your password,
+            click it and fill in your new password in the page it will redirect you to.<br><br>
+            Kindly note that this password expires in 2 hours. Incase it does,<br><br>
+            request for a new password reset.
+            <br><br><br><a style='margin-right:20px' href='http://localhost:3000/resetPwd/{reset_token.decode()}'>
+            <button style='background-color:#337ab7; font-size: 13px; padding:8px; border: 1px solid #2e6da4; color: white; border-radius:2px'>Click To Reset</button></a><br><br><br><br>
+            Regards, <span style='color:#337ab7'>* Weconnect</span> Team. <br><br>
 
-                server.sendmail(gmail_user, [TO], BODY)
-                response = jsonify({'Success': "Kindly check your email for a token to reset your password"}), 200
-                
-            except Exception:
-                response = jsonify({'Error': 'No internet connection, kindly reconnect and try again'}), 500
+            </div>"""
+            
+            password = "k0717658539h"
+            msg['From'] = "kezzyangiro@gmail.com"
+            msg['To'] = "kzynjokerio@gmail.com"
+            msg['Subject'] = "WeConnect Reset Password"
+            
+            msg.attach(MIMEText(message, 'html'))
+            server = smtplib.SMTP('smtp.gmail.com: 587')
+            
+            server.starttls()
+            server.login(msg['From'], password)
+            server.sendmail(msg['From'], msg['To'], msg.as_string())
+            
+            server.quit()
+            
+            response = jsonify({'Success': "Kindly check your email for a token to reset your password"}), 200
+
         return response
 
     else:
