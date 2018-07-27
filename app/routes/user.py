@@ -227,7 +227,7 @@ def reset_password():
             click it and fill in your new password in the page it will redirect you to.<br><br>
             Kindly note that this password expires in 2 hours. Incase it does,<br><br>
             request for a new password reset.
-            <br><br><br><a style='margin-right:20px' href='http://localhost:3000/resetPwd/{reset_token.decode()}'>
+            <br><br><br><a style='margin-right:20px' href='https://reactapp-weconnect.herokuapp.com/resetPwd/{reset_token.decode()}'>
             <button style='background-color:#337ab7; font-size: 13px; padding:8px; border: 1px solid #2e6da4; color: white; border-radius:2px'>Click To Reset</button></a><br><br><br><br>
             Regards, <span style='color:#337ab7'>* Weconnect</span> Team. <br><br>
 
