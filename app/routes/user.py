@@ -77,7 +77,7 @@ def create_user_account():
 
         Click the below button to get started
 
-        <br><br><a style='margin-top:20px; margin-right:20px' href='http://localhost:3000/validateaccount/{username}'>
+        <br><br><a style='margin-top:20px; margin-right:20px' href='https://reactapp-weconnect.herokuapp.com/validateaccount/{username}'>
         <button style='background-color:#337ab7; font-size: 13px; padding:8px; border: 1px solid #2e6da4; color: white; border-radius:2px'>Validate Account</button></a><br><br><br><br>
         Regards, <span style='color:#337ab7'>* Weconnect</span> Team. <br><br>
 
