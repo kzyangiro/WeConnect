@@ -5,9 +5,12 @@ from datetime import datetime, timedelta
 
 import re
 from flask_bcrypt import Bcrypt
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+
 
 @auth.route('/api/v1/auth/register', methods=['POST'])
-
 def create_user_account():
     """Register a new user"""
 
@@ -17,16 +20,17 @@ def create_user_account():
     confirm_password1 = request.data.get('confirm_password')
 
     all_input = username1 and email1 and password1 and confirm_password1
-    int_input = isinstance(username1, int) or isinstance(email1, int) or isinstance(password1, int) or isinstance(confirm_password1, int)
+    int_input = isinstance(username1, int) or isinstance(email1, int) or isinstance(
+        password1, int) or isinstance(confirm_password1, int)
 
     if int_input or not all_input:
         return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400
-        
+
     username = str(username1.strip(' '))
     email = str(email1.strip(' '))
     password = str(password1.strip(' '))
     confirm_password = str(confirm_password1.strip(' '))
-    
+
     all_stripped_input = username and email and password and confirm_password
 
     if not all_stripped_input:
@@ -48,71 +52,115 @@ def create_user_account():
         response = jsonify({'Error': "Unmatched passwords"}), 400
 
     elif not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
-        response = jsonify({'Error': "Invalid email address, kindly use the right email format i.e abc@def.com"}), 400
-        
+        response = jsonify(
+            {'Error': "Invalid email address, kindly use the right email format i.e abc@def.com"}), 400
+
     elif [u for u in User.get_all() if u.username.lower() == username.lower()]:
-        response = jsonify({'Error': "The username is already registered, kindly chose a different one"}), 409
+        response = jsonify(
+            {'Error': "The username is already registered, kindly chose a different one"}), 409
 
     elif [e for e in User.get_all() if e.email.lower() == email.lower()]:
-        response = jsonify({'Error': "The email is already registered, kindly chose a different one"}), 409
+        response = jsonify(
+            {'Error': "The email is already registered, kindly chose a different one"}), 409
 
     else:
 
         user = User(username=username, email=email, password=password)
         user.save()
-        response = jsonify({'Success': "User Registered successfully"}), 201
+        msg = MIMEMultipart()
+
+        message = f"""
+        <span style='color:black; font-size: 13px;'>Hello {username},</span><br><br><br>
+        <div style='text-align: center; font-size: 13px; color:black'>
+        Welcome to weconnect. We appreciate you joining our network to link to businesses.<br><br>
+        The best platform to Create, view and review businesses.<br><br>
+
+        Click the below button to get started
+
+        <br><br><a style='margin-top:20px; margin-right:20px' href='http://localhost:3000/validateaccount/{username}'>
+        <button style='background-color:#337ab7; font-size: 13px; padding:8px; border: 1px solid #2e6da4; color: white; border-radius:2px'>Validate Account</button></a><br><br><br><br>
+        Regards, <span style='color:#337ab7'>* Weconnect</span> Team. <br><br>
+
+        </div>"""
+
+        password = "k0717658539h"
+        msg['From'] = "kezzyangiro@gmail.com"
+        msg['To'] = email
+        msg['Subject'] = "WeConnect Account Validation"
+
+        msg.attach(MIMEText(message, 'html'))
+        server = smtplib.SMTP('smtp.gmail.com: 587')
+
+        server.starttls()
+        server.login(msg['From'], password)
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+        server.quit()
+        response = jsonify(
+            {'Success': "User Registered successfully, Kindly check your email to validate your account"}), 201
 
     return response
 
 
-@auth.route('/api/v1/auth/login', methods=['POST'])
+@auth.route('/api/v1/auth/login', methods=['POST', 'PUT'])
 def user_login():
-    """Log in a user using username and password provided, and generate access token """
-    username1 = request.data.get('username')
-    password1 = request.data.get('password')
 
-    all_credentials = username1 and password1
-    int_input = isinstance(username1, int) or isinstance(password1, int)
+    if request.method == "POST":
+        """Log in a user using username and password provided, and generate access token """
+        username1 = request.data.get('username')
+        password1 = request.data.get('password')
 
-    if int_input or not all_credentials:
-        return jsonify({'Error': "Invalid input, fill in all required inputs, and kindly use strings"}), 400
+        all_credentials = username1 and password1
+        int_input = isinstance(username1, int) or isinstance(password1, int)
 
-    username = str(username1.strip(' '))
-    password = str(password1.strip(' '))
-    
+        if int_input or not all_credentials:
+            return jsonify({'Error': "Invalid input, fill in all required inputs, and kindly use strings"}), 400
 
-    if not username or not password:
-        return jsonify({'Error': "Fill in the empty fields"}), 400
+        username = str(username1.strip(' '))
+        password = str(password1.strip(' '))
 
-    user = User.query.filter_by(username=request.data['username']).first()
+        if not username or not password:
+            return jsonify({'Error': "Fill in the empty fields"}), 400
 
-    if not user:
-        return jsonify({'Error': "User not found, kindly use correct username", "status_code":204})
+        user = User.query.filter_by(username=request.data['username']).first()
 
-    correct_pwd = user.password_is_valid(request.data['password'])
-    access_token = user.generate_token(user.id)
+        if not user:
+            return jsonify({'Error': "User not found, kindly use correct username", "status_code": 204})
 
+        correct_pwd = user.password_is_valid(request.data['password'])
+        access_token = user.generate_token(user.id)
+        if not correct_pwd:
+            response = jsonify({'Error': "Wrong password entered"}), 401
 
-    if not correct_pwd:
-        response = jsonify({'Error': "Wrong password entered"}), 401
+        elif user.status == 'invalid':
+            response = jsonify({'Error': "Kindly log into your email to validate account"}), 401
 
-    else:
-        tokens = Tokens.query.filter_by(status='active')
-        tok = [t for t in tokens if user.id == User.decode_token(t.token) and datetime.utcnow() - t.date_created < timedelta(minutes=15)]
-        if tok:
-            tok[0].status = 'blacklisted'
-            tok[0].save()
         else:
-            pass
-        
-        token = Tokens(token=access_token.decode(), status='active')
-        token.save()
-        response = make_response(jsonify({
-            'Success': 'Successfully Logged in',
-            'username': username,
-            'email': user.email,
-            'access_token': access_token.decode()}), 200)
-    return response
+            tokens = Tokens.query.filter_by(status='active')
+            tok = [t for t in tokens if user.id == User.decode_token(
+                t.token) and datetime.utcnow() - t.date_created < timedelta(minutes=15)]
+            if tok:
+                tok[0].status = 'blacklisted'
+                tok[0].save()
+            else:
+                pass
+
+            token = Tokens(token=access_token.decode(), status='active')
+            token.save()
+            response = make_response(jsonify({
+                'Success': 'Successfully Logged in',
+                'username': username,
+                'email': user.email,
+                'access_token': access_token.decode()}), 200)
+        return response
+    else:
+        username = request.data.get('username')
+        user = User.query.filter_by(username=request.data['username']).first()
+        user.status = 'validated'
+        user.save()
+        response = jsonify({'Success': "Account validated successfully"}), 200
+        return response
+
 
 @auth.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
@@ -124,7 +172,8 @@ def user_logout():
         response = jsonify({'Error': 'You are not logged in!'}), 401
 
     else:
-        token = Tokens.query.filter_by(token=token['access_token'], status='active').first()
+        token = Tokens.query.filter_by(
+            token=token['access_token'], status='active').first()
         token.status = 'blacklisted'
         token.save()
         response = jsonify({'Success': 'Successfully Logged Out'}), 200
@@ -142,7 +191,8 @@ def update_password():
     confirm_password1 = request.data.get('confirm_password')
 
     all_input = email1 and current_password1 and new_password1 and confirm_password1
-    int_input = isinstance(email1, int) or isinstance(current_password1, int) or isinstance(new_password1, int) or isinstance(confirm_password1, int)
+    int_input = isinstance(email1, int) or isinstance(current_password1, int) or isinstance(
+        new_password1, int) or isinstance(confirm_password1, int)
 
     token = User.validate_token()
 
@@ -166,19 +216,23 @@ def update_password():
     user = User.query.filter_by(email=request.data['email']).first()
 
     if not user:
-        response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
+        response = jsonify(
+            {'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
 
     elif not user.password_is_valid(request.data['current_password']):
         response = jsonify({'Error': "Wrong current password"}), 400
 
     elif current_password == new_password:
-        response = jsonify({'Error': "New password should not be the same as your previous password"}), 400
+        response = jsonify(
+            {'Error': "New password should not be the same as your previous password"}), 400
 
     elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", new_password):
-        response = jsonify({'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
+        response = jsonify(
+            {'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
 
     elif new_password != confirm_password:
-        response = jsonify({'Error': "New password not matching with confirm password"}), 400
+        response = jsonify(
+            {'Error': "New password not matching with confirm password"}), 400
 
     else:
         new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
@@ -209,16 +263,13 @@ def reset_password():
         reg_email = User.query.filter_by(email=email).first()
 
         if not reg_email:
-            response = jsonify({'Error': "Unrecognised email, kindly ensure to use the email you registered with", "status_code":204})
+            response = jsonify(
+                {'Error': "Unrecognised email, kindly ensure to use the email you registered with", "status_code": 204})
 
         else:
 
-            from email.mime.multipart import MIMEMultipart
-            from email.mime.text import MIMEText
-            import smtplib
-
             msg = MIMEMultipart()
-            
+
             reset_token = reg_email.generate_token(reg_email.id)
             message = f"""
             <span style='color:black; font-size: 13px;'>Hello {reg_email.username},</span><br><br>
@@ -232,33 +283,34 @@ def reset_password():
             Regards, <span style='color:#337ab7'>* Weconnect</span> Team. <br><br>
 
             </div>"""
-            
+
             password = "k0717658539h"
             msg['From'] = "kezzyangiro@gmail.com"
             msg['To'] = email
             msg['Subject'] = "WeConnect Reset Password"
-            
+
             msg.attach(MIMEText(message, 'html'))
             server = smtplib.SMTP('smtp.gmail.com: 587')
-            
+
             server.starttls()
             server.login(msg['From'], password)
             server.sendmail(msg['From'], msg['To'], msg.as_string())
-            
+
             server.quit()
-            
-            response = jsonify({'Success': "Kindly check your email for a token to reset your password"}), 200
+
+            response = jsonify(
+                {'Success': "Kindly check your email for a token to reset your password"}), 200
 
         return response
 
     else:
         """ Reset password using token received on email """
-        
+
         token = User.validate_token()
 
         if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
             return jsonify({'Error': 'Invalid token, kindly use the right token sent to your email for password reset'}), 401
-          
+
         new_password = request.data.get('new_password')
         confirm_password = request.data.get('confirm_password')
 
@@ -269,16 +321,18 @@ def reset_password():
         confirm_pwd = confirm_password
 
         if not new_pwd or not confirm_pwd:
-            return jsonify({'Error':"Kindly fill in a valid input, avoid using empty spaces as input"})
-        
+            return jsonify({'Error': "Kindly fill in a valid input, avoid using empty spaces as input"})
+
         user = User.query.filter_by(id=token['user_id']).first()
         new_hashed_password = Bcrypt().generate_password_hash(str(new_pwd)).decode('utf-8')
-        
+
         if user.password_is_valid(new_pwd) == True:
-            response = jsonify({'Error':"kindly edit this password, set a password different from your previous password"}), 400
+            response = jsonify(
+                {'Error': "kindly edit this password, set a password different from your previous password"}), 400
 
         elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", new_pwd):
-            response = jsonify({'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
+            response = jsonify(
+                {'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
 
         elif new_pwd != confirm_pwd:
             response = jsonify({'Error': "Unmatched passwords"}), 400
@@ -288,11 +342,10 @@ def reset_password():
             user.password = new_hashed_password
 
             user.save()
-            
+
             token = Tokens(token=token['access_token'], status='blacklisted')
             token.save()
-            
-            response = jsonify({'Success': "Password reset successfully"}), 200
-        
-        return response
 
+            response = jsonify({'Success': "Password reset successfully"}), 200
+
+        return response
