@@ -235,7 +235,7 @@ def reset_password():
             
             password = "k0717658539h"
             msg['From'] = "kezzyangiro@gmail.com"
-            msg['To'] = "kzynjokerio@gmail.com"
+            msg['To'] = email
             msg['Subject'] = "WeConnect Reset Password"
             
             msg.attach(MIMEText(message, 'html'))
