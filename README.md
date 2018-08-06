@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/kzyGit/WeConnect.svg?branch=ft-pagination)](https://travis-ci.org/kzyGit/WeConnect)
-[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=challenge-3)](https://coveralls.io/github/kzyGit/WeConnect?branch=ft-challenge-3)
+[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=develop)](https://coveralls.io/github/kzyGit/WeConnect?branch=develop)
 <a href="https://codeclimate.com/github/kzyGit/WeConnect/maintainability"><img src="https://api.codeclimate.com/v1/badges/5432a05f9a3052993830/maintainability" /></a>
 <!-- <a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a> -->
 
