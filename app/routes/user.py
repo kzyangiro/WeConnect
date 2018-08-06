@@ -68,6 +68,8 @@ def create_user_account():
         user = User(username=username, email=email, password=password)
         user.save()
         msg = MIMEMultipart()
+        reg_email = User.query.filter_by(email=email).first()
+        token = reg_email.generate_token(reg_email.id)
 
         message = f"""
         <span style='color:black; font-size: 13px;'>Hello {username},</span><br><br><br>
@@ -77,7 +79,7 @@ def create_user_account():
 
         Click the below button to get started
 
-        <br><br><a style='margin-top:20px; margin-right:20px' href='https://reactapp-weconnect.herokuapp.com/validateaccount/{username}'>
+        <br><br><a style='margin-top:20px; margin-right:20px' href='http://localhost:3000/validateaccount/{token.decode()}'>
         <button style='background-color:#337ab7; font-size: 13px; padding:8px; border: 1px solid #2e6da4; color: white; border-radius:2px'>Validate Account</button></a><br><br><br><br>
         Regards, <span style='color:#337ab7'>* Weconnect</span> Team. <br><br>
 
@@ -133,7 +135,8 @@ def user_login():
             response = jsonify({'Error': "Wrong password entered"}), 401
 
         elif user.status == 'invalid':
-            response = jsonify({'Error': "Kindly log into your email to validate account"}), 401
+            response = jsonify(
+                {'Error': "Kindly log into your email to validate account"}), 401
 
         else:
             tokens = Tokens.query.filter_by(status='active')
@@ -154,11 +157,18 @@ def user_login():
                 'access_token': access_token.decode()}), 200)
         return response
     else:
-        username = request.data.get('username')
-        user = User.query.filter_by(username=request.data['username']).first()
-        user.status = 'validated'
-        user.save()
-        response = jsonify({'Success': "Account validated successfully"}), 200
+        token = User.validate_token()
+
+        if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+            response = jsonify({'Error': 'Invalid token, if account is validated already, just login. Otherwise, kindly use activation link sent to your email', 'Status_code':401})
+
+        else:
+            user = User.query.filter_by(id=token['user_id']).first()
+            user.status = 'validated'
+            user.save()
+            token = Tokens(token=token['access_token'], status='blacklisted')
+            token.save()
+            response = jsonify({'Success': "Account validated successfully"}), 200
         return response
 
 
@@ -197,11 +207,11 @@ def update_password():
     token = User.validate_token()
 
     if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
-        return jsonify({'Error': 'Kindly login first to update password'}), 401
+        return jsonify({'Error': 'Kindly login first to update password', 'Status_code':401})
 
     if int_input or not all_input:
         return jsonify(
-            {'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400
+            {'Error': "Invalid input, fill in all required input and kindly use valid strings", 'Status_code':400})
 
     email = str(email1.strip(' '))
     current_password = str(current_password1.strip(' '))
@@ -211,7 +221,7 @@ def update_password():
     all_stripped_input = email and current_password and new_password and confirm_password
 
     if not all_stripped_input:
-        return jsonify({'Error': 'Input Empty Fields'}), 400
+        return jsonify({'Error': 'Input Empty Fields', 'Status_code':400})
 
     user = User.query.filter_by(email=request.data['email']).first()
 
@@ -220,19 +230,19 @@ def update_password():
             {'Error': "Unrecognised email, kindly ensure to use the email you registered with", 'status_code': 204})
 
     elif not user.password_is_valid(request.data['current_password']):
-        response = jsonify({'Error': "Wrong current password"}), 400
+        response = jsonify({'Error': "Wrong current password",  'Status_code':400})
 
     elif current_password == new_password:
         response = jsonify(
-            {'Error': "New password should not be the same as your previous password"}), 400
+            {'Error': "New password should not be the same as your previous password", 'Status_code':400})
 
     elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*.,#?&])[A-Za-z\d$@$!.,%*#?&]{6,}$", new_password):
         response = jsonify(
-            {'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character"}), 400
+            {'Error': "Kindly set a strong password. Ensure to use aminimum of 6 characters that contains at least 1 letter, one number and one special character",  'Status_code':400})
 
     elif new_password != confirm_password:
         response = jsonify(
-            {'Error': "New password not matching with confirm password"}), 400
+            {'Error': "New password not matching with confirm password", 'Status_code':400})
 
     else:
         new_hashed_password = Bcrypt().generate_password_hash(new_password).decode('utf-8')
