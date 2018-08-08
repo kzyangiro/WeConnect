@@ -77,7 +77,7 @@ def create_user_account():
         Welcome to weconnect. We appreciate you joining our network to link to businesses.<br><br>
         The best platform to Create, view and review businesses.<br><br>
 
-        Click the below button to get started
+        Click the below button to get started.
 
         <br><br><a style='margin-top:20px; margin-right:20px' href='https://reactapp-weconnect.herokuapp.com/validateaccount/{token.decode()}'>
         <button style='background-color:#337ab7; font-size: 13px; padding:8px; border: 1px solid #2e6da4; color: white; border-radius:2px'>Validate Account</button></a><br><br><br><br>
