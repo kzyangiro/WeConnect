@@ -1,214 +1,307 @@
 from flask import request, make_response, jsonify
 from . import bs
-from .. models import Business, User, BlacklistToken
+from .. models import Business, User, Review, Tokens
+import re
+from sqlalchemy import func 
 
 @bs.route('/')
 def homepage():
-    """This is the home route"""
-    return jsonify({'message':'Welcome to Weconnect'}), 200
+    """Home endpoint"""
+          
+    return jsonify({'message':'Welcome to Weconnect'})
 
 @bs.route('/api/v1/businesses', methods=['POST'])
 def register_business():
-    """This method Creates a business by only authorised users"""
+    """Create a new business"""
 
-    business_name = str(request.data.get('business_name').strip(' '))
-    about = str(request.data.get('about').strip(' '))
-    location = str(request.data.get('location').strip(' '))
-    category = str(request.data.get('category').strip(' '))
+    business_name1 = request.data.get('business_name')
+    about1 = request.data.get('about')
+    location1 = request.data.get('location')
+    category1 = request.data.get('category')
 
-    """ Confirm user is authorised """
-    auth_header = request.headers.get('Authorization')
+    token = User.validate_token()
 
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
+    all_input = business_name1 and about1 and location1 and category1
+    int_input = isinstance(business_name1, int) or isinstance(about1, int) or isinstance(location1, int) or isinstance(category1, int)
+
+    valid = r"[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*"
+
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to register a business'}), 401
+
+    if int_input or not all_input:
+        return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400
+
+    business_name = str(business_name1.strip(' '))
+    location = str(location1.strip(' '))
+    category = str(category1.strip(' '))
+    about = str(about1.strip(' '))
+
+    all_stripped_input = business_name and about and location and category
+
+    if not all_stripped_input:
+        response = jsonify({'Error': "Kindly input the missing fields"}), 400
+    
+    elif not re.match(valid, business_name) or  not re.match(valid, about) or not re.match(valid, location) or not re.match(valid, category):
+        response = jsonify({'Error': "Input should not be only digits, kindly use letters as well"}), 400         
+
+    elif len(business_name) < 3 or len(about) < 3 or len(location) < 3 or len(category) < 3:
+        response = jsonify({'Error': "Kindly use input of at least 3 characters"}), 400
+
+    elif [b for b in Business.get_all() if b.business_name.lower() == business_name.lower()]:
+        response = jsonify({"Error":"Business already exists, use a different business name"}), 409
+
     else:
-        access_token = 'Invalid Token'
+        business = Business(business_name=business_name, about=about, location=location, category=category, created_by=token['user_id'])
+        business.save()
+        response = jsonify({
+            "Success":"Business Created successfully",
+            "business Id":business.businessid,
+            "business Name":business.business_name,
+            "business category":business.category,
+            "business location":business.location,
+            "date created":business.date_created,
+            "owner":token['user_id']
 
-    if access_token:
+        })
+        response.status_code = 201
+    return response
 
-        for token in BlacklistToken.blacklist_tokens:
-            "Check if input access token is blacklisted, if yes, prompt new login"
-            if token == access_token:
-                responce = make_response(jsonify({'status':'You are already Logged Out, kindly login first'}),400)
-                return responce 
-          
-
-        """Decode token"""
-        user_id = User.decode_token(access_token)
-
-        if not isinstance(user_id, str):
-            
-            try:
-                if business_name and about and location and category:
-                    for business in Business.business_list:
-                        if business.business_name == business_name:
-                            """Ensure No duplicate entry of business name"""
-                            return jsonify({'message':'Business already exists'}), 409
-
-                    business = Business(business_name=business_name, about=about, location=location, category=category)
-
-                    mybusinesses={'Business Name':business.business_name,'Description':business.about,'Location':business.location,'Category':business.category}
-
-                    business.save(business)
-                    response =make_response(
-                        jsonify({
-                            'business details': mybusinesses,
-                            'Message':'Business created successfully'
-                            }), 201)
-                    return response
-                else:
-                    return jsonify({'message': "Fill in the empty fields"}), 400
-
-            except Exception as e:
-                return jsonify({'message': e}), 401
-        else:
-            return jsonify({'message': 'Invalid token, Login to obtain a new token'}), 401
-
-            
+       
 @bs.route('/api/v1/businesses', methods=['GET'])
-def retrieve_all_businesses():
-    """This method retrieves all businesses"""
-    results = []
+def get_all_business():
+    """Retrieve all businesses. Filter businesses by name, location, category and pagination"""
 
-    if len(Business.business_list) == 0:
+    q = request.args.get('q')
+    location = request.args.get('location')
+    category = request.args.get('category')
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 20, type=int)
+    businesses = Business.get_all()
+
+    if not businesses:
+        response = jsonify({'message': "No Businesses Available"}), 404
+    
+    elif q:
+        """Search business by name"""
+
+        business_by_name = Business.query.filter(func.lower(Business.business_name).contains(func.lower(q)))
+        b = [b for b in business_by_name]
+        if not b:
+            response = jsonify({"message":"Sorry, No business with that name", "status_code":204})
+        else:
+            response = jsonify([business.serialize for business in business_by_name]), 200
+
+    elif location and category == '':
+        """Retrieve businesses in a given location """
+
+        business_by_location = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
+        b = [b for b in business_by_location]
+        if not b:
+            response = jsonify({"message":"Sorry, No business in that location", "status_code":204})
+        else:
+            response = jsonify([business.serialize for business in business_by_location]), 200
+
+
+    elif category and location == '':
+        """Retrieve businesses in a given category """
+
+        business_by_category = Business.query.filter(func.lower(Business.category).contains(func.lower(category)))
+        b = [b for b in business_by_category]
+        if not b:
+            response = jsonify({"message":"Sorry, No business in that category", "status_code":204})
+        else:
+            response = jsonify([business.serialize for business in business_by_category]), 200
+
+    elif category and location:
+        """Retrieve businesses in a given category """
+
+        fitlered_businesses = Business.query.filter(func.lower(Business.location).contains(func.lower(location)))
+
+        b = [b for b in fitlered_businesses if b.category.lower() == category.lower()]
+        if not b:
+            response = jsonify({"message":"Sorry, No business in that category and location", "status_code":204})
+        else:
+            response = jsonify([business.serialize for business in b]), 200
+
+    elif limit and page:
+        """ Retrieve businesses of the indicated page with the indicated limit"""
+        
+        business_limit = Business.query.paginate(int(page), int(limit), False)
+        b = [b for b in business_limit.items]
+        if not b:
+            response = jsonify({"message" :"Sorry, No business found", "status_code":204})
+        else:
+            response = jsonify([business.serialize for business in business_limit.items]), 200
+
+    else:
+        response = jsonify([business.serialize for business in businesses]), 200
+        
+    return response
+
+
+@bs.route('/api/v1/mybusinesses', methods=['GET'])
+def get_my_business():
+    """Display all businesses of the loggedin user"""
+    token = User.validate_token()
+    
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to view your dashboard'}), 401
+
+    businesses = Business.query.filter_by(created_by=token['user_id'])
+
+    if businesses.count() == 0:
         """ Checking if there is no business"""
-        return jsonify({'message': "No Businesses Found"}), 404
-        
+        response = jsonify({'message': "You have registered no businesses", "status_code":204})
     else:
-        for business in Business.business_list:
-            obj={
-                "Business id":business.businessid,
-                "Business name":business.business_name,
-                "Category":business.category
+        response = jsonify([business.serialize for business in businesses]), 200
+    return response
 
-            }
-            results.append(obj)
 
-        response=jsonify(results)
-        response.status_code = 200
-        return response
-
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['GET'])
+@bs.route('/api/v1/businesses/<businessid>', methods=['GET'])
 def get_businesses_by_id(businessid):
-    """This method retrieves a business by the given id"""
+    """Retrieve a business of a given id"""
+
     
-    if len(Business.business_list) == 0:
-        return jsonify({'message': "No businesses found"}), 404
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
+
+    business = Business.query.filter_by(businessid=businessid)
+
+    if business.count() == 0:
+        response=jsonify({"message":"No Business with that ID", "status_code":204})
 
     else:
+        business = business[0]
+        response=jsonify({
+                    "Id":business.businessid,
+                    "Name":business.business_name,
+                    "category":business.category,
+                    "Location":business.location,
+                    "description":business.about,
+                    "date created":business.date_created,
+                    "date modified":business.date_modified,
+                    "created_by":business.created_by
+
+            }),200
         
-        for business in Business.business_list:
-            if businessid == business.businessid:
-                obj={
-                    "Business Id":business.businessid,
-                    "Business Name":business.business_name,
-                    "Category":business.category,
-                    "Business location":business.location,
-                    "Description":business.about
-
-                }
-                response=jsonify(obj)
-                response.status_code = 200
-                return response
-
-    return jsonify({"message":"No Business with that ID"}), 404
+    return response
 
 
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['PUT'])
-def update_businesses(businessid):
+@bs.route('/api/v1/mybusinesses/<businessid>', methods=['GET'])
+def get_mybusinesses_by_id(businessid):
+    """Display business of the loggedin user"""
+    token = User.validate_token()
+    
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to view your dashboard'}), 401
 
-    """This method uses input data to update the content of a business of the ID indicated in the URL"""
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
 
-    business_name = str(request.data.get('business_name').strip(' '))
-    location = str(request.data.get('location').strip(' '))
-    category = str(request.data.get('category').strip(' '))
-    about = str(request.data.get('about').strip(' '))
+    business = Business.query.filter_by(businessid=businessid, created_by=token['user_id'])
 
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
+    if business.count() == 0:
+        response=jsonify({"message":"No Business with that ID", "status_code":204})
+
     else:
-        access_token = 'Invalid Token'
+        business = business[0]
+        response=jsonify({
+                    "Id":business.businessid,
+                    "Name":business.business_name,
+                    "category":business.category,
+                    "Location":business.location,
+                    "description":business.about,
+                    "datecreated":business.date_created,
+                    "datemodified":business.date_modified,
+                    "created_by":business.created_by
 
-    if access_token:
+            }),200
+        
+    return response
 
-        for token in BlacklistToken.blacklist_tokens:
-            "Check if input access token is blacklisted, if yes, prompt new login"
-            if token == access_token:
-                responce = make_response(jsonify({'status':'You are already Logged Out, kindly login first'}),400)
-                return responce 
-          
 
-        """Decode token"""
-        user_id = User.decode_token(access_token)
-
-        if not isinstance(user_id, str):
-            
-            try:
-                
-                if business_name and location and category and about:
-                    existing = [bus for bus in Business.business_list if business_name == bus.business_name and businessid != bus.businessid]
-
-                    if existing:
-                        return jsonify({'message':'That business name is already registered'}), 409
-
-                    for business in Business.business_list:
-                        if businessid == business.businessid:
-                            business.business_name=business_name
-                            business.location=location
-                            business.category=category
-                            business.about=about 
-
-                             
-                            return jsonify({'message':'Business Updated Successfully'}), 200
-                          
-                    return jsonify({'message':'Business not found'}), 404
-                            
-                return jsonify({'message':'Fill in the Empty fields'}), 400
-                
-            except Exception as e:
-                return make_response(jsonify({'message': e})), 401
-
-        return make_response(jsonify({'message': 'Invalid token, Login to obtain a new token'})), 401
-
-@bs.route('/api/v1/businesses/<int:businessid>', methods=['DELETE'])
+@bs.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 def delete_businesses(businessid):
-    """This endpoint removes a business of the given ID from the business list"""
+    """Delete a business by the owner while logged in"""
+    token = User.validate_token()
     
-    """ Ensure Authorisation"""
     
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        access_token = auth_header.split(' ')[1]
+    
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to delete a business'}), 401
+    
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
+
+    business = Business.query.filter_by(created_by=token['user_id'], businessid=businessid)
+
+    if business.count() == 0:
+        response = jsonify({"Error":"You have no business with that ID", "status_code":204})
     else:
-        access_token = 'Invalid Token'
+        business[0].delete()
+        response = jsonify({"Success":"Business Deleted Successfully"}), 200
+    return response
 
-    if access_token:
 
-        for token in BlacklistToken.blacklist_tokens:
-            "Check if input access token is blacklisted, if yes, prompt new login"
-            if token == access_token:
-                responce = make_response(jsonify({'status':'You are already Logged Out, kindly login first'}),400)
-                return responce 
-          
+@bs.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 
-        """Decode token"""
-        user_id = User.decode_token(access_token)
+def update_businesses(businessid):
+    """Update a business of the ID indicated in the URL"""
 
-        if not isinstance(user_id, str):
-            
-            try:
-                del_business = [business for business in Business.business_list if businessid == business.businessid]
-                if del_business:
-                    del_business = del_business[0]
-                    
-                    """Checks if that ID exists in our business list, if it does, delete"""
-                    Business.business_list.remove(del_business)    
-                    return jsonify({'message':'Business Deleted Successfully'}), 200
-                    
-                return jsonify({'message':'No Business with that ID'}), 404
+    business_name1 = request.data.get('business_name')
+    about1 = request.data.get('about')
+    location1 = request.data.get('location')
+    category1 = request.data.get('category')
 
-            except Exception as e:
-                return make_response(jsonify({'message': e})), 401
+    token = User.validate_token()
+    all_input = business_name1 and about1 and location1 and category1
 
-        return make_response(jsonify({'message': 'Invalid token, Login to obtain a new token'})), 401
+    if not token['access_token']or token['decodable_token'] or token['blacklisted_token']:
+        return jsonify({'Error': 'Kindly login first to update a business'}), 401
+   
+    if not businessid.isdigit():
+        return jsonify({"Error" :"Invalid business Id, kindly use an integer"}), 400
+
+    business = Business.query.filter_by(businessid=businessid, created_by=token['user_id'])  
+
+    if business.count() == 0:
+        return jsonify({"Error":"You have no business with that ID", "status_code":204})
+
+    if not all_input:
+        return jsonify({'Error': "Invalid input, fill in all required input and kindly use valid strings"}), 400
+
+    business_name = str(business_name1.strip(' '))
+    location = str(location1.strip(' '))
+    category = str(category1.strip(' '))
+    about = str(about1.strip(' '))
+    all_stripped_input = business_name and about and location and category
+
+    if not all_stripped_input:
+        response = jsonify({'Error': "Fill in the Empty fields"}), 400
+    elif business[0].business_name == business_name and business[0].location == location and business[0].category==category and business[0].about==about:
+        response = jsonify({'Error': "No changes made, kindly make changes to effect a valid update"}), 400
+
+    elif [bus1 for bus1 in Business.get_all() if bus1.business_name.lower() == business_name.lower() and bus1.businessid != int(businessid)]:
+        response = jsonify({"Error":"Business Already Exists, use a different business name"}), 409
+        
+    else:
+        business = business[0]
+        
+        business.business_name=business_name
+        business.about=about
+        business.location=location
+        business.category=category
+
+        business.save()
+        response = jsonify({
+            "Success":"Business updated successfully",
+            "Name":business.business_name,
+            "category":business.category,
+            "location":business.location,
+            "description":business.about,
+            "modified_by":token['user_id']
+
+        })
+        response.status_code = 200
+    return response

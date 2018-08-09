@@ -1,12 +1,18 @@
-[![Build Status](https://travis-ci.org/kzyGit/WeConnect.svg?branch=api)](https://travis-ci.org/kzyGit/WeConnect)
-[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=master)](https://coveralls.io/github/kzyGit/WeConnect?branch=master)
-<a href="https://codeclimate.com/github/codeclimate/codeclimate/maintainability"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability" /></a>
-<a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a>
+[![Build Status](https://travis-ci.org/kzyGit/WeConnect.svg?branch=ft-pagination)](https://travis-ci.org/kzyGit/WeConnect)
+[![Coverage Status](https://coveralls.io/repos/github/kzyGit/WeConnect/badge.svg?branch=develop)](https://coveralls.io/github/kzyGit/WeConnect?branch=develop)
+<a href="https://codeclimate.com/github/kzyGit/WeConnect/maintainability"><img src="https://api.codeclimate.com/v1/badges/5432a05f9a3052993830/maintainability" /></a>
+<!-- <a href="https://codeclimate.com/github/codeclimate/codeclimate/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage" /></a> -->
+
+
 
 <h3>WeConnect</h3>
 
-WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. A authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses<br>
-Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br> 
+WeConnect is an application that links individuals to businesses. A user is able to view avaiable businesses, view their profiles and reviews and also create an account. An authorised user is able to create a business and manage the businesses by either updating or deleting as well as adding reviews to businesses.<br><br>
+Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.html<br><br>
+
+Link to Heroku: https://weconnectapi-v2.herokuapp.com/<br><br>
+Link to WeConnect API documentation: https://app.swaggerhub.com/apis/Andela19/Weconnect-v2/1.0.0<br> 
+
 
 <h4>Technology used</h4>
 <ul>
@@ -16,33 +22,29 @@ Link to WeConnect design template: https://kzygit.github.io/designs/UI/index.htm
  </ul>
 
 <h4>Installation and Setup</h4>
+
+Create and activate virtual environment:<br>
+
+ ```sh
+python3 -m venv env
+source ./env/bin/activate 
+
+ ```
 Clone or download the api from github. To clone:<br>
 
 ```sh
 git clone https://github.com/kzyGit/WeConnect.git
 ```
-<br>
-
-Create and activate a virtual environment:<br>
- ```sh
-export FLASK_APP="run.py"
-export APP_SETTINGS="development"
-export SECRET="a-long-string-of-random-characters-CHANGE-TO-YOUR-LIKING"
- ```
-<br>
- - Move into our WeConnect directory <br>
+Move into our WeConnect directory <br>
  
  ```sh
  cd WeConnect
  ```
-<br>
- - Install Dependencies: run requirements file<br>
+Install Dependencies: run requirements file<br>
  
  ```sh
  pip install -r requirements.txt
  ```
-<br>
-
 <h4>Running the api</h4>
 
 - To run the application use the comand:<br>
@@ -82,16 +84,16 @@ The UI is hosted on github pages. Link: https://kzygit.github.io/designs/UI/inde
 <table>
   <tr><td><b>Functionality</b></td><td><b>Endpoint</b></td></tr>
 
-<tr><td>Create a new user</td><td>POST /api/auth/register</td></tr>
-<tr><td>Log in a registered User</td><td>POST /api/auth/login</td></tr>
-<tr><td>Logout a User</td><td>POST /api/auth/logout</td></tr>
-<tr><td>Password Reset</td><td>POST /api/auth/reset-password</td></tr>
-<tr><td>Register a business</td><td>POST /api/businesses</td></tr>
-<tr><td>Update a business</td><td>PUT /api/businesses/<businessId></td></tr>
-<tr><td>Delete a Business</td><td>DELETE /api/businesses/<businessId></td></tr>
-<tr><td>Retrieve a business by id</td><td>GET /api/businesses/<businessId></td></tr>
-<tr><td>Add a business review</td><td>POST /api/businesses/<businessId>/reviews</td></tr>
-<tr><td>Get reviews of a business</td><td>GET /api/businesses/<businessId>/reviews</td></tr>
+<tr><td>Create a new user</td><td>POST /api/v1/auth/register</td></tr>
+<tr><td>Log in a registered User</td><td>POST /api/v1/auth/login</td></tr>
+<tr><td>Logout a User</td><td>POST /api/v1/auth/logout</td></tr>
+<tr><td>Password Reset</td><td>POST /api/v1/auth/reset-password</td></tr>
+<tr><td>Register a business</td><td>POST /api/v1/businesses</td></tr>
+<tr><td>Update a business</td><td>PUT /api/v1/businesses/businessId</td></tr>
+<tr><td>Delete a Business</td><td>DELETE /api/v1/businesses/businessId</td></tr>
+<tr><td>Add a business review</td><td>POST /api/v1/businesses/businessId/review</td></tr>
+<tr><td>Get reviews of a business</td><td>GET /api/v1/businesses/businessId/review</td></tr>
+
 
 </table>
 
