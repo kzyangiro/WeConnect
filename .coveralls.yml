@@ -1,0 +1,5 @@
+
+repo_token: 7BNfHWFoVqMUCxk4dvBslI2UGfLtM4IqF
+
+gem 'coveralls', require: false
+parallel: true # if the CI is running your build in parallel
