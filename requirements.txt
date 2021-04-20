@@ -47,7 +47,7 @@ pluggy==0.6.0
 plumber==1.5
 psycopg2==2.7.4
 psycopg2-binary==2.7.4
-py==1.5.2
+py==1.10.0
 pycparser==2.18
 PyJWT==1.6.1
 pylint==1.8.2
