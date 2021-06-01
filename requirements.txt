@@ -66,7 +66,7 @@ six==1.11.0
 SQLAlchemy==1.2.5
 stevedore==1.21.0
 tabulate==0.7.7
-urllib3==1.22
+urllib3==1.26.5
 virtualenv==15.1.0
 virtualenv-clone==0.2.6
 virtualenvwrapper==4.7.2
